@@ -1,0 +1,21 @@
+plugins {
+    id 'java'
+}
+
+group 'FLLControllPanel'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+	compile group: 'org.jsoup', name: 'jsoup', version: '1.12.1'
+	compile group: 'org.apache.poi', name: 'poi', version: '4.1.1'
+	compile group: 'org.apache.poi', name: 'poi-ooxml', version: '4.1.1'
+	compile group: 'org.apache.commons', name: 'commons-text', version: '1.8'
+	compile group: 'commons-net', name: 'commons-net', version: '3.6'
+}
