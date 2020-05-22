@@ -32,19 +32,32 @@ public class ControlApplication extends Application {
 
 	@Override
 	public void start(final Stage stage) throws Exception {
+		// Grid panes
+		AnchorPane windowRoot = new AnchorPane();
 
-		AnchorPane windomRoot = new AnchorPane();
-
-		//rot Grid Pane: 0 Top Buttons, 1 Table
+		//root Grid Pane: 0 Top Buttons, 1 Table
 
 		GridPane root = new GridPane();
 
+		//top buttons grid pane
+		GridPane tbp = new GridPane();
+		root.add(tbp, 0, 0);
+
+		// left right buttons subpane
+		GridPane lrp = new GridPane();
+		tbp.add(lrp, 1, 0);
+
+
 		//Buttons
 		Button left_arrow = new Button("links");
+		lrp.add(left_arrow, 0, 0);
 		Button right_arrow = new Button("rechts");
+		lrp.add(right_arrow, 1, 0);
 		Button Download_file = new Button("Download Scoreboard");
+		tbp.add(Download_file, 0, 1);
 
 		CheckBox Autodelay = new CheckBox("Auto"); // einzige Checkbox
+		tbp.add(Autodelay, 2, 0);
 
 		//Table
 
@@ -99,16 +112,16 @@ public class ControlApplication extends Application {
 		clock.setCycleCount(Animation.INDEFINITE);
 		clock.play();
 
-		windomRoot.getChildren().addAll(root, statusBar);
+		windowRoot.getChildren().addAll(root, statusBar);
 		AnchorPane.setBottomAnchor(statusBar, 0.0);
 		AnchorPane.setLeftAnchor(statusBar, 0.0);
 		AnchorPane.setRightAnchor(statusBar, 0.0);
 
-		Scene scene = new Scene(windomRoot);
+		Scene scene = new Scene(windowRoot);
 
 		stage.setScene(scene);
 
-		stage.setTitle("FLL Control Panel");
+		stage.setTitle("KuC Control Ball");
 		stage.setWidth(1150);
 		stage.setHeight(650);
 		stage.show();
