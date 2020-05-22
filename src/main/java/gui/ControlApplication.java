@@ -90,7 +90,6 @@ public class ControlApplication extends Application {
 		//Table
 
 		TableView<RobotGameTimeSlot> tableView = new TableView<>();
-
 		TableColumn<RobotGameTimeSlot, LocalTime> time = new TableColumn<>("Time");
 		time.setCellValueFactory(new PropertyValueFactory<>("time"));
 		time.setCellFactory(robotGameTimeSlotStringTableColumn -> new TableCell<RobotGameTimeSlot, LocalTime>() {
