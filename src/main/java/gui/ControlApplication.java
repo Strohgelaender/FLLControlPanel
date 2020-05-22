@@ -36,7 +36,7 @@ public class ControlApplication extends Application {
         Button right_arrow = new Button("rechts");
         Button Download_file = new Button("Download Scoreboard");
 
-        CheckBox Autodelay = new CheckBox("Auto");
+        CheckBox Autodelay = new CheckBox("Auto"); // einzige Checkbox
 
         //Table
 
