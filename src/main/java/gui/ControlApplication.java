@@ -3,7 +3,8 @@ package gui;
 import java.time.LocalTime;
 import java.util.Collections;
 
-import javafx.scene.control.CheckBox;
+import com.sun.javafx.scene.layout.region.LayeredBackgroundPositionConverter;
+import javafx.scene.control.*;
 
 import org.controlsfx.control.StatusBar;
 
@@ -14,11 +15,7 @@ import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
@@ -47,17 +44,28 @@ public class ControlApplication extends Application {
 		GridPane lrp = new GridPane();
 		tbp.add(lrp, 1, 0);
 
+		// delay subpane
+		GridPane dlp = new GridPane();
+		tbp.add(dlp, 2, 1);
+
 
 		//Buttons
 		Button left_arrow = new Button("links");
 		lrp.add(left_arrow, 0, 0);
 		Button right_arrow = new Button("rechts");
 		lrp.add(right_arrow, 1, 0);
-		Button Download_file = new Button("Download Scoreboard");
-		tbp.add(Download_file, 0, 1);
+		Button download_file = new Button("Download Scoreboard");
+		tbp.add(download_file, 0, 1);
 
-		CheckBox Autodelay = new CheckBox("Auto"); // einzige Checkbox
-		tbp.add(Autodelay, 2, 0);
+		CheckBox autodelay = new CheckBox("Auto"); // einzige Checkbox
+		tbp.add(autodelay, 2, 0);
+
+		// Labels
+		Label delay_info = new Label("Delay:");
+		dlp.add(delay_info, 0, 0);
+		Label delay_value = new Label("00:00:00");
+		dlp.add(delay_value, 1, 0);
+
 
 		//Table
 
