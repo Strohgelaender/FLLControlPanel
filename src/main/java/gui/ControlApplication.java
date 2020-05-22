@@ -1,12 +1,9 @@
 package gui;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-
-import com.sun.javafx.scene.layout.region.LayeredBackgroundPositionConverter;
-import javafx.scene.control.*;
+import java.util.List;
 
 import org.controlsfx.control.StatusBar;
 
@@ -14,14 +11,26 @@ import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import javafx.util.Duration;
 import struct.RobotGameTimeSlot;
 import struct.Table;
@@ -93,8 +102,9 @@ public class ControlApplication extends Application {
 			}
 		});
 
-		TableColumn<RobotGameTimeSlot, Team> teamA = new TableColumn<>("Team");
-		teamA.setCellValueFactory(new PropertyValueFactory<>("teamA"));
+		TableColumn<RobotGameTimeSlot, Property<Team>> teamA = new TableColumn<>("Team");
+		teamA.setCellValueFactory(i -> createTeamValue(i, t -> t.getTeamA()));
+		teamA.setCellFactory(this::createTeamComboBoxCell);
 
 		TableColumn<RobotGameTimeSlot, Table> tableA = new TableColumn<>("TischA");
 		tableA.setCellValueFactory(new PropertyValueFactory<>("tableA"));
@@ -102,10 +112,11 @@ public class ControlApplication extends Application {
 		TableColumn<RobotGameTimeSlot, Table> tableB = new TableColumn<>("TischB");
 		tableB.setCellValueFactory(new PropertyValueFactory<>("tableB"));
 
-		TableColumn<RobotGameTimeSlot, Team> teamB = new TableColumn<>("Team");
-		teamB.setCellValueFactory(new PropertyValueFactory<>("teamB"));
+		TableColumn<RobotGameTimeSlot, Property<Team>> teamB = new TableColumn<>("Team");
+		teamB.setCellValueFactory(i -> createTeamValue(i, t -> t.getTeamB()));
+		teamB.setCellFactory(this::createTeamComboBoxCell);
 
-		tableView.setItems(FXCollections.observableList(Collections.singletonList(new RobotGameTimeSlot(new Team("GO Robot", 1), new Team("RoboGO", 2), new Table("1"), new Table("2"), LocalTime.now()))));
+		tableView.setItems(FXCollections.observableList(Collections.singletonList(new RobotGameTimeSlot(getAllTeams().get(0), getAllTeams().get(1), new Table("1"), new Table("2"), LocalTime.now()))));
 
 
 		teamA.setPrefWidth(200);
@@ -150,6 +161,32 @@ public class ControlApplication extends Application {
 		if (num < 10)
 			return "0" + num;
 		return "" + num;
+	}
+
+	private static final List<Team> teams = Arrays.asList(new Team("GO Robot", 1), new Team("RoboGO", 2), new Team("NEEDSNONAME", 3));
+
+	private List<Team> getAllTeams() {
+		//TODO das sind erstmal nur TestDaten
+		return teams;
+	}
+
+	private ObservableValue<Property<Team>> createTeamValue(TableColumn.CellDataFeatures<RobotGameTimeSlot, Property<Team>> i, Callback<RobotGameTimeSlot, Team> tcb) {
+		return Bindings.createObjectBinding(() -> new SimpleObjectProperty<>(tcb.call(i.getValue())));
+	}
+
+	private TableCell<RobotGameTimeSlot, Property<Team>> createTeamComboBoxCell(TableColumn<RobotGameTimeSlot, Property<Team>> col) {
+		TableCell<RobotGameTimeSlot, Property<Team>> cell = new TableCell<>();
+		ComboBox<Team> comboBox = new ComboBox<>(FXCollections.observableList(getAllTeams()));
+		cell.itemProperty().addListener((observable, oldValue, newValue) -> {
+			if (oldValue != null) {
+				comboBox.valueProperty().unbindBidirectional(oldValue);
+			}
+			if (newValue != null) {
+				comboBox.valueProperty().bindBidirectional(newValue);
+			}
+		});
+		cell.graphicProperty().bind(Bindings.when(cell.emptyProperty()).then((Node) null).otherwise(comboBox));
+		return cell;
 	}
 
 	public static void main(String[] args) {
