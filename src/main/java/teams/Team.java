@@ -24,12 +24,24 @@ public class Team {
 		return round1;
 	}
 
+	public void setRound1(final int round1) {
+		this.round1 = round1;
+	}
+
 	public int getRound2() {
 		return round2;
 	}
 
+	public void setRound2(final int round2) {
+		this.round2 = round2;
+	}
+
 	public int getRound3() {
 		return round3;
+	}
+
+	public void setRound3(final int round3) {
+		this.round3 = round3;
 	}
 
 	public String getName() {
@@ -40,24 +52,8 @@ public class Team {
 		return rank;
 	}
 
-	public void setRound1(final int round1) {
-		this.round1 = round1;
-	}
-
-	public void setRound2(final int round2) {
-		this.round2 = round2;
-	}
-
-	public void setRound3(final int round3) {
-		this.round3 = round3;
-	}
-
 	public void setRank(final int rank) {
 		this.rank = rank;
-	}
-
-	public void setQF(final int QF) {
-		this.QF = QF;
 	}
 
 	public void setRound(int round, int points) {
@@ -94,9 +90,13 @@ public class Team {
 		return QF;
 	}
 
+	public void setQF(final int QF) {
+		this.QF = QF;
+	}
+
 	@Override
 	public String toString() {
-		return  name + " [" +  id + "] ";
+		return name + " [" + id + "] ";
 	}
 
 	public int getInternalNumber() {

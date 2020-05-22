@@ -13,15 +13,13 @@ import org.apache.commons.net.telnet.TerminalTypeOptionHandler;
 
 public class FoobarTelnetClient implements Runnable {
 
+	public static final File nowPlaying = new File("C:\\Users\\Lucas Welscher\\Desktop\\FLL\\nowPlaying.xml");
 	private static final String IP_OF_MUSIC_PC = "localhost"; //TODO
 	private static final int PORT_OF_MUSIC_PC = 3333; //TODO
-
-	public static final File nowPlaying = new File("C:\\Users\\Lucas Welscher\\Desktop\\FLL\\nowPlaying.xml");
-
-
 	private final TelnetClient client;
 	private Thread reader;
 	private boolean active = true;
+	private MusicThread musicThread;
 
 	public FoobarTelnetClient() {
 		client = new TelnetClient();
@@ -39,6 +37,11 @@ public class FoobarTelnetClient implements Runnable {
 		}
 	}
 
+	public static void main(String[] args) throws InterruptedException {
+		new FoobarTelnetClient().connect();
+		Thread.sleep(5000000L);
+	}
+
 	public void connect() {
 		//TODO warum ist das in einem Loop?
 		//reconnect irendwie machen -  das hier als nichmal eigener Thread?
@@ -52,7 +55,6 @@ public class FoobarTelnetClient implements Runnable {
 		}
 	}
 
-
 	//TODO register as Shutdown handler
 	public void disconnect(boolean removeShutdownHandler) {
 		try {
@@ -65,8 +67,6 @@ public class FoobarTelnetClient implements Runnable {
 			//TODO remove shutdown handler
 		}
 	}
-
-	private MusicThread musicThread;
 
 	@Override
 	public void run() {
@@ -113,16 +113,11 @@ public class FoobarTelnetClient implements Runnable {
 		return client.isConnected();
 	}
 
-	public boolean isOutputActive(){
+	public boolean isOutputActive() {
 		return active;
 	}
 
 	public void setActive(final boolean active) {
 		this.active = active;
-	}
-
-	public static void main(String[] args) throws InterruptedException {
-		new FoobarTelnetClient().connect();
-		Thread.sleep(5000000L);
 	}
 }

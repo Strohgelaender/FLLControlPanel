@@ -41,16 +41,18 @@ import telnet.FoobarTelnetClient;
 
 public class MainApplication extends Application {
 
+	private final File teamA = new File("C:\\Users\\Lucas Welscher\\Desktop\\teama.txt");
+	private final File teamB = new File("C:\\Users\\Lucas Welscher\\Desktop\\teamb.txt");
+	private final TeamSelectionComboBox selectTeamA = new TeamSelectionComboBox(teamA, 0);
+	private final TeamSelectionComboBox selectTeamB = new TeamSelectionComboBox(teamB, 1);
+	private final FoobarTelnetClient foobarTelnetClient = new FoobarTelnetClient();
 	private HashMap<Integer, Team> teams = new HashMap<>();
 	private File presentation = new File("C:\\Users\\Lucas Welscher\\Documents\\FLL Regio München\\Scores.pptx");
 
-	private final File teamA = new File("C:\\Users\\Lucas Welscher\\Desktop\\teama.txt");
-	private final File teamB = new File("C:\\Users\\Lucas Welscher\\Desktop\\teamb.txt");
+	public static void main(String[] args) {
+		launch(args);
+	}
 
-	private final TeamSelectionComboBox selectTeamA = new TeamSelectionComboBox(teamA, 0);
-	private final TeamSelectionComboBox selectTeamB = new TeamSelectionComboBox(teamB, 1);
-
-	private final FoobarTelnetClient foobarTelnetClient = new FoobarTelnetClient();
 	@Override
 	public void start(final Stage stage) throws Exception {
 		String url = "http://et.hands-on-technology.de";
@@ -284,9 +286,5 @@ public class MainApplication extends Application {
 		textRun.setFontFamily("Open Sans Semibold");
 		textRun.setFontColor(Color.WHITE);
 		textRun.setFontSize(26d);
-	}
-
-	public static void main(String[] args) {
-		launch(args);
 	}
 }

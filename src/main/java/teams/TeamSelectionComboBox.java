@@ -15,12 +15,11 @@ import javafx.scene.control.ComboBox;
 
 public class TeamSelectionComboBox extends ComboBox<Team> {
 
-	private RoundMode roundMode;
 	private static final Path interviews = Paths.get("C:\\Users\\Lucas Welscher\\Desktop\\Interviews");
-	private final Path destination;
-
 	private static final List<Integer> round2Order = Arrays.asList(2, 3, 1, 5, 4, 6, 8, 9, 7, 11, 10, 12, 14, 15, 13, 17, 16, 18, 20, 21, 19, 23, 22);
 	private static final List<Integer> round3Order = Arrays.asList(3, 1, 6, 2, 4, 5, 9, 7, 12, 8, 10, 11, 15, 13, 18, 14, 16, 18, 21, 19, 20, 22, 23);
+	private final Path destination;
+	private RoundMode roundMode;
 
 	public TeamSelectionComboBox(final File output, final int num) {
 

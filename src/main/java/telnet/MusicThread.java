@@ -25,12 +25,12 @@ class MusicThread extends Thread {
 	private String customEscape(String string) {
 		return StringEscapeUtils.escapeHtml4(
 				string.replace("ñ", "&ntilde;")
-				.replace("ä", "&auml;")
-				.replace("Ä", "&Auml;")
-				.replace("ö", "&ouml;")
-				.replace("Ö", "&Ouml;")
-				.replace("ü", "&uuml;")
-				.replace("Ü", "&Uuml;")
+						.replace("ä", "&auml;")
+						.replace("Ä", "&Auml;")
+						.replace("ö", "&ouml;")
+						.replace("Ö", "&Ouml;")
+						.replace("ü", "&uuml;")
+						.replace("Ü", "&Uuml;")
 		);
 	}
 
