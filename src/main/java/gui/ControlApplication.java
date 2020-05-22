@@ -1,6 +1,8 @@
 package gui;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 import com.sun.javafx.scene.layout.region.LayeredBackgroundPositionConverter;
@@ -48,6 +50,10 @@ public class ControlApplication extends Application {
 		GridPane dlp = new GridPane();
 		tbp.add(dlp, 2, 1);
 
+		// robotgameround subpane
+		GridPane rgr = new GridPane();
+		tbp.add(rgr, 0, 0);
+
 
 		//Buttons
 		Button left_arrow = new Button("links");
@@ -60,11 +66,16 @@ public class ControlApplication extends Application {
 		CheckBox autodelay = new CheckBox("Auto"); // einzige Checkbox
 		tbp.add(autodelay, 2, 0);
 
+		ComboBox rg_state = new ComboBox(FXCollections.observableList(Arrays.asList("1", "2", "3", "QF", "SF", "F I", "F II")));
+		rgr.add(rg_state, 1, 0);
+
 		// Labels
 		Label delay_info = new Label("Delay:");
 		dlp.add(delay_info, 0, 0);
 		Label delay_value = new Label("00:00:00");
 		dlp.add(delay_value, 1, 0);
+		Label rgr_info = new Label("Round:");
+		rgr.add(rgr_info, 0, 0);
 
 
 		//Table
