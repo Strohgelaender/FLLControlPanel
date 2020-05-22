@@ -75,7 +75,7 @@ public class ControlApplication extends Application {
 		CheckBox autodelay = new CheckBox("Auto"); // einzige Checkbox
 		tbp.add(autodelay, 2, 0);
 
-		ComboBox rg_state = new ComboBox(FXCollections.observableList(Arrays.asList("I", "II", "III", "QF", "SF", "F I", "F II")));
+		ComboBox rg_state = new ComboBox(FXCollections.observableList(Arrays.asList("Testrun", "Mittagsp.", "I", "II", "III", "QF", "SF", "F I", "F II", "Ende")));
 		rgr.add(rg_state, 1, 0);
 
 		// Labels
