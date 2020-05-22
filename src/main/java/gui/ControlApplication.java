@@ -3,6 +3,7 @@ package gui;
 import java.time.LocalTime;
 import java.util.Collections;
 
+import javafx.scene.control.CheckBox;
 import org.controlsfx.control.StatusBar;
 
 import javafx.animation.Animation;
@@ -42,9 +43,7 @@ public class ControlApplication extends Application {
 		Button right_arrow = new Button("rechts");
 		Button Download_file = new Button("Download Scoreboard");
 
-		CheckBox Autodelay = new CheckBox("Auto");
-		GridPane buttonPane = new GridPane();
-
+        CheckBox Autodelay = new CheckBox("Auto"); // einzige Checkbox
 
 		//Table
 
