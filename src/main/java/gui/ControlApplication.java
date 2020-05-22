@@ -1,7 +1,12 @@
 package gui;
 
+import java.time.LocalTime;
+
 import org.controlsfx.control.StatusBar;
 
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -11,12 +16,15 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import struct.TimeSlot;
 
 public class ControlApplication extends Application {
 
 	@Override
 	public void start(final Stage stage) throws Exception {
+
+		AnchorPane windomRoot = new AnchorPane();
 
 		//rot Grid Pane: 0 Top Buttons, 1 Table
 
@@ -50,9 +58,19 @@ public class ControlApplication extends Application {
 		StatusBar statusBar = new StatusBar();
 		statusBar.setText("13:42:44");
 
-		root.add(statusBar, 0, 3);
+		Timeline clock = new Timeline(new KeyFrame(Duration.ZERO, actionEvent -> {
+			LocalTime localTime = LocalTime.now();
+			statusBar.setText(String.format("%s:%s:%s", addZeorsToNumber(localTime.getHour()), addZeorsToNumber(localTime.getMinute()), addZeorsToNumber(localTime.getSecond())));
+		}), new KeyFrame(Duration.seconds(1)));
+		clock.setCycleCount(Animation.INDEFINITE);
+		clock.play();
 
-		Scene scene = new Scene(root);
+		windomRoot.getChildren().addAll(root, statusBar);
+		AnchorPane.setBottomAnchor(statusBar, 0.0);
+		AnchorPane.setLeftAnchor(statusBar, 0.0);
+		AnchorPane.setRightAnchor(statusBar, 0.0);
+
+		Scene scene = new Scene(windomRoot);
 
 		stage.setScene(scene);
 
@@ -60,5 +78,11 @@ public class ControlApplication extends Application {
 		stage.setWidth(1150);
 		stage.setHeight(650);
 		stage.show();
+	}
+
+	private String addZeorsToNumber(int num) {
+		if (num < 10)
+			return "0" + num;
+		return "" + num;
 	}
 }
