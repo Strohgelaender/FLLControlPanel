@@ -132,4 +132,8 @@ public class ControlApplication extends Application {
 			return "0" + num;
 		return "" + num;
 	}
+
+	public static void main(String[] args) {
+		launch(args);
+	}
 }
