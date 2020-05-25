@@ -2,7 +2,6 @@ package gui;
 
 import java.time.LocalTime;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.controlsfx.control.StatusBar;
@@ -12,6 +11,8 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
@@ -25,6 +26,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
@@ -37,6 +39,23 @@ import struct.Table;
 import teams.Team;
 
 public class ControlApplication extends Application {
+
+	private ObjectProperty<RobotGameTimeSlot> activeSlot = new SimpleObjectProperty<>();
+
+	private TableView<RobotGameTimeSlot> tableView;
+
+	private static final List<Team> teams = Arrays.asList(new Team("GO Robot", 1), new Team("RoboGO", 2), new Team("NEEDSNONAME", 3));
+	private List<RobotGameTimeSlot> timeSlots = Arrays.asList(new RobotGameTimeSlot(teams.get(0), teams.get(1), new Table("1"), new Table("2"), LocalTime.now()), new RobotGameTimeSlot(teams.get(1), teams.get(2), new Table("3"), new Table("4"), LocalTime.MIDNIGHT));
+
+	private List<Team> getAllTeams() {
+		//TODO das sind erstmal nur TestDaten
+		return teams;
+	}
+
+	public List<RobotGameTimeSlot> getTimeSlots() {
+		//TODO Testdaten
+		return timeSlots;
+	}
 
 	@Override
 	public void start(final Stage stage) throws Exception {
@@ -89,16 +108,19 @@ public class ControlApplication extends Application {
 
 		//Table
 
-		TableView<RobotGameTimeSlot> tableView = new TableView<>();
+		tableView = new TableView<>();
 		TableColumn<RobotGameTimeSlot, LocalTime> time = new TableColumn<>("Time");
 		time.setCellValueFactory(new PropertyValueFactory<>("time"));
-		time.setCellFactory(robotGameTimeSlotStringTableColumn -> new TableCell<RobotGameTimeSlot, LocalTime>() {
-			@Override
-			protected void updateItem(final LocalTime item, final boolean empty) {
-				if (item != null) {
-					setText(String.format("%s:%s", addZerosToNumber(item.getHour()), addZerosToNumber(item.getMinute())));
+		time.setCellFactory(robotGameTimeSlotStringTableColumn -> {
+			TableCell<RobotGameTimeSlot, LocalTime> cell = new TableCell<>() {
+				@Override
+				protected void updateItem(final LocalTime item, final boolean empty) {
+					if (item != null) {
+						setText(String.format("%s:%s", addZerosToNumber(item.getHour()), addZerosToNumber(item.getMinute())));
+					}
 				}
-			}
+			};
+			return cell;
 		});
 
 		TableColumn<RobotGameTimeSlot, Property<Team>> teamA = new TableColumn<>("Team");
@@ -115,8 +137,18 @@ public class ControlApplication extends Application {
 		teamB.setCellValueFactory(i -> createTeamValue(i, t -> t.getTeamB()));
 		teamB.setCellFactory(this::createTeamComboBoxCell);
 
-		tableView.setItems(FXCollections.observableList(Collections.singletonList(new RobotGameTimeSlot(getAllTeams().get(0), getAllTeams().get(1), new Table("1"), new Table("2"), LocalTime.now()))));
+		tableView.setRowFactory(param -> {
+			TableRow<RobotGameTimeSlot> row = new TableRow<>();
 
+			BooleanBinding active = row.itemProperty().isEqualTo(activeSlot);
+			row.styleProperty().bind(Bindings.when(active)
+					.then(" -fx-background-color: lightgreen ;")
+					.otherwise(""));
+
+			return row;
+		});
+
+		tableView.setItems(FXCollections.observableList(getTimeSlots()));
 
 		teamA.setPrefWidth(200);
 
@@ -150,23 +182,26 @@ public class ControlApplication extends Application {
 
 		stage.setScene(scene);
 
+		setActiveSlot(getTimeSlots().get(0));
+
 		stage.setTitle("KuC Control Ball");
 		stage.setWidth(1150);
 		stage.setHeight(650);
 		stage.show();
+
+		new Thread(() -> {
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+			}
+			setActiveSlot(getTimeSlots().get(1));
+		}).start();
 	}
 
 	private String addZerosToNumber(int num) {
 		if (num < 10)
 			return "0" + num;
 		return "" + num;
-	}
-
-	private static final List<Team> teams = Arrays.asList(new Team("GO Robot", 1), new Team("RoboGO", 2), new Team("NEEDSNONAME", 3));
-
-	private List<Team> getAllTeams() {
-		//TODO das sind erstmal nur TestDaten
-		return teams;
 	}
 
 	private ObservableValue<Property<Team>> createTeamValue(TableColumn.CellDataFeatures<RobotGameTimeSlot, Property<Team>> i, Callback<RobotGameTimeSlot, Team> tcb) {
@@ -190,5 +225,9 @@ public class ControlApplication extends Application {
 
 	public static void main(String[] args) {
 		launch(args);
+	}
+
+	public void setActiveSlot(final RobotGameTimeSlot activeSlot) {
+		this.activeSlot.setValue(activeSlot);
 	}
 }
