@@ -4,6 +4,8 @@ import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import org.controlsfx.control.StatusBar;
 
 import javafx.animation.Animation;
@@ -86,8 +88,28 @@ public class ControlApplication extends Application {
 		//Buttons
 		Button left_arrow = new Button("links");
 		lrp.add(left_arrow, 0, 0);
+		left_arrow.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				int i = getTimeSlots().indexOf(activeSlot.getValue());
+				if (i != 0) {
+					setActiveSlot(getTimeSlots().get(i - 1));
+				} else {/* TODO zu vorheriger Tabelle springen*/}
+				;
+			}
+		});
 		Button right_arrow = new Button("rechts");
 		lrp.add(right_arrow, 1, 0);
+		right_arrow.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				int i = getTimeSlots().indexOf(activeSlot.getValue());
+				if (i != getTimeSlots().size() - 1) {
+					setActiveSlot(getTimeSlots().get(i + 1));
+				} else {/* TODO zu nächster Tabelle springen*/}
+				;
+			}
+		});
 		Button download_file = new Button("Download Scoreboard");
 		tbp.add(download_file, 0, 1);
 
