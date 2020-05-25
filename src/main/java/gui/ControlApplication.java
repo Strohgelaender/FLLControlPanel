@@ -96,7 +96,7 @@ public class ControlApplication extends Application {
 			@Override
 			protected void updateItem(final LocalTime item, final boolean empty) {
 				if (item != null) {
-					setText(String.format("%s:%s", addZeorsToNumber(item.getHour()), addZeorsToNumber(item.getMinute())));
+					setText(String.format("%s:%s", addZerosToNumber(item.getHour()), addZerosToNumber(item.getMinute())));
 				}
 			}
 		});
@@ -136,7 +136,7 @@ public class ControlApplication extends Application {
 
 		Timeline clock = new Timeline(new KeyFrame(Duration.ZERO, actionEvent -> {
 			LocalTime localTime = LocalTime.now();
-			statusBar.setText(String.format("%s:%s:%s", addZeorsToNumber(localTime.getHour()), addZeorsToNumber(localTime.getMinute()), addZeorsToNumber(localTime.getSecond())));
+			statusBar.setText(String.format("%s:%s:%s", addZerosToNumber(localTime.getHour()), addZerosToNumber(localTime.getMinute()), addZerosToNumber(localTime.getSecond())));
 		}), new KeyFrame(Duration.seconds(1)));
 		clock.setCycleCount(Animation.INDEFINITE);
 		clock.play();
@@ -156,7 +156,7 @@ public class ControlApplication extends Application {
 		stage.show();
 	}
 
-	private String addZeorsToNumber(int num) {
+	private String addZerosToNumber(int num) {
 		if (num < 10)
 			return "0" + num;
 		return "" + num;
