@@ -42,7 +42,7 @@ import teams.Team;
 
 public class ControlApplication extends Application {
 
-	private ObjectProperty<RobotGameTimeSlot> activeSlot = new SimpleObjectProperty<>();
+	private final ObjectProperty<RobotGameTimeSlot> activeSlot = new SimpleObjectProperty<>();
 
 	private TableView<RobotGameTimeSlot> tableView;
 
@@ -210,14 +210,6 @@ public class ControlApplication extends Application {
 		stage.setWidth(1150);
 		stage.setHeight(650);
 		stage.show();
-
-		new Thread(() -> {
-			try {
-				Thread.sleep(2000);
-			} catch (InterruptedException e) {
-			}
-			setActiveSlot(getTimeSlots().get(1));
-		}).start();
 	}
 
 	private String addZerosToNumber(int num) {
