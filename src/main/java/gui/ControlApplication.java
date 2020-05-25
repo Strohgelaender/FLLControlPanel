@@ -86,7 +86,7 @@ public class ControlApplication extends Application {
 
 
 		//Buttons
-		Button left_arrow = new Button("links");
+		Button left_arrow = new Button("<=");
 		lrp.add(left_arrow, 0, 0);
 		left_arrow.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
@@ -98,7 +98,7 @@ public class ControlApplication extends Application {
 				;
 			}
 		});
-		Button right_arrow = new Button("rechts");
+		Button right_arrow = new Button("=>");
 		lrp.add(right_arrow, 1, 0);
 		right_arrow.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
