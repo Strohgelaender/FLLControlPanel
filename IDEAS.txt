@@ -5,9 +5,19 @@ Ideen yay:
 
 
 
-//Optional
+// Optional
 
+Timer?
 
 
 
 //Weiterführendes
+
+
+
+
+//Grundlagen
+
+Oberfläche zur Kontrolle des Wettbewerbs.
+Zeigt aktuelles Team und Tisch an, sowie Verspätungen etc.
+Steuert Infobildschirme.
