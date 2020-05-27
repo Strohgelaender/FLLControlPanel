@@ -96,10 +96,9 @@ public class ControlApplication extends Application {
 		lrp.add(left_arrow, 0, 0);
 		left_arrow.setOnAction(event -> {
 			int i = getTimeSlots().indexOf(activeSlot.getValue());
-			if (i != 0) {
+			if (i > 0) {
 				setActiveSlot(getTimeSlots().get(i - 1));
 			} else {/* TODO zu vorheriger Tabelle springen*/}
-			;
 		});
 		Button right_arrow = new Button("->");
 		lrp.add(right_arrow, 1, 0);
@@ -115,12 +114,12 @@ public class ControlApplication extends Application {
 		Button download_file = new Button("Download Scoreboard");
 		tbp.add(download_file, 0, 1);
 
-		Button import_teams = new Button("Teams und Zeiten importieren");
+		Button import_teams = new Button("Import teams and times");
 		tbp.add(import_teams, 3, 0);
 		import_teams.setOnAction(actionEvent -> {
 			FileChooser fileChooser = new FileChooser();
-			fileChooser.setTitle("Zeitplan-Konfigurationsdatei auswählen");
-			fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel-Zeitplan", "*.xlsb"));
+			fileChooser.setTitle("Select Timetable-Generator-File");
+			fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel-Timetable", "*.xlsb"));
 			File sheet = fileChooser.showOpenDialog(stage);
 			Importer.importFile(sheet);
 		});

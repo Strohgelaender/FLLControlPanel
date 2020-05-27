@@ -1,7 +1,7 @@
 Ideen yay:
 
 // TODO - Wichtig
-
+Konfiguration speichern
 
 
 
@@ -13,7 +13,8 @@ Timer?
 
 //Weiterführendes
 
-
+Support für andere Importmöglichkeiten
+Manuelles festlegen von Teams und Robotgame-Runden
 
 
 //Grundlagen
