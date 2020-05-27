@@ -1,11 +1,13 @@
 package gui;
 
+import java.io.File;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+
 import org.controlsfx.control.StatusBar;
 
 import javafx.animation.Animation;
@@ -33,6 +35,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.Duration;
@@ -86,6 +89,8 @@ public class ControlApplication extends Application {
 
 
 		//Buttons
+
+		// Wählen der aktuellen Runde
 		Button left_arrow = new Button("<-");
 		lrp.add(left_arrow, 0, 0);
 		left_arrow.setOnAction(new EventHandler<ActionEvent>() {
@@ -107,17 +112,29 @@ public class ControlApplication extends Application {
 				if (i != getTimeSlots().size() - 1) {
 					setActiveSlot(getTimeSlots().get(i + 1));
 				} else {/* TODO zu nächster Tabelle springen*/}
-				;
 			}
 		});
+
+		//Rest
+
 		Button download_file = new Button("Download Scoreboard");
 		tbp.add(download_file, 0, 1);
+
+		Button import_teams = new Button("Teams und Zeiten importieren");
+		tbp.add(import_teams, 3, 0);
+		import_teams.setOnAction(actionEvent -> {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Zeitplan-Konfigurationsdatei auswählen");
+			fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel-Zeitplan", "*.xlsb"));
+			File sheet = fileChooser.showOpenDialog(stage);
+		});
 
 		CheckBox autodelay = new CheckBox("Auto"); // einzige Checkbox
 		tbp.add(autodelay, 2, 0);
 
 		ComboBox rg_state = new ComboBox(FXCollections.observableList(Arrays.asList("Testrun", "Mittagsp.", "I", "II", "III", "QF", "SF", "F I", "F II", "Ende")));
 		rgr.add(rg_state, 1, 0);
+
 
 		// Labels
 		Label delay_info = new Label("Delay:");
