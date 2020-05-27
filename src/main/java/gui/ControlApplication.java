@@ -39,6 +39,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.Duration;
+import struct.Importer;
 import struct.RobotGameTimeSlot;
 import struct.Table;
 import teams.Team;
@@ -93,26 +94,20 @@ public class ControlApplication extends Application {
 		// Wählen der aktuellen Runde
 		Button left_arrow = new Button("<-");
 		lrp.add(left_arrow, 0, 0);
-		left_arrow.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				int i = getTimeSlots().indexOf(activeSlot.getValue());
-				if (i != 0) {
-					setActiveSlot(getTimeSlots().get(i - 1));
-				} else {/* TODO zu vorheriger Tabelle springen*/}
-				;
-			}
+		left_arrow.setOnAction(event -> {
+			int i = getTimeSlots().indexOf(activeSlot.getValue());
+			if (i != 0) {
+				setActiveSlot(getTimeSlots().get(i - 1));
+			} else {/* TODO zu vorheriger Tabelle springen*/}
+			;
 		});
 		Button right_arrow = new Button("->");
 		lrp.add(right_arrow, 1, 0);
-		right_arrow.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				int i = getTimeSlots().indexOf(activeSlot.getValue());
-				if (i != getTimeSlots().size() - 1) {
-					setActiveSlot(getTimeSlots().get(i + 1));
-				} else {/* TODO zu nächster Tabelle springen*/}
-			}
+		right_arrow.setOnAction(event -> {
+			int i = getTimeSlots().indexOf(activeSlot.getValue());
+			if (i != getTimeSlots().size() - 1) {
+				setActiveSlot(getTimeSlots().get(i + 1));
+			} else {/* TODO zu nächster Tabelle springen*/}
 		});
 
 		//Rest
@@ -127,6 +122,7 @@ public class ControlApplication extends Application {
 			fileChooser.setTitle("Zeitplan-Konfigurationsdatei auswählen");
 			fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel-Zeitplan", "*.xlsb"));
 			File sheet = fileChooser.showOpenDialog(stage);
+			Importer.importFile(sheet);
 		});
 
 		CheckBox autodelay = new CheckBox("Auto"); // einzige Checkbox
