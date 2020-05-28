@@ -1,5 +1,8 @@
 package gui;
 
+import static struct.Controller.getTeams;
+import static struct.Controller.getTimeSlots;
+
 import java.io.File;
 import java.time.LocalTime;
 import java.util.Arrays;
@@ -39,6 +42,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.Duration;
+import struct.Controller;
 import struct.Importer;
 import struct.RobotGameTimeSlot;
 import struct.Table;
@@ -51,20 +55,14 @@ public class ControlApplication extends Application {
 	private TableView<RobotGameTimeSlot> tableView;
 
 	private static final List<Team> teams = Arrays.asList(new Team("GO Robot", 1), new Team("RoboGO", 2), new Team("NEEDSNONAME", 3));
-	private List<RobotGameTimeSlot> timeSlots = Arrays.asList(new RobotGameTimeSlot(teams.get(0), teams.get(1), new Table("1"), new Table("2"), LocalTime.now()), new RobotGameTimeSlot(teams.get(1), teams.get(2), new Table("3"), new Table("4"), LocalTime.MIDNIGHT));
-
-	private List<Team> getAllTeams() {
-		//TODO das sind erstmal nur TestDaten
-		return teams;
-	}
-
-	public List<RobotGameTimeSlot> getTimeSlots() {
-		//TODO Testdaten
-		return timeSlots;
-	}
+	private final List<RobotGameTimeSlot> timeSlots = Arrays.asList(new RobotGameTimeSlot(teams.get(0), teams.get(1), new Table("1"), new Table("2"), LocalTime.now()), new RobotGameTimeSlot(teams.get(1), teams.get(2), new Table("3"), new Table("4"), LocalTime.MIDNIGHT));
 
 	@Override
 	public void start(final Stage stage) throws Exception {
+
+		Controller.setTeams(teams);
+		Controller.setTimeSlots(timeSlots);
+
 		// Grid panes
 		AnchorPane windowRoot = new AnchorPane();
 
@@ -236,7 +234,7 @@ public class ControlApplication extends Application {
 
 	private TableCell<RobotGameTimeSlot, Property<Team>> createTeamComboBoxCell(TableColumn<RobotGameTimeSlot, Property<Team>> col) {
 		TableCell<RobotGameTimeSlot, Property<Team>> cell = new TableCell<>();
-		ComboBox<Team> comboBox = new ComboBox<>(FXCollections.observableList(getAllTeams()));
+		ComboBox<Team> comboBox = new ComboBox<>(FXCollections.observableList(getTeams()));
 		cell.itemProperty().addListener((observable, oldValue, newValue) -> {
 			if (oldValue != null) {
 				comboBox.valueProperty().unbindBidirectional(oldValue);
