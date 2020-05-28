@@ -3,6 +3,8 @@ package struct;
 import java.io.File;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -14,10 +16,13 @@ import org.apache.poi.xssf.binary.XSSFBStylesTable;
 import org.apache.poi.xssf.eventusermodel.XSSFBReader;
 import org.apache.poi.xssf.eventusermodel.XSSFSheetXMLHandler;
 import org.apache.poi.xssf.usermodel.XSSFComment;
+import org.apache.xmlbeans.impl.xb.xsdschema.ListDocument;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+
+import teams.Team;
 
 public class Importer {
 
@@ -114,11 +119,21 @@ public class Importer {
 
 			NodeList teams = rows.item(juryTableRow - 2).getChildNodes();
 
-			for (int i = 0; i < teams.getLength(); i++) {
+			Node tt;
+			List<Team> teamList = new ArrayList<>();
+			for (int i = 1; i < teams.getLength(); i += 2) {
+				tt = teams.item(i);
+				if (tt.getAttributes() == null)
+					continue;
+				String ttName = tt.getTextContent().trim();
+				if (tt.getTextContent().trim().equals("Teams"))
+					continue;
+				if (ttName == "" || ttName == null)
+					break;
+				teamList.add(new Team(ttName, i / 2));
 
 			}
-
-
+			Controller.setTeams(teamList);
 
 		} catch (Exception e) {
 			e.printStackTrace();
