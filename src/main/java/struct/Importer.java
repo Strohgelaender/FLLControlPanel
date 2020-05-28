@@ -2,6 +2,9 @@ package struct;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.StringReader;
+
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.DataFormatter;
@@ -11,12 +14,18 @@ import org.apache.poi.xssf.binary.XSSFBStylesTable;
 import org.apache.poi.xssf.eventusermodel.XSSFBReader;
 import org.apache.poi.xssf.eventusermodel.XSSFSheetXMLHandler;
 import org.apache.poi.xssf.usermodel.XSSFComment;
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 public class Importer {
 
 	public static void importFile(File file) {
+		if (file == null || file.isDirectory() || !file.exists() || !file.canRead())
+			//TODO Fehlermeldung
+			return;
+
 		try (OPCPackage opcPackage = OPCPackage.open(file)) {
 
 			String xml = null;
@@ -29,6 +38,7 @@ public class Importer {
 				XSSFBReader.SheetIterator iterator = (XSSFBReader.SheetIterator) reader.getSheetsData();
 
 
+				//TODO das geht bestimmt irgendwie effizienter ohne Schleife...
 				while (iterator.hasNext()) {
 					InputStream is = iterator.next();
 
@@ -56,9 +66,58 @@ public class Importer {
 
 			System.out.println(xml);
 
-			Document document = DocumentHelper.parseText(xml);
+			Document document = DocumentBuilderFactory.newDefaultInstance().newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
 
-			System.out.println(document.getRootElement().getName());
+			NodeList rows = document.getChildNodes().item(0).getChildNodes();
+
+			int juryTableRow = -1;
+			//Schleife 1: Suche nach Jury-Tabelle
+			//Jury-Tabelle = 1. Tabelle mit "#1" in H-Spalte
+			juryLoop:
+			for (int i = 0; i < rows.getLength(); i++) {
+				Node row = rows.item(i);
+				if (!row.getNodeName().equals("tr"))
+					continue;
+
+				NodeList cells = row.getChildNodes();
+
+				for (int j = 0; j < cells.getLength(); j++) {
+					Node cell = cells.item(j);
+					if (cell.getAttributes() == null)
+						continue;
+					String cellName = cell.getAttributes().getNamedItem("ref").getTextContent();
+					String columnIndex = cellName.replaceAll("[0-9]", "");
+					if (columnIndex.charAt(0) < 72)
+						//Spalte vor H -> weitersuchen
+						continue;
+
+					if (columnIndex.length() > 1 || columnIndex.charAt(0) > 72) { //72 = H ASCI
+						//Keine Werte in H -> abbrechen
+						break;
+					}
+
+					if (!cell.getTextContent().equals("#1"))
+						break;
+
+					juryTableRow = i;
+					break juryLoop;
+				}
+			}
+
+			if (juryTableRow == -1) {
+				//TODO show Exeption to User
+				System.err.println("Jury Table not found!");
+				return;
+			}
+
+			//Tabelle über Zeitplan-Matrix = Teamnamen
+
+			NodeList teams = rows.item(juryTableRow - 2).getChildNodes();
+
+			for (int i = 0; i < teams.getLength(); i++) {
+
+			}
+
 
 
 		} catch (Exception e) {
@@ -66,6 +125,7 @@ public class Importer {
 		}
 	}
 
+	//TODO
 	private static class TestSheetHandler implements XSSFSheetXMLHandler.SheetContentsHandler {
 		private final StringBuilder sb = new StringBuilder();
 
