@@ -173,39 +173,42 @@ public class Importer {
 
 			if (rgrone == juryTableRow) {
 				//TODO show Exeption to User
-				System.err.println("RobotGameTable not found!");
+				System.err.println("Jury Table not found!");
 				return;
 			}
+
 			// Zeilen unter zweitem / dritten / viertem #1: Robotgame-Runden
-			//unfertig - TODO
 
 			for (int i = rgrone; i != 0; ) {
 
 				NodeList times = rows.item(rgrone + 2 * i).getChildNodes();
 
-				for (int j = 0; j < times.getLength(); j++) {
-					Node cell = times.item(j);
+				for (int j = 0; j < cells.getLength(); j++) {
+					Node cell = cells.item(j);
 					if (cell.getAttributes() == null)
 						continue;
 					String cellName = cell.getAttributes().getNamedItem("ref").getTextContent();
 					String columnIndex = cellName.replaceAll("[0-9]", "");
-					if (columnIndex.charAt(0) < 66)
-						//Spalte vor B -> weitersuchen
+					if (columnIndex.charAt(0) < 72)
+						//Spalte vor H -> weitersuchen
 						continue;
 
 					if (columnIndex.length() > 1 || columnIndex.charAt(0) > 72) { //72 = H ASCI
-						//Keine Werte in B -> TODO
+						//Keine Werte in H -> abbrechen
 						break;
 					}
 
+					if (!cell.getTextContent().equals("#1"))
+						break;
+
 				}
-
-				// unfertig Ende
-
-			} catch(Exception e){
-				e.printStackTrace();
 			}
+
+
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+	}
 
 	//TODO
 	private static class TestSheetHandler implements XSSFSheetXMLHandler.SheetContentsHandler {
