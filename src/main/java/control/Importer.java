@@ -109,7 +109,7 @@ public class Importer {
 						break;
 
 					juryTableRow = i;
-					break juryLoop;
+					break timesLoop;
 				}
 			}
 
@@ -145,6 +145,7 @@ public class Importer {
 
 			//Schleife 1: Suche nach Robot-Game-Tabelle
 			//RG-Tabelle = 2. Tabelle mit "#1" in H-Spalte
+			timesLoop:
 			for (int i = rgrone + 1; i < rows.getLength(); i++) {
 				Node row = rows.item(i);
 				if (!row.getNodeName().equals("tr"))
@@ -182,7 +183,8 @@ public class Importer {
 			}
 
 			// Zeilen unter zweitem / dritten / viertem #1: Robotgame-Runden
-
+			int rground = 1;
+			roundLoop:
 			for (int i = rgrone; i != 0; ) {
 
 				NodeList times = rows.item(rgrone + 2 * i).getChildNodes();
@@ -201,7 +203,11 @@ public class Importer {
 						//Keine Werte in B -> abbrechen
 						break;
 					}
-
+					if (columnIndex.charAt(0) == 66 && rground < 3) {
+						rground++;
+						continue roundLoop;
+					}
+					if (columnIndex.charAt(0) == 66 && rground == 3) break roundLoop;
 
 				}
 			}
