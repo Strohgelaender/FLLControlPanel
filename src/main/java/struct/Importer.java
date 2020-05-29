@@ -173,7 +173,7 @@ public class Importer {
 
 			if (rgrone == juryTableRow) {
 				//TODO show Exeption to User
-				System.err.println("Jury Table not found!");
+				System.err.println("RobotGameTimeTable not found!");
 				return;
 			}
 
@@ -183,18 +183,18 @@ public class Importer {
 
 				NodeList times = rows.item(rgrone + 2 * i).getChildNodes();
 
-				for (int j = 0; j < cells.getLength(); j++) {
-					Node cell = cells.item(j);
+				for (int j = 0; j < times.getLength(); j++) {
+					Node cell = times.item(j);
 					if (cell.getAttributes() == null)
 						continue;
 					String cellName = cell.getAttributes().getNamedItem("ref").getTextContent();
 					String columnIndex = cellName.replaceAll("[0-9]", "");
-					if (columnIndex.charAt(0) < 72)
-						//Spalte vor H -> weitersuchen
+					if (columnIndex.charAt(0) < 66)
+						//Spalte vor B -> weitersuchen
 						continue;
 
-					if (columnIndex.length() > 1 || columnIndex.charAt(0) > 72) { //72 = H ASCI
-						//Keine Werte in H -> abbrechen
+					if (columnIndex.length() > 1 || columnIndex.charAt(0) > 66) { //66 = B ASCI
+						//Keine Werte in B -> abbrechen
 						break;
 					}
 
