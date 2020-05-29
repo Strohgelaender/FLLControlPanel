@@ -1,4 +1,4 @@
-package struct;
+package entity;
 
 public class Table {
 

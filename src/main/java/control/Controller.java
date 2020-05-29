@@ -1,8 +1,10 @@
-package struct;
+package control;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import entity.RobotGameTimeSlot;
+import entity.Table;
 import teams.Team;
 
 public class Controller {

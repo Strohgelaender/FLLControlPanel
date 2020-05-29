@@ -1,4 +1,4 @@
-package struct;
+package entity;
 
 import java.time.LocalTime;
 

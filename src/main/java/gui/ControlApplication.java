@@ -1,7 +1,7 @@
 package gui;
 
-import static struct.Controller.getTeams;
-import static struct.Controller.getTimeSlots;
+import static control.Controller.getTeams;
+import static control.Controller.getTimeSlots;
 
 import java.io.File;
 import java.time.LocalTime;
@@ -42,10 +42,10 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.Duration;
-import struct.Controller;
-import struct.Importer;
-import struct.RobotGameTimeSlot;
-import struct.Table;
+import control.Controller;
+import control.Importer;
+import entity.RobotGameTimeSlot;
+import entity.Table;
 import teams.Team;
 
 public class ControlApplication extends Application {

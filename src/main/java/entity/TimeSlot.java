@@ -1,4 +1,4 @@
-package struct;
+package entity;
 
 public abstract class TimeSlot {
 }
