@@ -77,7 +77,7 @@ public class Importer {
 
 			int juryTableRow = -1;
 			//Schleife 1: Suche nach Jury-Tabelle
-			//Jury-Tabelle = 1. Tabelle mit "#1" in H-Spalte
+			//Jury-Tabelle = 2. Tabelle mit "#1" in H-Spalte
 			juryLoop:
 			for (int i = 0; i < rows.getLength(); i++) {
 				Node row = rows.item(i);
@@ -135,10 +135,77 @@ public class Importer {
 			}
 			Controller.setTeams(teamList);
 
-		} catch (Exception e) {
-			e.printStackTrace();
+			//Zeitplan importieren
+
+			int rgrone = juryTableRow;
+
+			//Schleife 1: Suche nach Robot-Game-Tabelle
+			//RG-Tabelle = 2. Tabelle mit "#1" in H-Spalte
+			for (int i = rgrone + 1; i < rows.getLength(); i++) {
+				Node row = rows.item(i);
+				if (!row.getNodeName().equals("tr"))
+					continue;
+
+				NodeList cells = row.getChildNodes();
+
+				for (int j = 0; j < cells.getLength(); j++) {
+					Node cell = cells.item(j);
+					if (cell.getAttributes() == null)
+						continue;
+					String cellName = cell.getAttributes().getNamedItem("ref").getTextContent();
+					String columnIndex = cellName.replaceAll("[0-9]", "");
+					if (columnIndex.charAt(0) < 72)
+						//Spalte vor H -> weitersuchen
+						continue;
+
+					if (columnIndex.length() > 1 || columnIndex.charAt(0) > 72) { //72 = H ASCI
+						//Keine Werte in H -> abbrechen
+						break;
+					}
+
+					if (!cell.getTextContent().equals("#1"))
+						break;
+
+					rgrone = i;
+					break juryLoop;
+				}
+			}
+
+			if (rgrone == juryTableRow) {
+				//TODO show Exeption to User
+				System.err.println("RobotGameTable not found!");
+				return;
+			}
+			// Zeilen unter zweitem / dritten / viertem #1: Robotgame-Runden
+			//unfertig - TODO
+
+			for (int i = rgrone; i != 0; ) {
+
+				NodeList times = rows.item(rgrone + 2 * i).getChildNodes();
+
+				for (int j = 0; j < times.getLength(); j++) {
+					Node cell = times.item(j);
+					if (cell.getAttributes() == null)
+						continue;
+					String cellName = cell.getAttributes().getNamedItem("ref").getTextContent();
+					String columnIndex = cellName.replaceAll("[0-9]", "");
+					if (columnIndex.charAt(0) < 66)
+						//Spalte vor B -> weitersuchen
+						continue;
+
+					if (columnIndex.length() > 1 || columnIndex.charAt(0) > 72) { //72 = H ASCI
+						//Keine Werte in B -> TODO
+						break;
+					}
+
+				}
+
+				// unfertig Ende
+
+			} catch(Exception e){
+				e.printStackTrace();
+			}
 		}
-	}
 
 	//TODO
 	private static class TestSheetHandler implements XSSFSheetXMLHandler.SheetContentsHandler {
