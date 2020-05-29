@@ -41,4 +41,12 @@ public class Controller {
 		Controller.timeSlots.clear();
 		Controller.timeSlots.addAll(timeSlots);
 	}
+
+	public static Team getTeamByName(String name) {
+		for (Team t : getTeams()) {
+			if (t.getName().equals(name))
+				return t;
+		}
+		return null;
+	}
 }

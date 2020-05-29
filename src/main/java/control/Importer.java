@@ -8,6 +8,8 @@ import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.xssf.binary.XSSFBSharedStringsTable;
@@ -16,6 +18,9 @@ import org.apache.poi.xssf.binary.XSSFBStylesTable;
 import org.apache.poi.xssf.eventusermodel.XSSFBReader;
 import org.apache.poi.xssf.eventusermodel.XSSFSheetXMLHandler;
 import org.apache.poi.xssf.usermodel.XSSFComment;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -166,7 +171,7 @@ public class Importer {
 						break;
 
 					rgrone = i;
-					break juryLoop;
+					break /*juryLoop*/;
 				}
 			}
 
@@ -204,6 +209,43 @@ public class Importer {
 
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	public static void importScores(XSSFWorkbook workbook) {
+		XSSFSheet sheet = workbook.getSheet("Robot Game Score");
+
+		for (int i = 0; i < 28; i++) {
+			XSSFRow row = sheet.getRow(3 + i);
+
+			if (row == null)
+				break;
+
+			String teamRaw = row.getCell(0).getStringCellValue();
+			int nameEnd = StringUtils.lastIndexOf(teamRaw, "[");
+			String teamName = StringEscapeUtils.unescapeHtml3(StringEscapeUtils.unescapeHtml4(teamRaw.substring(0, nameEnd).trim()));
+
+			Team team = Controller.getTeamByName(teamName);
+
+			if (team == null) {
+				System.out.println("No Team with name " + teamName + " found!");
+				//TODO handle (how?)
+				//continue;
+				//for debug:
+				team = new Team(teamName, i);
+				Controller.getTeams().add(team);
+			}
+
+			int game1 = (int) row.getCell(1).getNumericCellValue();
+			int game2 = (int) row.getCell(2).getNumericCellValue();
+			int game3 = (int) row.getCell(3).getNumericCellValue();
+
+			int qf = (int) row.getCell(5).getNumericCellValue();
+
+			team.setRound1(game1);
+			team.setRound2(game2);
+			team.setRound3(game3);
+			team.setQF(qf);
 		}
 	}
 

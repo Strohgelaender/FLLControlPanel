@@ -55,7 +55,7 @@ public class MainApplication extends Application {
 
 	@Override
 	public void start(final Stage stage) throws Exception {
-		String url = "http://et.hands-on-technology.de";
+		String url = "http://test.et.hands-on-technology.de";
 
 		Button selectPPP = new Button("Präsentation auswählen");
 		Button output = new Button("output");

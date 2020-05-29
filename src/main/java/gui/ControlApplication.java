@@ -8,11 +8,13 @@ import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-
 import org.controlsfx.control.StatusBar;
 
+import control.Controller;
+import control.Importer;
+import control.ScoreboardDownloader;
+import entity.RobotGameTimeSlot;
+import entity.Table;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -42,10 +44,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.Duration;
-import control.Controller;
-import control.Importer;
-import entity.RobotGameTimeSlot;
-import entity.Table;
 import teams.Team;
 
 public class ControlApplication extends Application {
@@ -121,6 +119,8 @@ public class ControlApplication extends Application {
 			File sheet = fileChooser.showOpenDialog(stage);
 			Importer.importFile(sheet);
 		});
+
+		download_file.setOnAction(event -> ScoreboardDownloader.downloadScoreboard());
 
 		CheckBox autodelay = new CheckBox("Auto"); // einzige Checkbox
 		tbp.add(autodelay, 2, 0);
@@ -215,6 +215,8 @@ public class ControlApplication extends Application {
 		stage.setScene(scene);
 
 		setActiveSlot(getTimeSlots().get(0));
+
+		ScoreboardDownloader.initLoginDialog(stage);
 
 		stage.setTitle("KuC Control Ball");
 		stage.setWidth(1150);
