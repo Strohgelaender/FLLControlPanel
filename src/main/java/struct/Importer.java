@@ -198,8 +198,6 @@ public class Importer {
 						break;
 					}
 
-					if (!cell.getTextContent().equals("#1"))
-						break;
 
 				}
 			}
