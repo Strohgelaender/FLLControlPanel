@@ -5,6 +5,7 @@ import static de.robogo.fll.control.FLLController.getTimeSlots;
 
 import java.io.File;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
@@ -52,6 +53,9 @@ import javafx.util.Duration;
 public class ControlApplication extends Application {
 
 	private static ConfigurableApplicationContext context;
+
+	private static final DateTimeFormatter HHmmFormatter = DateTimeFormatter.ofPattern("HH:mm");
+	private static final DateTimeFormatter HHmmssFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
 	private final ObjectProperty<RobotGameTimeSlot> activeSlot = new SimpleObjectProperty<>();
 
@@ -148,16 +152,13 @@ public class ControlApplication extends Application {
 		tableView = new TableView<>();
 		TableColumn<RobotGameTimeSlot, LocalTime> time = new TableColumn<>("Time");
 		time.setCellValueFactory(new PropertyValueFactory<>("time"));
-		time.setCellFactory(robotGameTimeSlotStringTableColumn -> {
-			TableCell<RobotGameTimeSlot, LocalTime> cell = new TableCell<>() {
-				@Override
-				protected void updateItem(final LocalTime item, final boolean empty) {
-					if (item != null) {
-						setText(String.format("%s:%s", addZerosToNumber(item.getHour()), addZerosToNumber(item.getMinute())));
-					}
+		time.setCellFactory(robotGameTimeSlotStringTableColumn -> new TableCell<>() {
+			@Override
+			protected void updateItem(final LocalTime item, final boolean empty) {
+				if (item != null) {
+					setText(HHmmFormatter.format(item));
 				}
-			};
-			return cell;
+			}
 		});
 
 		TableColumn<RobotGameTimeSlot, Property<Team>> teamA = new TableColumn<>("Team");
@@ -205,7 +206,7 @@ public class ControlApplication extends Application {
 
 		Timeline clock = new Timeline(new KeyFrame(Duration.ZERO, actionEvent -> {
 			LocalTime localTime = LocalTime.now();
-			statusBar.setText(String.format("%s:%s:%s", addZerosToNumber(localTime.getHour()), addZerosToNumber(localTime.getMinute()), addZerosToNumber(localTime.getSecond())));
+			statusBar.setText(HHmmssFormatter.format(localTime));
 		}), new KeyFrame(Duration.seconds(1)));
 		clock.setCycleCount(Animation.INDEFINITE);
 		clock.play();
@@ -239,12 +240,6 @@ public class ControlApplication extends Application {
 	public void stop() throws Exception {
 		super.stop();
 		context.close();
-	}
-
-	private String addZerosToNumber(int num) {
-		if (num < 10)
-			return "0" + num;
-		return "" + num;
 	}
 
 	private ObservableValue<Property<Team>> createTeamValue(TableColumn.CellDataFeatures<RobotGameTimeSlot, Property<Team>> i, Callback<RobotGameTimeSlot, Team> tcb) {
