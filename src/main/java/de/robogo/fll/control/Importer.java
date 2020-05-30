@@ -1,7 +1,5 @@
 package de.robogo.fll.control;
 
-import static de.robogo.fll.control.FLLController.getTableByNumber;
-
 import java.io.File;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -84,7 +82,7 @@ public class Importer {
 
 			NodeList rows = document.getChildNodes().item(0).getChildNodes();
 
-			int juryTableRow = findRowWithContent(rows, 0, 'H', "#1");
+			int juryTableRow = findRowWithContent(rows, 0, 'H', "^#1$");
 
 			if (juryTableRow == -1) {
 				//TODO show Exeption to User
@@ -103,10 +101,11 @@ public class Importer {
 				if (tt.getAttributes() == null)
 					continue;
 				String ttName = tt.getTextContent();
-				if (tt.getTextContent().trim().equals("Teams"))
-					continue;
 				if (ttName == null || ttName.equals(""))
 					break;
+				if (tt.getTextContent().trim().equals("Teams"))
+					continue;
+
 				teamList.add(new Team(ttName.trim(), i / 2));
 			}
 			FLLController.setTeams(teamList);
@@ -246,7 +245,7 @@ public class Importer {
 		}
 	}
 
-	private static int findRowWithContent(NodeList nodes, int startRow, char column, String content) {
+	private static int findRowWithContent(NodeList nodes, int startRow, char column, String regex) {
 		int retVal = -1;
 		outerLoop:
 		for (int i = startRow; i < nodes.getLength(); i++) {
@@ -273,7 +272,7 @@ public class Importer {
 					//Keine Werte in gesuchter Column -> innere Schleife abbrechen
 					break;
 
-				if (!cell.getTextContent().equals(content))
+				if (!cell.getTextContent().matches(regex))
 					//falscher Inhalt -> in nächster Reihe weitersuchen (äußere Schleife)
 					break;
 

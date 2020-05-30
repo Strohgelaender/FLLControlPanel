@@ -8,14 +8,17 @@ Konfiguration speichern
 // Optional
 
 Timer?
-
+OBS
+Musik (Foobar, noch andere?)
+Übersetzungen für die Screens
 
 
 //Weiterführendes
 
 Support für andere Importmöglichkeiten
 Manuelles festlegen von Teams und Robotgame-Runden
-
+Screen-Vorlagen
+GUI für Screen-Customization
 
 //Grundlagen
 
