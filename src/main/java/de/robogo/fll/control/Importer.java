@@ -81,39 +81,7 @@ public class Importer {
 
 			NodeList rows = document.getChildNodes().item(0).getChildNodes();
 
-			int juryTableRow = -1;
-			//Schleife 1: Suche nach Jury-Tabelle
-			//Jury-Tabelle = 2. Tabelle mit "#1" in H-Spalte
-			juryLoop:
-			for (int i = 0; i < rows.getLength(); i++) {
-				Node row = rows.item(i);
-				if (!row.getNodeName().equals("tr"))
-					continue;
-
-				NodeList cells = row.getChildNodes();
-
-				for (int j = 0; j < cells.getLength(); j++) {
-					Node cell = cells.item(j);
-					if (cell.getAttributes() == null)
-						continue;
-					String cellName = cell.getAttributes().getNamedItem("ref").getTextContent();
-					String columnIndex = cellName.replaceAll("[0-9]", "");
-					if (columnIndex.charAt(0) < 72)
-						//Spalte vor H -> weitersuchen
-						continue;
-
-					if (columnIndex.length() > 1 || columnIndex.charAt(0) > 72) { //72 = H ASCI
-						//Keine Werte in H -> abbrechen
-						break;
-					}
-
-					if (!cell.getTextContent().equals("#1"))
-						break;
-
-					juryTableRow = i;
-					break juryLoop;
-				}
-			}
+			int juryTableRow = findRowWithContent(rows, 0, 'H', "#1");
 
 			if (juryTableRow == -1) {
 				//TODO show Exeption to User
@@ -131,13 +99,12 @@ public class Importer {
 				tt = teams.item(i);
 				if (tt.getAttributes() == null)
 					continue;
-				String ttName = tt.getTextContent().trim();
+				String ttName = tt.getTextContent();
 				if (tt.getTextContent().trim().equals("Teams"))
 					continue;
-				if (ttName == "" || ttName == null)
+				if (ttName == null || ttName.equals(""))
 					break;
-				teamList.add(new Team(ttName, i / 2));
-
+				teamList.add(new Team(ttName.trim(), i / 2));
 			}
 			FLLController.setTeams(teamList);
 
@@ -228,6 +195,45 @@ public class Importer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private static int findRowWithContent(NodeList nodes, int startRow, char column, String content) {
+		int retVal = -1;
+		outerLoop:
+		for (int i = startRow; i < nodes.getLength(); i++) {
+			Node row = nodes.item(i);
+			if (!row.getNodeName().equals("tr"))
+				continue;
+
+			NodeList cells = row.getChildNodes();
+
+			for (int j = 0; j < cells.getLength(); j++) {
+				Node cell = cells.item(j);
+				if (cell.getAttributes() == null)
+					continue;
+
+				String cellName = cell.getAttributes().getNamedItem("ref").getTextContent();
+				String columnIndex = cellName.replaceAll("[0-9]", "");
+
+				if (columnIndex.charAt(0) < column)
+					//Spalte vor gesuchter Column -> weitersuchen
+					continue;
+
+
+				if (columnIndex.length() > 1 || columnIndex.charAt(0) > column)
+					//Keine Werte in gesuchter Column -> innere Schleife abbrechen
+					break;
+
+				if (!cell.getTextContent().equals(content))
+					//falscher Inhalt -> in nächster Reihe weitersuchen (äußere Schleife)
+					break;
+
+				//Inhalt gefunden
+				retVal = i;
+				break outerLoop;
+			}
+		}
+		return retVal;
 	}
 
 	public static void importScores(XSSFWorkbook workbook) {
