@@ -112,42 +112,9 @@ public class Importer {
 
 			//Zeitplan importieren
 
-			int rgrone = juryTableRow;
+			int rgrone = findRowWithContent(rows, juryTableRow + 1, 'H', "^#1$");
 
-			//Schleife 1: Suche nach Robot-Game-Tabelle
-			//RG-Tabelle = 2. Tabelle mit "#1" in H-Spalte
-			timesLoop:
-			for (int i = rgrone + 1; i < rows.getLength(); i++) {
-				Node row = rows.item(i);
-				if (!row.getNodeName().equals("tr"))
-					continue;
-
-				NodeList cells = row.getChildNodes();
-
-				for (int j = 0; j < cells.getLength(); j++) {
-					Node cell = cells.item(j);
-					if (cell.getAttributes() == null)
-						continue;
-					String cellName = cell.getAttributes().getNamedItem("ref").getTextContent();
-					String columnIndex = cellName.replaceAll("[0-9]", "");
-					if (columnIndex.charAt(0) < 72)
-						//Spalte vor H -> weitersuchen
-						continue;
-
-					if (columnIndex.length() > 1 || columnIndex.charAt(0) > 72) { //72 = H ASCI
-						//Keine Werte in H -> abbrechen
-						break;
-					}
-
-					if (!cell.getTextContent().equals("#1"))
-						break;
-
-					rgrone = i;
-					break timesLoop;
-				}
-			}
-
-			if (rgrone == juryTableRow) {
+			if (rgrone == -1) {
 				//TODO show Exeption to User
 				System.err.println("RobotGameTimeTable not found!");
 				return;
@@ -182,7 +149,6 @@ public class Importer {
 						break roundLoop;
 					}
 					if (columnIndex.charAt(0) == 68) {  // D = 68 in ASCII
-						cell.getTextContent();
 						temptime = LocalTime.parse(cell.getTextContent());
 						continue;
 					}
@@ -197,46 +163,51 @@ public class Importer {
 			//Finalrunden
 
 			int numberoffinals = 2;
+			int firstfinal = findRowWithContent(rows, rgff, 'H', "^[A-Z]*1[A-Z]*$");
+			if (rows.item(firstfinal).getChildNodes().getLength() > 20) numberoffinals = 3;
 
-			finalLoop:
-			for (int i = rgff; i < rows.getLength(); i++) {
-				Node row = rows.item(i);
-				if (!row.getNodeName().equals("tr"))
-					continue;
+			rground = 1;
+			finalroundloop:
+			for (int i = firstfinal + 2; i != 0; i += 2) {
 
-				NodeList cells = row.getChildNodes();
+				NodeList times = rows.item(i).getChildNodes();
+				LocalTime temptime = null;
+				int[] temptable = new int[2];
 
-				for (int j = 0; j < cells.getLength(); j++) {
-					Node cell = cells.item(j);
+				for (int j = 1; j < times.getLength(); j += 2) {
+					Node cell = times.item(j);
 					if (cell.getAttributes() == null)
 						continue;
 					String cellName = cell.getAttributes().getNamedItem("ref").getTextContent();
 					String columnIndex = cellName.replaceAll("[0-9]", "");
-					if (columnIndex.charAt(0) < 72)
-						//Spalte vor H -> weitersuchen
-						continue;
 
-					if (columnIndex.length() > 1 || columnIndex.charAt(0) > 72) { //72 = H ASCI
-						//Keine Werte in H -> abbrechen
-						break;
+					if (columnIndex.charAt(0) == 66 && rground < numberoffinals) { //B = 66 in ASCII
+						rground++;
+						continue finalroundloop;
 					}
-
-					if (!cell.getTextContent().replaceAll("[A-Z]", "").equals("1"))
-						break;
-
-					rgff = i;
-
-					if (cells.getLength() > 20) numberoffinals = 3;
-
-					break finalLoop;
+					if (columnIndex.charAt(0) == 66 && rground == numberoffinals) {
+						rgff = i;
+						break finalroundloop;
+					}
+					if (columnIndex.charAt(0) == 68) {  // D = 68 in ASCII
+						temptime = LocalTime.parse(cell.getTextContent());
+						continue;
+					}
+					temptable[j / 2 - 1] = Integer.parseInt(cell.getTextContent());
 				}
+				if (numberoffinals == 2)
+					roboslots.add(new RobotGameTimeSlot(null, null, FLLController.getTableByNumber(temptable[0]), FLLController.getTableByNumber(temptable[1]), temptime, RoundMode.values()[rground + 4]));
+				else
+					roboslots.add(new RobotGameTimeSlot(null, null, FLLController.getTableByNumber(temptable[0]), FLLController.getTableByNumber(temptable[1]), temptime, RoundMode.values()[rground + 3]));
+
 			}
 
 
+
+
 			for (int i = 0; i < numberoffinals; i++) {
+				int j = findRowWithContent(rows, rgff + 1, 'H', "^[A-Z]*1[A-Z]*$");
 
-
-				//findRowWithContent(rows, , , );
 			}
 
 
