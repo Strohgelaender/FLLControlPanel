@@ -17,6 +17,7 @@ import de.robogo.fll.control.FLLController;
 import de.robogo.fll.control.Importer;
 import de.robogo.fll.control.ScoreboardDownloader;
 import de.robogo.fll.entity.RobotGameTimeSlot;
+import de.robogo.fll.entity.RoundMode;
 import de.robogo.fll.entity.Table;
 import de.robogo.fll.entity.Team;
 import javafx.animation.Animation;
@@ -62,7 +63,7 @@ public class ControlApplication extends Application {
 	private TableView<RobotGameTimeSlot> tableView;
 
 	private static final List<Team> teams = Arrays.asList(new Team("GO Robot", 1), new Team("RoboGO", 2), new Team("NEEDSNONAME", 3));
-	private final List<RobotGameTimeSlot> timeSlots = Arrays.asList(new RobotGameTimeSlot(teams.get(0), teams.get(1), new Table("1"), new Table("2"), LocalTime.now()), new RobotGameTimeSlot(teams.get(1), teams.get(2), new Table("3"), new Table("4"), LocalTime.MIDNIGHT));
+	private final List<RobotGameTimeSlot> timeSlots = Arrays.asList(new RobotGameTimeSlot(teams.get(0), teams.get(1), new Table("1"), new Table("2"), LocalTime.now(), RoundMode.Round1), new RobotGameTimeSlot(teams.get(1), teams.get(2), new Table("3"), new Table("4"), LocalTime.MIDNIGHT, RoundMode.Round1));
 
 	@Override
 	public void start(final Stage stage) throws Exception {
@@ -134,7 +135,7 @@ public class ControlApplication extends Application {
 		CheckBox autodelay = new CheckBox("Auto"); // einzige Checkbox
 		tbp.add(autodelay, 2, 0);
 
-		ComboBox rg_state = new ComboBox(FXCollections.observableList(Arrays.asList("Testrun", "Mittagsp.", "I", "II", "III", "QF", "SF", "F I", "F II", "Ende")));
+		ComboBox rg_state = new ComboBox(FXCollections.observableArrayList(RoundMode.values()));
 		rgr.add(rg_state, 1, 0);
 
 

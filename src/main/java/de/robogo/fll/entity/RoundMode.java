@@ -2,5 +2,5 @@ package de.robogo.fll.entity;
 
 public enum RoundMode {
 
-	Runde1, Runde2, Runde3, Viertelfinale, Halbfinale, Finale
+	TestRound, Round1, Round2, Round3, QF, HF, Final
 }
