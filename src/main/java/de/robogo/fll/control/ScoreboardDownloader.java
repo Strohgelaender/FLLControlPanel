@@ -1,8 +1,11 @@
 package de.robogo.fll.control;
 
+import static de.robogo.fll.control.FLLController.getTeams;
+
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -14,6 +17,9 @@ import org.w3c.dom.html.HTMLElement;
 
 import com.sun.webkit.dom.HTMLAnchorElementImpl;
 
+import de.robogo.fll.entity.RobotGameTimeSlot;
+import de.robogo.fll.entity.RoundMode;
+import de.robogo.fll.entity.Team;
 import de.robogo.fll.gui.HoTLoginPromptDialog;
 import javafx.concurrent.Worker;
 import javafx.scene.control.ButtonType;
@@ -97,6 +103,11 @@ public final class ScoreboardDownloader {
 
 					Importer.importScores(wb);
 
+					//update QF / SF / Final - Teams
+					updateQFSFRounds(RoundMode.QF, Comparator.comparingInt(Team::getRank));
+					updateQFSFRounds(RoundMode.SF, Comparator.comparingInt(Team::getQF).reversed());
+					updateFinalRounds();
+
 				} catch (Exception e) {
 					//TODO show or handle Error
 					e.printStackTrace();
@@ -127,6 +138,31 @@ public final class ScoreboardDownloader {
 			loginDialog.getEngine().reload();
 		}
 
+	}
+
+	private static void updateQFSFRounds(RoundMode roundMode, Comparator<Team> comparator) {
+		List<RobotGameTimeSlot> timeSlots = FLLController.getTimeSlotsByRoundMode(roundMode);
+		if (!timeSlots.isEmpty()) {
+			getTeams().sort(comparator);
+			timeSlots.sort(Comparator.comparing(RobotGameTimeSlot::getTime));
+			for (int i = 0; i < timeSlots.size(); i++) {
+				RobotGameTimeSlot timeSlot = timeSlots.get(i);
+				timeSlot.setTeamA(getTeams().get(i));
+				timeSlot.setTeamB(getTeams().get(timeSlots.size() - i - 1));
+			}
+		}
+	}
+
+	private static void updateFinalRounds() {
+		List<RobotGameTimeSlot> timeSlots = FLLController.getTimeSlotsByRoundMode(RoundMode.Final);
+		if (timeSlots.size() == 2) {
+			getTeams().sort(Comparator.comparingInt(Team::getSF).reversed());
+			timeSlots.sort(Comparator.comparing(RobotGameTimeSlot::getTime));
+			timeSlots.get(0).setTeamA(getTeams().get(0));
+			timeSlots.get(0).setTeamB(getTeams().get(1));
+			timeSlots.get(1).setTeamA(getTeams().get(1));
+			timeSlots.get(1).setTeamB(getTeams().get(0));
+		}
 	}
 
 	public static void initLoginDialog(Stage stage) {

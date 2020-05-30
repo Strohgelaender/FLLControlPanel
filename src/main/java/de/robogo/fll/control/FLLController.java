@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import de.robogo.fll.entity.RobotGameTimeSlot;
+import de.robogo.fll.entity.RoundMode;
 import de.robogo.fll.entity.Table;
 import de.robogo.fll.entity.Team;
 
@@ -52,6 +53,15 @@ public class FLLController {
 				return t;
 		}
 		return null;
+	}
+
+	public static List<RobotGameTimeSlot> getTimeSlotsByRoundMode(RoundMode roundMode) {
+		List<RobotGameTimeSlot> retVal = new ArrayList<>();
+		for (RobotGameTimeSlot timeSlot : getTimeSlots()) {
+			if (timeSlot.getRoundMode().equals(roundMode))
+				retVal.add(timeSlot);
+		}
+		return retVal;
 	}
 
 	public static Table getTableByNumber(int num) {

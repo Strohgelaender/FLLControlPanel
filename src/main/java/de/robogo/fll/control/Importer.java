@@ -103,7 +103,7 @@ public class Importer {
 				String ttName = tt.getTextContent();
 				if (ttName == null || ttName.equals(""))
 					break;
-				if (tt.getTextContent().trim().equals("Teams"))
+				if (ttName.trim().equals("Teams"))
 					continue;
 
 				teamList.add(new Team(ttName.trim(), i / 2));

@@ -4,11 +4,11 @@ import java.time.LocalTime;
 
 public class RobotGameTimeSlot extends TimeSlot {
 
-	private final Team teamA;
-	private final Team teamB;
-	private final Table tableA;
-	private final Table tableB;
-	private final LocalTime time;
+	private Team teamA;
+	private Team teamB;
+	private Table tableA;
+	private Table tableB;
+	private LocalTime time;
 	private final RoundMode roundMode;
 	private Status status;
 
@@ -48,6 +48,30 @@ public class RobotGameTimeSlot extends TimeSlot {
 
 	public RoundMode getRoundMode() {
 		return roundMode;
+	}
+
+	public void setTableA(final Table tableA) {
+		this.tableA = tableA;
+	}
+
+	public void setStatus(final Status status) {
+		this.status = status;
+	}
+
+	public void setTableB(final Table tableB) {
+		this.tableB = tableB;
+	}
+
+	public void setTeamA(final Team teamA) {
+		this.teamA = teamA;
+	}
+
+	public void setTeamB(final Team teamB) {
+		this.teamB = teamB;
+	}
+
+	public void setTime(final LocalTime time) {
+		this.time = time;
 	}
 
 	public enum Status {
