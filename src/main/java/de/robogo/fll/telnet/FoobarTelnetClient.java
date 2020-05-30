@@ -1,4 +1,4 @@
-package telnet;
+package de.robogo.fll.telnet;
 
 import java.io.BufferedReader;
 import java.io.File;

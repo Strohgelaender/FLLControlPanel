@@ -1,4 +1,4 @@
-package control;
+package de.robogo.fll.control;
 
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
@@ -14,7 +14,7 @@ import org.w3c.dom.html.HTMLElement;
 
 import com.sun.webkit.dom.HTMLAnchorElementImpl;
 
-import gui.HoTLoginPromptDialog;
+import de.robogo.fll.gui.HoTLoginPromptDialog;
 import javafx.concurrent.Worker;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;

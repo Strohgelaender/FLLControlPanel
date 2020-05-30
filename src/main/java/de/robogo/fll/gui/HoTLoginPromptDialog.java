@@ -1,4 +1,4 @@
-package gui;
+package de.robogo.fll.gui;
 
 import java.net.CookieHandler;
 import java.net.CookieManager;

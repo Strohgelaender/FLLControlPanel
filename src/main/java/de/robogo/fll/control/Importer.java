@@ -1,4 +1,4 @@
-package control;
+package de.robogo.fll.control;
 
 import java.io.File;
 import java.io.InputStream;
@@ -26,7 +26,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import teams.Team;
+import de.robogo.fll.teams.Team;
 
 public class Importer {
 

@@ -1,8 +1,8 @@
-package entity;
+package de.robogo.fll.entity;
 
 import java.time.LocalTime;
 
-import teams.Team;
+import de.robogo.fll.teams.Team;
 
 public class RobotGameTimeSlot extends TimeSlot {
 

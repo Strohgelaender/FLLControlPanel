@@ -1,4 +1,4 @@
-package entity;
+package de.robogo.fll.entity;
 
 import java.time.LocalDateTime;
 

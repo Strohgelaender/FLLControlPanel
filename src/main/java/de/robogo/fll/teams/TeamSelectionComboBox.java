@@ -1,4 +1,4 @@
-package teams;
+package de.robogo.fll.teams;
 
 import java.io.File;
 import java.io.FileWriter;

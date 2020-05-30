@@ -1,6 +1,6 @@
-package telnet;
+package de.robogo.fll.telnet;
 
-import static telnet.FoobarTelnetClient.nowPlaying;
+import static de.robogo.fll.telnet.FoobarTelnetClient.nowPlaying;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;

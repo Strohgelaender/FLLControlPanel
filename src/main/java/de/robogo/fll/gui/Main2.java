@@ -1,4 +1,4 @@
-package gui;
+package de.robogo.fll.gui;
 
 public class Main2 {
 

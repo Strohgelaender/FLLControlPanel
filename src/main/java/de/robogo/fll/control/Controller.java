@@ -1,11 +1,11 @@
-package control;
+package de.robogo.fll.control;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import entity.RobotGameTimeSlot;
-import entity.Table;
-import teams.Team;
+import de.robogo.fll.entity.RobotGameTimeSlot;
+import de.robogo.fll.entity.Table;
+import de.robogo.fll.teams.Team;
 
 public class Controller {
 

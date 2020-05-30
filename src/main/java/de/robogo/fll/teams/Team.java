@@ -1,4 +1,4 @@
-package teams;
+package de.robogo.fll.teams;
 
 public class Team {
 

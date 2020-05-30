@@ -1,4 +1,4 @@
-package gui;
+package de.robogo.fll.gui;
 
 import java.awt.Color;
 import java.io.File;
@@ -34,10 +34,10 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import teams.RoundMode;
-import teams.Team;
-import teams.TeamSelectionComboBox;
-import telnet.FoobarTelnetClient;
+import de.robogo.fll.teams.RoundMode;
+import de.robogo.fll.teams.Team;
+import de.robogo.fll.teams.TeamSelectionComboBox;
+import de.robogo.fll.telnet.FoobarTelnetClient;
 
 public class MainApplication extends Application {
 
@@ -137,7 +137,7 @@ public class MainApplication extends Application {
 							if (tab.isPresent()) {
 								XSLFTable table = (XSLFTable) tab.get();
 								List<XSLFTableRow> rows = table.getRows();
-								for (int r = 1; r < rows.size() && t < teamsOrdered.size(); r++) { //row 0: teams.Team / Run I / II / III / Rank
+								for (int r = 1; r < rows.size() && t < teamsOrdered.size(); r++) { //row 0: Team / Run I / II / III / Rank
 									XSLFTableRow row = rows.get(r);
 									Team team = teamsOrdered.get(t++);
 

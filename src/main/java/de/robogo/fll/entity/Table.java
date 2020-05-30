@@ -1,4 +1,4 @@
-package entity;
+package de.robogo.fll.entity;
 
 public class Table {
 

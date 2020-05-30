@@ -1,30 +1,43 @@
 plugins {
-    id 'java'
+	id 'java'
 	id 'application'
 	id 'org.openjfx.javafxplugin' version '0.0.8'
+	id 'org.springframework.boot' version '2.3.0.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
 }
 
-group 'FLLControlPanel'
+group 'de.robogo.fll'
 version '1.0-SNAPSHOT'
 
-sourceCompatibility = 1.14
+sourceCompatibility = '14'
 
 repositories {
-    mavenCentral()
+	mavenCentral()
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+	testCompile group: 'junit', name: 'junit', version: '4.12'
 	compile group: 'org.jsoup', name: 'jsoup', version: '1.12.1'
 	compile group: 'org.apache.poi', name: 'poi', version: '4.1.2'
 	compile group: 'org.apache.poi', name: 'poi-ooxml', version: '4.1.2'
 	compile group: 'org.apache.commons', name: 'commons-text', version: '1.8'
 	compile group: 'commons-net', name: 'commons-net', version: '3.6'
-	compile group: 'xerces', name: 'xercesImpl', version: '2.12.0'
 	compile 'org.controlsfx:controlsfx:8.40.16'
+
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+
+}
+
+test {
+	useJUnitPlatform()
 }
 
 javafx {
 	version = "14"
-	modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.web']
+	modules = ['javafx.controls', 'javafx.fxml', 'javafx.web']
 }

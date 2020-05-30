@@ -1,7 +1,7 @@
-package gui;
+package de.robogo.fll.gui;
 
-import static control.Controller.getTeams;
-import static control.Controller.getTimeSlots;
+import static de.robogo.fll.control.Controller.getTeams;
+import static de.robogo.fll.control.Controller.getTimeSlots;
 
 import java.io.File;
 import java.time.LocalTime;
@@ -9,12 +9,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.controlsfx.control.StatusBar;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.stereotype.Component;
 
-import control.Controller;
-import control.Importer;
-import control.ScoreboardDownloader;
-import entity.RobotGameTimeSlot;
-import entity.Table;
+import de.robogo.fll.control.Controller;
+import de.robogo.fll.control.Importer;
+import de.robogo.fll.control.ScoreboardDownloader;
+import de.robogo.fll.entity.RobotGameTimeSlot;
+import de.robogo.fll.entity.Table;
+import de.robogo.fll.teams.Team;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -44,9 +47,11 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.Duration;
-import teams.Team;
 
+@Component
 public class ControlApplication extends Application {
+
+	private static ConfigurableApplicationContext context;
 
 	private final ObjectProperty<RobotGameTimeSlot> activeSlot = new SimpleObjectProperty<>();
 
@@ -224,6 +229,18 @@ public class ControlApplication extends Application {
 		stage.show();
 	}
 
+	@Override
+	public void init() throws Exception {
+		super.init();
+		context.getAutowireCapableBeanFactory().autowireBean(this);
+	}
+
+	@Override
+	public void stop() throws Exception {
+		super.stop();
+		context.close();
+	}
+
 	private String addZerosToNumber(int num) {
 		if (num < 10)
 			return "0" + num;
@@ -249,8 +266,9 @@ public class ControlApplication extends Application {
 		return cell;
 	}
 
-	public static void main(String[] args) {
-		launch(args);
+	public static void launchApp(Class<? extends ControlApplication> appClass, ConfigurableApplicationContext context, String[] args) {
+		ControlApplication.context = context;
+		Application.launch(appClass, args);
 	}
 
 	public void setActiveSlot(final RobotGameTimeSlot activeSlot) {
