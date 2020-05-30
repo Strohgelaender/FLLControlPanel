@@ -3,6 +3,7 @@ package de.robogo.fll.control;
 import java.io.File;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +27,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import de.robogo.fll.entity.RobotGameTimeSlot;
 import de.robogo.fll.entity.Team;
 
 public class Importer {
@@ -109,7 +111,7 @@ public class Importer {
 						break;
 
 					juryTableRow = i;
-					break timesLoop;
+					break juryLoop;
 				}
 			}
 
@@ -172,7 +174,7 @@ public class Importer {
 						break;
 
 					rgrone = i;
-					break /*juryLoop*/;
+					break timesLoop;
 				}
 			}
 
@@ -184,32 +186,42 @@ public class Importer {
 
 			// Zeilen unter zweitem / dritten / viertem #1: Robotgame-Runden
 			int rground = 1;
+			List<RobotGameTimeSlot>[] roboslots = new ArrayList[3];
+
+
 			roundLoop:
-			for (int i = rgrone; i != 0; ) {
+			for (int i = rgrone + 2; i != 0; i += 2) {
 
-				NodeList times = rows.item(rgrone + 2 * i).getChildNodes();
+				NodeList times = rows.item(i).getChildNodes();
+				LocalTime temptime;
+				int[] tempteam = new int[2];
+				int[] temptable = new int[2];
 
-				for (int j = 0; j < times.getLength(); j++) {
+				for (int j = 1; j < times.getLength(); j += 2) {
 					Node cell = times.item(j);
 					if (cell.getAttributes() == null)
 						continue;
 					String cellName = cell.getAttributes().getNamedItem("ref").getTextContent();
 					String columnIndex = cellName.replaceAll("[0-9]", "");
-					if (columnIndex.charAt(0) < 66)
-						//Spalte vor B -> weitersuchen
-						continue;
 
-					if (columnIndex.length() > 1 || columnIndex.charAt(0) > 66) { //66 = B ASCI
-						//Keine Werte in B -> abbrechen
-						break;
-					}
-					if (columnIndex.charAt(0) == 66 && rground < 3) {
+					if (columnIndex.charAt(0) == 66 && rground < 3) { //B = 66 in ASCII
 						rground++;
 						continue roundLoop;
 					}
 					if (columnIndex.charAt(0) == 66 && rground == 3) break roundLoop;
+					if (columnIndex.charAt(0) == 68) {  // D = 68 in ASCII
+						cell.getTextContent();
+						// temptime.set(****)
+						continue;
+					}
+					if (columnIndex.length() == 1) tempteam[j / 2 - 1] = columnIndex.charAt(0) - 71;
+					if (columnIndex.length() == 2) tempteam[j / 2 - 1] = columnIndex.charAt(1) - 45;
+					temptable[j / 2 - 1] = Integer.parseInt(cell.getTextContent());
+
 
 				}
+
+				roboslots[rground - 1].add(new RobotGameTimeSlot(teamList.get(tempteam[0]), teamList.get(tempteam[1]), temptable[0], temptable[1]));
 			}
 
 
