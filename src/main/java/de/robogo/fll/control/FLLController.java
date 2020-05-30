@@ -15,7 +15,7 @@ public class FLLController {
 
 	private static final List<Team> teams = new ArrayList<>();
 
-	private static final List<Table> tables = new ArrayList<>(Arrays.asList(new Table("1"), new Table("2"), new Table("4"), new Table("4")));
+	private static final List<Table> tables = new ArrayList<>(Arrays.asList(new Table("1"), new Table("2"), new Table("3"), new Table("4")));
 
 	private static final List<RobotGameTimeSlot> timeSlots = new ArrayList<>();
 

@@ -1,5 +1,7 @@
 package de.robogo.fll.control;
 
+import static de.robogo.fll.control.FLLController.getTableByNumber;
+
 import java.io.File;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -28,6 +30,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import de.robogo.fll.entity.RobotGameTimeSlot;
+import de.robogo.fll.entity.RoundMode;
 import de.robogo.fll.entity.Team;
 
 public class Importer {
@@ -153,8 +156,8 @@ public class Importer {
 
 			// Zeilen unter zweitem / dritten / viertem #1: Robotgame-Runden
 			int rground = 1;
-			List<RobotGameTimeSlot>[] roboslots = new ArrayList[3];
-
+			List<RobotGameTimeSlot> roboslots = new ArrayList();
+			int rgff = rground; // Index für Finalrunden
 
 			roundLoop:
 			for (int i = rgrone + 2; i != 0; i += 2) {
@@ -175,7 +178,10 @@ public class Importer {
 						rground++;
 						continue roundLoop;
 					}
-					if (columnIndex.charAt(0) == 66 && rground == 3) break roundLoop;
+					if (columnIndex.charAt(0) == 66 && rground == 3) {
+						rgff = i;
+						break roundLoop;
+					}
 					if (columnIndex.charAt(0) == 68) {  // D = 68 in ASCII
 						cell.getTextContent();
 						temptime = LocalTime.parse(cell.getTextContent());
@@ -184,11 +190,53 @@ public class Importer {
 					if (columnIndex.length() == 1) tempteam[j / 2 - 1] = columnIndex.charAt(0) - 71;
 					if (columnIndex.length() == 2) tempteam[j / 2 - 1] = columnIndex.charAt(1) - 45;
 					temptable[j / 2 - 1] = Integer.parseInt(cell.getTextContent());
-
-
 				}
 
-				roboslots[rground - 1].add(new RobotGameTimeSlot(teamList.get(tempteam[0]), teamList.get(tempteam[1]), temptable[0], temptable[1], temptime);
+				roboslots.add(new RobotGameTimeSlot(teamList.get(tempteam[0]), teamList.get(tempteam[1]), FLLController.getTableByNumber(temptable[0]), FLLController.getTableByNumber(temptable[1]), temptime, RoundMode.values()[rground]));
+			}
+
+			//Finalrunden
+
+			int numberoffinals = 2;
+
+			finalLoop:
+			for (int i = rgff; i < rows.getLength(); i++) {
+				Node row = rows.item(i);
+				if (!row.getNodeName().equals("tr"))
+					continue;
+
+				NodeList cells = row.getChildNodes();
+
+				for (int j = 0; j < cells.getLength(); j++) {
+					Node cell = cells.item(j);
+					if (cell.getAttributes() == null)
+						continue;
+					String cellName = cell.getAttributes().getNamedItem("ref").getTextContent();
+					String columnIndex = cellName.replaceAll("[0-9]", "");
+					if (columnIndex.charAt(0) < 72)
+						//Spalte vor H -> weitersuchen
+						continue;
+
+					if (columnIndex.length() > 1 || columnIndex.charAt(0) > 72) { //72 = H ASCI
+						//Keine Werte in H -> abbrechen
+						break;
+					}
+
+					if (!cell.getTextContent().replaceAll("[A-Z]", "").equals("1"))
+						break;
+
+					rgff = i;
+
+					if (cells.getLength() > 20) numberoffinals = 3;
+
+					break finalLoop;
+				}
+			}
+
+
+			for (int i = 0; i < numberoffinals; i++) {
+
+				//findRowWithContent(rows, , , );
 			}
 
 
