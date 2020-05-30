@@ -2,18 +2,20 @@ package de.robogo.fll.entity;
 
 public class Team {
 
-	private String name;
-	private int id;
+	private final String name;
+	private final int id;
 	private int round1;
 	private int round2;
 	private int round3;
 	private int rank;
 	private int QF;
+	private int SF;
 
 	public Team(String name, int id) {
 		this.name = name;
 		this.id = id;
 		this.QF = Integer.MIN_VALUE;
+		this.SF = Integer.MIN_VALUE;
 	}
 
 	public int getId() {
@@ -54,6 +56,14 @@ public class Team {
 
 	public void setRank(final int rank) {
 		this.rank = rank;
+	}
+
+	public void setSF(final int SF) {
+		this.SF = SF;
+	}
+
+	public int getSF() {
+		return SF;
 	}
 
 	public void setRound(int round, int points) {
@@ -97,57 +107,5 @@ public class Team {
 	@Override
 	public String toString() {
 		return name + " [" + id + "] ";
-	}
-
-	public int getInternalNumber() {
-		switch (name) {
-			case "Club der dichten Toten":
-				return 1;
-			case "JFG Girls Power":
-				return 2;
-			case "Bvs Robots 1":
-				return 3;
-			case "Parasite":
-				return 4;
-			case "JFG Unicorn Power":
-				return 5;
-			case "BvS Robots 2":
-				return 6;
-			case "TÜF":
-				return 7;
-			case "JFGTechnology":
-				return 8;
-			case "MPG IT Girls":
-				return 9;
-			case "AKRobotics":
-				return 10;
-			case "MINT":
-				return 11;
-			case "MPG Roboboys":
-				return 12;
-			case "Fiesta Mexicana":
-				return 13;
-			case "Grasser Robotics":
-				return 14;
-			case "TechNoLogic":
-				return 15;
-			case "AufBau":
-				return 16;
-			case "RobotIKG":
-				return 17;
-			case "RoboRO":
-				return 18;
-			case "NEEDS NO NAME":
-				return 19;
-			case "PaRaMeRos":
-				return 20;
-			case "GO ROBOT":
-				return 21;
-			case "GB RobotChamps":
-				return 22;
-			case "Die Ilmtaler":
-				return 23;
-		}
-		return 0;
 	}
 }

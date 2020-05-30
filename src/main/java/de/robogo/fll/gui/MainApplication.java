@@ -223,7 +223,7 @@ public class MainApplication extends Application {
 		countdown.getChildren().addAll(selectText, startTimer, reset);
 
 		ComboBox<RoundMode> rounds = new ComboBox<>();
-		rounds.getItems().addAll(RoundMode.Round1, RoundMode.Round2, RoundMode.Round3, RoundMode.QF, RoundMode.HF, RoundMode.Final);
+		rounds.getItems().addAll(RoundMode.Round1, RoundMode.Round2, RoundMode.Round3, RoundMode.QF, RoundMode.SF, RoundMode.Final);
 		rounds.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> {
 			selectTeamA.setRoundMode(t1);
 			selectTeamB.setRoundMode(t1);
