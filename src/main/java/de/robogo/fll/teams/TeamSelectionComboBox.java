@@ -70,10 +70,10 @@ public class TeamSelectionComboBox extends ComboBox<Team> {
 	public void setRoundMode(final RoundMode roundMode) {
 		this.roundMode = roundMode;
 		switch (roundMode) {
-			case Runde2:
+			case Round2:
 				getItems().sort(Comparator.comparingInt(team -> round2Order.indexOf(team.getInternalNumber())));
 				break;
-			case Runde3:
+			case Round3:
 				getItems().sort(Comparator.comparingInt(team -> round3Order.indexOf(team.getInternalNumber())));
 				break;
 			default:
