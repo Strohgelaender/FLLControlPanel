@@ -5,9 +5,12 @@ import java.util.List;
 
 import de.robogo.fll.entity.RobotGameTimeSlot;
 import de.robogo.fll.entity.Table;
-import de.robogo.fll.teams.Team;
+import de.robogo.fll.entity.Team;
 
-public class Controller {
+public class FLLController {
+
+	//TODO set in Importer!
+	private static String eventName = "FLL Regio Hochtesthausen";
 
 	private static final List<Team> teams = new ArrayList<>();
 
@@ -28,18 +31,18 @@ public class Controller {
 	}
 
 	public static void setTables(final List<Table> tables) {
-		Controller.tables.clear();
-		Controller.tables.addAll(tables);
+		FLLController.tables.clear();
+		FLLController.tables.addAll(tables);
 	}
 
 	public static void setTeams(final List<Team> teams) {
-		Controller.teams.clear();
-		Controller.teams.addAll(teams);
+		FLLController.teams.clear();
+		FLLController.teams.addAll(teams);
 	}
 
 	public static void setTimeSlots(final List<RobotGameTimeSlot> timeSlots) {
-		Controller.timeSlots.clear();
-		Controller.timeSlots.addAll(timeSlots);
+		FLLController.timeSlots.clear();
+		FLLController.timeSlots.addAll(timeSlots);
 	}
 
 	public static Team getTeamByName(String name) {
@@ -48,5 +51,13 @@ public class Controller {
 				return t;
 		}
 		return null;
+	}
+
+	public static String getEventName() {
+		return eventName;
+	}
+
+	public static void setEventName(final String eventName) {
+		FLLController.eventName = eventName;
 	}
 }

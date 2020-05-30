@@ -26,7 +26,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import de.robogo.fll.teams.Team;
+import de.robogo.fll.entity.Team;
 
 public class Importer {
 
@@ -137,7 +137,7 @@ public class Importer {
 				teamList.add(new Team(ttName, i / 2));
 
 			}
-			Controller.setTeams(teamList);
+			FLLController.setTeams(teamList);
 
 			//Zeitplan importieren
 
@@ -231,7 +231,7 @@ public class Importer {
 			int nameEnd = StringUtils.lastIndexOf(teamRaw, "[");
 			String teamName = StringEscapeUtils.unescapeHtml3(StringEscapeUtils.unescapeHtml4(teamRaw.substring(0, nameEnd).trim()));
 
-			Team team = Controller.getTeamByName(teamName);
+			Team team = FLLController.getTeamByName(teamName);
 
 			if (team == null) {
 				System.out.println("No Team with name " + teamName + " found!");
@@ -239,19 +239,20 @@ public class Importer {
 				//continue;
 				//for debug:
 				team = new Team(teamName, i);
-				Controller.getTeams().add(team);
+				FLLController.getTeams().add(team);
 			}
 
 			int game1 = (int) row.getCell(1).getNumericCellValue();
 			int game2 = (int) row.getCell(2).getNumericCellValue();
 			int game3 = (int) row.getCell(3).getNumericCellValue();
-
 			int qf = (int) row.getCell(5).getNumericCellValue();
+			int rank = (int) row.getCell(7).getNumericCellValue();
 
 			team.setRound1(game1);
 			team.setRound2(game2);
 			team.setRound3(game3);
 			team.setQF(qf);
+			team.setRank(rank);
 		}
 	}
 

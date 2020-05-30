@@ -1,10 +1,27 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-	<title>Getting Started: Serving Web Content</title>
+	<title>FLL Scoreboard</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 <body>
-<p th:text="'Hello, ' + ${name} + '!'"></p>
+<h1 th:text="${eventName}"></h1>
+
+<table>
+	<tr>
+		<th>Team</th>
+		<th>Round 1</th>
+		<th>Round 2</th>
+		<th>Round 3</th>
+		<th>Rank</th>
+	</tr>
+	<tr th:each="team : ${teams}">
+		<td th:text="${team.name}">Team Name</td>
+		<td th:text="${team.round1}">Points Round 1</td>
+		<td th:text="${team.round2}">Points Round 2</td>
+		<td th:text="${team.round3}">Points Round 3</td>
+		<td th:text="${team.rank}">Rank</td>
+	</tr>
+</table>
 </body>
 </html>

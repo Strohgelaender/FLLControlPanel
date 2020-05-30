@@ -11,8 +11,12 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+import de.robogo.fll.entity.RoundMode;
+import de.robogo.fll.entity.Team;
 import javafx.scene.control.ComboBox;
 
+@Deprecated
+//TODO Funktionalität in neues Disign überführen (Achtung: Code extem spziel!)
 public class TeamSelectionComboBox extends ComboBox<Team> {
 
 	private static final Path interviews = Paths.get("C:\\Users\\Lucas Welscher\\Desktop\\Interviews");

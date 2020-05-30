@@ -1,7 +1,7 @@
 package de.robogo.fll.gui;
 
-import static de.robogo.fll.control.Controller.getTeams;
-import static de.robogo.fll.control.Controller.getTimeSlots;
+import static de.robogo.fll.control.FLLController.getTeams;
+import static de.robogo.fll.control.FLLController.getTimeSlots;
 
 import java.io.File;
 import java.time.LocalTime;
@@ -12,12 +12,12 @@ import org.controlsfx.control.StatusBar;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
-import de.robogo.fll.control.Controller;
+import de.robogo.fll.control.FLLController;
 import de.robogo.fll.control.Importer;
 import de.robogo.fll.control.ScoreboardDownloader;
 import de.robogo.fll.entity.RobotGameTimeSlot;
 import de.robogo.fll.entity.Table;
-import de.robogo.fll.teams.Team;
+import de.robogo.fll.entity.Team;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -63,8 +63,8 @@ public class ControlApplication extends Application {
 	@Override
 	public void start(final Stage stage) throws Exception {
 
-		Controller.setTeams(teams);
-		Controller.setTimeSlots(timeSlots);
+		FLLController.setTeams(teams);
+		FLLController.setTimeSlots(timeSlots);
 
 		// Grid panes
 		AnchorPane windowRoot = new AnchorPane();

@@ -1,4 +1,4 @@
-package de.robogo.fll.teams;
+package de.robogo.fll.entity;
 
 public enum RoundMode {
 

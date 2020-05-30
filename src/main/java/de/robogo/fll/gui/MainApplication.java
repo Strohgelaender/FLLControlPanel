@@ -34,8 +34,8 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import de.robogo.fll.teams.RoundMode;
-import de.robogo.fll.teams.Team;
+import de.robogo.fll.entity.RoundMode;
+import de.robogo.fll.entity.Team;
 import de.robogo.fll.teams.TeamSelectionComboBox;
 import de.robogo.fll.telnet.FoobarTelnetClient;
 

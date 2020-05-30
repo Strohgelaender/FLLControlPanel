@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>FLL Timetable</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<h1 th:text="${eventName}"></h1>
+
+<table>
+	<tr>
+		<th>Time</th>
+		<th>Team 1</th>
+		<th>Table 1</th>
+		<th>Table 2</th>
+		<th>Team 2</th>
+	</tr>
+	<tr th:each="ts : ${timeslots}">
+		<td th:text="${ts.time}">Uhrzeit</td>
+		<td th:text="${ts.teamA}">Team 1</td>
+		<td th:text="${ts.tableA}">Tisch 1</td>
+		<td th:text="${ts.tableB}">Tisch 2</td>
+		<td th:text="${ts.teamB}">Team 2</td>
+	</tr>
+</table>
+</body>
+</html>
