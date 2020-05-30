@@ -1,6 +1,7 @@
 package de.robogo.fll.control;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import de.robogo.fll.entity.RobotGameTimeSlot;
@@ -14,7 +15,7 @@ public class FLLController {
 
 	private static final List<Team> teams = new ArrayList<>();
 
-	private static final List<Table> tables = new ArrayList<>();
+	private static final List<Table> tables = new ArrayList<>(Arrays.asList(new Table("1"), new Table("2"), new Table("4"), new Table("4")));
 
 	private static final List<RobotGameTimeSlot> timeSlots = new ArrayList<>();
 
@@ -51,6 +52,10 @@ public class FLLController {
 				return t;
 		}
 		return null;
+	}
+
+	public static Table getTableByNumber(int num) {
+		return getTables().get(num - 1);
 	}
 
 	public static String getEventName() {
