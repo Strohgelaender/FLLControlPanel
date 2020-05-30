@@ -193,7 +193,7 @@ public class Importer {
 			for (int i = rgrone + 2; i != 0; i += 2) {
 
 				NodeList times = rows.item(i).getChildNodes();
-				LocalTime temptime;
+				LocalTime temptime = null;
 				int[] tempteam = new int[2];
 				int[] temptable = new int[2];
 
@@ -211,7 +211,7 @@ public class Importer {
 					if (columnIndex.charAt(0) == 66 && rground == 3) break roundLoop;
 					if (columnIndex.charAt(0) == 68) {  // D = 68 in ASCII
 						cell.getTextContent();
-						// temptime.set(****)
+						temptime = LocalTime.parse(cell.getTextContent());
 						continue;
 					}
 					if (columnIndex.length() == 1) tempteam[j / 2 - 1] = columnIndex.charAt(0) - 71;
@@ -221,7 +221,7 @@ public class Importer {
 
 				}
 
-				roboslots[rground - 1].add(new RobotGameTimeSlot(teamList.get(tempteam[0]), teamList.get(tempteam[1]), temptable[0], temptable[1]));
+				roboslots[rground - 1].add(new RobotGameTimeSlot(teamList.get(tempteam[0]), teamList.get(tempteam[1]), temptable[0], temptable[1], temptime);
 			}
 
 
