@@ -225,8 +225,8 @@ public class MainApplication extends Application {
 		ComboBox<RoundMode> rounds = new ComboBox<>();
 		rounds.getItems().addAll(RoundMode.Round1, RoundMode.Round2, RoundMode.Round3, RoundMode.QF, RoundMode.SF, RoundMode.Final);
 		rounds.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> {
-			selectTeamA.setRoundMode(t1);
-			selectTeamB.setRoundMode(t1);
+			//selectTeamA.setRoundMode(t1);
+			//selectTeamB.setRoundMode(t1);
 		});
 
 		HBox teamSelect = new HBox();

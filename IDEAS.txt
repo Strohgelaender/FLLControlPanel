@@ -2,6 +2,7 @@ Ideen Y A Y:
 
 // TODO - Wichtig
 Konfiguration speichern
+-> Überschreibungs-Abfrage bei neuem Import
 
 
 
@@ -20,6 +21,7 @@ Support für andere Importmöglichkeiten
 Manuelles festlegen von Teams und Robotgame-Runden
 Screen-Vorlagen
 GUI für Screen-Customization
+Next-Up-Screen (nur nächstes Match) + Zustzliche Infos (z.B. Musik)
 
 //Grundlagen
 

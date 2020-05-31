@@ -8,7 +8,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 import de.robogo.fll.entity.RoundMode;
@@ -65,20 +64,5 @@ public class TeamSelectionComboBox extends ComboBox<Team> {
 			}).start();
 
 		});
-	}
-
-	public void setRoundMode(final RoundMode roundMode) {
-		this.roundMode = roundMode;
-		switch (roundMode) {
-			case Round2:
-				getItems().sort(Comparator.comparingInt(team -> round2Order.indexOf(team.getInternalNumber())));
-				break;
-			case Round3:
-				getItems().sort(Comparator.comparingInt(team -> round3Order.indexOf(team.getInternalNumber())));
-				break;
-			default:
-				getItems().sort(Comparator.comparingInt(Team::getInternalNumber));
-				break;
-		}
 	}
 }
