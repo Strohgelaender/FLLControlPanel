@@ -97,14 +97,16 @@ public class Importer {
 			return;
 
 		NodeList rows = document.getChildNodes().item(0).getChildNodes();
-
+		int lastIndexInName = StringUtils.lastIndexOf(rows.item(21).getChildNodes().item(1).getTextContent(), "-");
+		String nameOfCompetition = rows.item(21).getChildNodes().item(1).getTextContent().substring(0, lastIndexInName).trim();
+		FLLController.setEventName(nameOfCompetition);
 		List<TimeSlot> timeSlots = new ArrayList<>();
 
 		//Import Locations
 		char[] juryColumn = {'I', 'I', 'I', 'I'};
 		String[] juryRegex = {"^TR\\S$", "R", "T", "F"};
 		int[] juryTypeRows = findmultipleRowsWithContent(rows, 0, juryColumn, juryRegex);
-		String[][] juryRooms = new String[4][3]; // in this order : testRoundRooms, robotDesignRooms,teamworkRooms, researchRooms
+		String[][] juryRooms = new String[4][4]; // in this order : testRoundRooms, robotDesignRooms,teamworkRooms, researchRooms
 		for (int i = 0; i < 3; i++) {
 			NodeList juryList = rows.item(juryTypeRows[i]).getChildNodes();
 			int numberOfJury = 0;
@@ -119,6 +121,7 @@ public class Importer {
 		}
 		juryRooms[0][1] = juryRooms[0][0];
 		juryRooms[0][2] = juryRooms[0][0];
+		juryRooms[0][3] = juryRooms[0][0];
 
 		int juryTableRow = findRowWithContent(rows, 0, 'H', "^#1$");
 
