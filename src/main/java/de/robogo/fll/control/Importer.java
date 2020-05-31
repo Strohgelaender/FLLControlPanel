@@ -105,7 +105,7 @@ public class Importer {
 			return;
 		}
 
-		//Tabelle über Zeitplan-Matrix = Teamnamen
+		//Table above judging-sessions = Team names
 
 		NodeList teams = rows.item(juryTableRow - 2).getChildNodes();
 
@@ -124,7 +124,7 @@ public class Importer {
 		}
 		FLLController.setTeams(teamList);
 
-		//Zeitplan importieren
+		//Begin importing Robot Game times
 
 		int rgrone = findRowWithContent(rows, juryTableRow + 1, 'H', "^#1$");
 
@@ -140,108 +140,30 @@ public class Importer {
 
 		int[] endRoundRows = findmultipleRowsWithContent(rows, rgrone, roboclumn, roboregex);
 
-		// Zeilen unter zweitem / dritten / viertem #1: Robotgame-Runden
-
-
-		int rground = 1;
+		// Lines in the next 3 section below the 2nd "#1": Robotgame-preliminary Rounds
 		List<RobotGameTimeSlot> roboslots = new ArrayList<>();
-		// int rgff = rground; // Index für Finalrunden
 
 		generateRoboSlots(rows, rgrone, endRoundRows[0], 1, roboslots, teamList);
 		generateRoboSlots(rows, endRoundRows[0], endRoundRows[1], 2, roboslots, teamList);
 		generateRoboSlots(rows, endRoundRows[1], endRoundRows[2], 3, roboslots, teamList);
 
-			/*
+		//Final rounds in tables below
 
-		roundLoop:
-		for (int i = rgrone + 2; i < rows.getLength(); i += 2) {
-
-			NodeList times = rows.item(i).getChildNodes();
-			LocalTime temptime = null;
-			int[] tempteam = new int[2];
-			int[] temptable = new int[2];
-
-			for (int j = 1; j < times.getLength(); j += 2) {
-				Node cell = times.item(j);
-				if (cell.getAttributes() == null)
-					continue;
-				String columnIndex = getColumnIndex(cell);
-
-				if (columnIndex.charAt(0) == 'B' && rground < 3) {
-					rground++;
-					continue roundLoop;
-				}
-				if (columnIndex.charAt(0) == 'B' && rground == 3) {
-					rgff = i;
-					break roundLoop;
-				}
-				if (columnIndex.charAt(0) == 'D') {
-					temptime = LocalTime.parse(cell.getTextContent());
-					continue;
-				}
-				if (columnIndex.length() == 1)
-					tempteam[j / 2 - 1] = columnIndex.charAt(0) - 71;
-				if (columnIndex.length() == 2)
-					tempteam[j / 2 - 1] = columnIndex.charAt(1) - 45;
-				temptable[j / 2 - 1] = Integer.parseInt(cell.getTextContent());
-			}
-
-				roboslots.add(new RobotGameTimeSlot(teamList.get(tempteam[0]), teamList.get(tempteam[1]), FLLController.getTableByNumber(temptable[0]), FLLController.getTableByNumber(temptable[1]), temptime, RoundMode.values()[rground]));
-			}
-			*/
-		//Finalrunden
-
-		// int numberoffinals = 2;
 		int firstfinal = findRowWithContent(rows, endRoundRows[2], 'H', "^[A-Z]*1[A-Z]*$");
-		if (rows.item(firstfinal).getChildNodes().getLength() > 20) {
+		if (rows.item(firstfinal).getChildNodes().getLength() > 20) { //if quarter-final exists, there are more than 20 nodes in the header of the timetable
 			char[] finalcolumns = {'H', 'H', 'E'};
 			String[] nextFinalIndicator = {"^[A-Z]*1[A-Z]*$", "^[A-Z]*1[A-Z]*$", "-"};
 			int[] nextFinal = findmultipleRowsWithContent(rows, firstfinal, finalcolumns, nextFinalIndicator);
 			generateRoboSlots(rows, firstfinal, nextFinal[0], 4, roboslots, teamList);
 			generateRoboSlots(rows, nextFinal[0], nextFinal[1], 5, roboslots, teamList);
 			generateRoboSlots(rows, nextFinal[1], nextFinal[2], 6, roboslots, teamList);
-		} else {
+		} else { //no quarter-finals
 			char[] finalcolumns = {'H', 'E'};
 			String[] nextFinalIndicator = {"^[A-Z]*1[A-Z]*$", "-"};
 			int[] nextfinal = findmultipleRowsWithContent(rows, firstfinal, finalcolumns, nextFinalIndicator);
 			generateRoboSlots(rows, firstfinal, nextfinal[0], 5, roboslots, teamList);
 			generateRoboSlots(rows, nextfinal[0], nextfinal[1], 6, roboslots, teamList);
 		}
-			/*
-			rground = 1;
-			finalroundloop:
-			for (int i = firstfinal + 2; i != 0; i += 2) {
-
-			NodeList times = rows.item(i).getChildNodes();
-			LocalTime temptime = null;
-			int[] temptable = new int[2];
-
-			for (int j = 1; j < times.getLength(); j += 2) {
-				Node cell = times.item(j);
-				if (cell.getAttributes() == null)
-					continue;
-				String columnIndex = getColumnIndex(cell);
-
-				if (columnIndex.charAt(0) == 'B' && rground < numberoffinals) {
-					rground++;
-					continue finalroundloop;
-				}
-				if (columnIndex.charAt(0) == 'B' && rground == numberoffinals) {
-					break finalroundloop;
-				}
-				if (columnIndex.charAt(0) == 'D') {
-					temptime = LocalTime.parse(cell.getTextContent());
-					continue;
-				}
-				temptable[j / 2 - 1] = Integer.parseInt(cell.getTextContent());
-			}
-
-			if (numberoffinals == 2)
-				roboslots.add(new RobotGameTimeSlot(null, null, FLLController.getTableByNumber(temptable[0]), FLLController.getTableByNumber(temptable[1]), temptime, RoundMode.values()[rground + 4]));
-			else
-				roboslots.add(new RobotGameTimeSlot(null, null, FLLController.getTableByNumber(temptable[0]), FLLController.getTableByNumber(temptable[1]), temptime, RoundMode.values()[rground + 3]));
-
-			} */
 
 		FLLController.setTimeSlots(roboslots);
 
@@ -271,19 +193,19 @@ public class Importer {
 				String columnIndex = getColumnIndex(cell);
 
 				if (columnIndex.charAt(0) < column)
-					//Spalte vor gesuchter Column -> weitersuchen
+					//column is on the left of selected column -> continue with next column
 					continue;
 
 
 				if (columnIndex.length() > 1 || columnIndex.charAt(0) > column)
-					//Keine Werte in gesuchter Column -> innere Schleife abbrechen
+					//no values in selected column -> continue outerloop for next row
 					break;
 
 				if (!cell.getTextContent().matches(regex))
-					//falscher Inhalt -> in nächster Reihe weitersuchen (äußere Schleife)
+					//wrong content -> continue searching in next row (outer loop)
 					break;
 
-				//Inhalt gefunden
+				//Content found
 				retVal = i;
 				break outerLoop;
 			}
