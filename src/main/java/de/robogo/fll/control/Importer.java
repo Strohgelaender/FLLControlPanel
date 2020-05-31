@@ -1,5 +1,7 @@
 package de.robogo.fll.control;
 
+import static java.lang.Integer.max;
+
 import java.io.File;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -120,10 +122,24 @@ public class Importer {
 				return;
 			}
 
+
+			char[] roboclumn = {'E', 'E', 'E'};
+			String[] roboregex = {"-", "-", "-",};
+
+			int[] endRoundRows = findmultipleRowsWithContent(rows, rgrone, roboclumn, roboregex);
+
 			// Zeilen unter zweitem / dritten / viertem #1: Robotgame-Runden
+
+
 			int rground = 1;
 			List<RobotGameTimeSlot> roboslots = new ArrayList();
-			int rgff = rground; // Index für Finalrunden
+			// int rgff = rground; // Index für Finalrunden
+
+			generateRoboSlots(rows, rgrone, endRoundRows[0], 1, roboslots, teamList);
+			generateRoboSlots(rows, endRoundRows[0], endRoundRows[1], 2, roboslots, teamList);
+			generateRoboSlots(rows, endRoundRows[1], endRoundRows[2], 3, roboslots, teamList);
+
+			/*
 
 			roundLoop:
 			for (int i = rgrone + 2; i != 0; i += 2) {
@@ -159,13 +175,26 @@ public class Importer {
 
 				roboslots.add(new RobotGameTimeSlot(teamList.get(tempteam[0]), teamList.get(tempteam[1]), FLLController.getTableByNumber(temptable[0]), FLLController.getTableByNumber(temptable[1]), temptime, RoundMode.values()[rground]));
 			}
-
+			*/
 			//Finalrunden
 
-			int numberoffinals = 2;
-			int firstfinal = findRowWithContent(rows, rgff, 'H', "^[A-Z]*1[A-Z]*$");
-			if (rows.item(firstfinal).getChildNodes().getLength() > 20) numberoffinals = 3;
-
+			// int numberoffinals = 2;
+			int firstfinal = findRowWithContent(rows, endRoundRows[2], 'H', "^[A-Z]*1[A-Z]*$");
+			if (rows.item(firstfinal).getChildNodes().getLength() > 20) {
+				char[] finalcolumns = {'H', 'H', 'E'};
+				String[] nextFinalIndicator = {"^[A-Z]*1[A-Z]*$", "^[A-Z]*1[A-Z]*$", "-"};
+				int[] nextFinal = findmultipleRowsWithContent(rows, firstfinal, finalcolumns, nextFinalIndicator);
+				generateRoboSlots(rows, firstfinal, nextFinal[0], 4, roboslots, teamList);
+				generateRoboSlots(rows, nextFinal[0], nextFinal[1], 5, roboslots, teamList);
+				generateRoboSlots(rows, nextFinal[1], nextFinal[2], 6, roboslots, teamList);
+			} else {
+				char[] finalcolumns = {'H', 'E'};
+				String[] nextFinalIndicator = {"^[A-Z]*1[A-Z]*$", "-"};
+				int[] nextfinal = findmultipleRowsWithContent(rows, firstfinal, finalcolumns, nextFinalIndicator);
+				generateRoboSlots(rows, firstfinal, nextfinal[0], 5, roboslots, teamList);
+				generateRoboSlots(rows, nextfinal[0], nextfinal[1], 6, roboslots, teamList);
+			}
+			/*
 			rground = 1;
 			finalroundloop:
 			for (int i = firstfinal + 2; i != 0; i += 2) {
@@ -200,15 +229,7 @@ public class Importer {
 				else
 					roboslots.add(new RobotGameTimeSlot(null, null, FLLController.getTableByNumber(temptable[0]), FLLController.getTableByNumber(temptable[1]), temptime, RoundMode.values()[rground + 3]));
 
-			}
-
-
-
-
-			for (int i = 0; i < numberoffinals; i++) {
-				int j = findRowWithContent(rows, rgff + 1, 'H', "^[A-Z]*1[A-Z]*$");
-
-			}
+			} */
 
 
 		} catch (Exception e) {
@@ -255,6 +276,49 @@ public class Importer {
 		return retVal;
 	}
 
+	static int[] findmultipleRowsWithContent(NodeList nodes, int startRow, char[] column, String[] regex) {
+		int[] results = new int[Integer.max(column.length, regex.length)];
+		int lastRow = startRow;
+		for (int i = 0; i < results.length; i++) {
+			results[i] = findRowWithContent(nodes, lastRow + 1, column[i], regex[i]);
+			if (results[i] != -1) lastRow = results[i];
+		}
+
+		return results;
+	}
+
+	static void generateRoboSlots(NodeList matches, int tableHead, int nextTableHead, int round, List<RobotGameTimeSlot> roboSlots, List<Team> teamList) {
+
+		for (int i = tableHead + 2; i < nextTableHead; i += 2) {
+
+			NodeList match = matches.item(i).getChildNodes();
+			LocalTime temptime = null;
+			int[] tempteam = new int[2];
+			int[] temptable = new int[2];
+
+			for (int j = 1; j < match.getLength(); j += 2) {
+				Node cell = match.item(j);
+				String name = cell.getAttributes().getNamedItem("ref").getTextContent().replaceAll("[0-9]", "");
+				if (name.charAt(0) == 68) {                    // D = 68 in ASCII
+
+					temptime = LocalTime.parse(cell.getTextContent());
+					continue;
+				}
+
+				if (name.length() == 1)
+					tempteam[j / 2 - 1] = name.charAt(0) - 71;
+
+				if (name.length() == 2)
+					tempteam[j / 2 - 1] = name.charAt(1) - 45;
+
+				temptable[j / 2 - 1] = Integer.parseInt(cell.getTextContent());
+
+				roboSlots.add(new RobotGameTimeSlot(teamList.get(tempteam[0]), teamList.get(tempteam[1]), FLLController.getTableByNumber(temptable[0]), FLLController.getTableByNumber(temptable[1]), temptime, RoundMode.values()[round]));
+
+			}
+		}
+	}
+
 	public static void importScores(XSSFWorkbook workbook) {
 		XSSFSheet sheet = workbook.getSheet("Robot Game Score");
 
@@ -292,6 +356,7 @@ public class Importer {
 			team.setRank(rank);
 		}
 	}
+
 
 	//TODO
 	private static class TestSheetHandler implements XSSFSheetXMLHandler.SheetContentsHandler {
