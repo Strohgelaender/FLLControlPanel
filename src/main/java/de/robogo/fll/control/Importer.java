@@ -124,7 +124,7 @@ public class Importer {
 
 
 			char[] roboclumn = {'E', 'E', 'E'};
-			String[] roboregex = {"-", "-", "-",};
+			String[] roboregex = {" - ", " - ", " - ",};
 
 			int[] endRoundRows = findmultipleRowsWithContent(rows, rgrone, roboclumn, roboregex);
 
@@ -179,17 +179,18 @@ public class Importer {
 			//Finalrunden
 
 			// int numberoffinals = 2;
+
 			int firstfinal = findRowWithContent(rows, endRoundRows[2], 'H', "^[A-Z]*1[A-Z]*$");
 			if (rows.item(firstfinal).getChildNodes().getLength() > 20) {
 				char[] finalcolumns = {'H', 'H', 'E'};
-				String[] nextFinalIndicator = {"^[A-Z]*1[A-Z]*$", "^[A-Z]*1[A-Z]*$", "-"};
+				String[] nextFinalIndicator = {"^[A-Z]*1[A-Z]*$", "^[A-Z]*1[A-Z]*$", " - "};
 				int[] nextFinal = findmultipleRowsWithContent(rows, firstfinal, finalcolumns, nextFinalIndicator);
 				generateRoboSlots(rows, firstfinal, nextFinal[0], 4, roboslots, teamList);
 				generateRoboSlots(rows, nextFinal[0], nextFinal[1], 5, roboslots, teamList);
 				generateRoboSlots(rows, nextFinal[1], nextFinal[2], 6, roboslots, teamList);
 			} else {
 				char[] finalcolumns = {'H', 'E'};
-				String[] nextFinalIndicator = {"^[A-Z]*1[A-Z]*$", "-"};
+				String[] nextFinalIndicator = {"^[A-Z]*1[A-Z]*$", " - "};
 				int[] nextfinal = findmultipleRowsWithContent(rows, firstfinal, finalcolumns, nextFinalIndicator);
 				generateRoboSlots(rows, firstfinal, nextfinal[0], 5, roboslots, teamList);
 				generateRoboSlots(rows, nextfinal[0], nextfinal[1], 6, roboslots, teamList);
