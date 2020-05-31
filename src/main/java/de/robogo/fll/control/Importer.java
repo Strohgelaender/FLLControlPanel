@@ -2,6 +2,7 @@ package de.robogo.fll.control;
 
 import static de.robogo.fll.control.FLLController.getTableByNumber;
 
+import java.awt.Stroke;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +33,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import de.robogo.fll.entity.JuryTimeSlot;
 import de.robogo.fll.entity.RobotGameTimeSlot;
 import de.robogo.fll.entity.RoundMode;
 import de.robogo.fll.entity.Team;
@@ -96,6 +98,27 @@ public class Importer {
 
 		NodeList rows = document.getChildNodes().item(0).getChildNodes();
 
+		List<TimeSlot> timeSlots = new ArrayList<>();
+
+		//Import Locations
+		char[] juryColumn = {'I', 'I', 'I', 'I'};
+		String[] juryRegex = {"^TR\\S$", "R", "T", "F"};
+		int[] juryTypeRows = findmultipleRowsWithContent(rows, 0, juryColumn, juryRegex);
+		String[][] juryRooms = new String[4][3]; // in this order : testRoundRooms, robotDesignRooms,teamworkRooms, researchRooms
+		for (int i = 0; i < 3; i++) {
+			NodeList juryList = rows.item(juryTypeRows[i]).getChildNodes();
+			int numberOfJury = 0;
+			for (int j = 1; i < juryList.getLength(); i += 2) {
+				Node juryCell = juryList.item(j);
+				String column = getColumnIndex(juryCell);
+				if (column.charAt(0) < 'J') continue;
+				if (juryCell.getTextContent().replaceAll("[0-9]", "").matches(juryRegex[i])) continue;
+				juryRooms[i][numberOfJury] = juryCell.getTextContent();
+				numberOfJury++;
+			}
+		}
+
+
 		int juryTableRow = findRowWithContent(rows, 0, 'H', "^#1$");
 
 		if (juryTableRow == -1) {
@@ -109,19 +132,51 @@ public class Importer {
 		NodeList teams = rows.item(juryTableRow - 2).getChildNodes();
 
 		List<Team> teamList = new ArrayList<>();
-		for (int i = 1; i < teams.getLength(); i += 2) {
+		for (int i = 3; i < teams.getLength(); i += 2) {
 			Node tt = teams.item(i);
 			if (tt.getAttributes() == null)
 				continue;
 			String ttName = tt.getTextContent();
 			if (StringUtils.isEmpty(ttName))
 				break;
-			if (ttName.trim().equals("Teams")) //TODO translation?
-				continue;
-
 			teamList.add(new Team(ttName.trim(), i / 2));
 		}
 		FLLController.setTeams(teamList);
+
+		//Import Testrounds and Jury Sessions
+
+		for (int i = juryTableRow + 2; i < findRowWithContent(rows, juryTableRow + 2, 'E', " - "); i += 2) {
+
+			NodeList juryList = rows.item(i).getChildNodes();
+			LocalTime time = LocalTime.parse(juryList.item(1).getTextContent());
+			for (int j = 3; j < juryList.getLength(); j += 2) {
+				int tempteam = 0;
+				Node cell = juryList.item(j);
+				String name = getColumnIndex(cell);
+				String jurySession = juryList.item(j).getTextContent();
+				String juryTypeString = jurySession.replaceAll("[0-9]", "");
+				int juryNumber = Integer.parseInt(jurySession.replaceAll("[A-Z]", ""));
+				int juryTypeIndex = 0;
+				for (int k = 0; k < 4; k++) {
+					if (juryRegex[k].matches(juryTypeString)) {
+						juryTypeIndex = k;
+						break;
+					}
+				}
+				if (name.length() == 1)
+					tempteam = name.charAt(0) - 72;
+
+				if (name.length() == 2)
+					tempteam = name.charAt(1) - 46;
+
+				Team t1 = tempteam < teamList.size() ? teamList.get(tempteam) : null;
+				timeSlots.add(new JuryTimeSlot(t1, time, JuryTimeSlot.JuryType.values()[juryTypeIndex], juryRooms[juryTypeIndex][juryNumber], juryNumber));
+
+			}
+
+
+		}
+
 
 		//Begin importing Robot Game times
 
@@ -140,11 +195,11 @@ public class Importer {
 		int[] endRoundRows = findmultipleRowsWithContent(rows, rgrone, roboclumn, roboregex);
 
 		// Lines in the next 3 section below the 2nd "#1": Robotgame-preliminary Rounds
-		List<TimeSlot> roboslots = new ArrayList<>();
 
-		generateRoboSlots(rows, rgrone, endRoundRows[0], 1, roboslots, teamList);
-		generateRoboSlots(rows, endRoundRows[0], endRoundRows[1], 2, roboslots, teamList);
-		generateRoboSlots(rows, endRoundRows[1], endRoundRows[2], 3, roboslots, teamList);
+
+		generateRoboSlots(rows, rgrone, endRoundRows[0], 1, timeSlots, teamList);
+		generateRoboSlots(rows, endRoundRows[0], endRoundRows[1], 2, timeSlots, teamList);
+		generateRoboSlots(rows, endRoundRows[1], endRoundRows[2], 3, timeSlots, teamList);
 
 		//Final rounds in tables below
 
@@ -153,18 +208,18 @@ public class Importer {
 			char[] finalcolumns = {'H', 'H', 'E'};
 			String[] nextFinalIndicator = {"^[A-Z]*1[A-Z]*$", "^[A-Z]*1[A-Z]*$", "-"};
 			int[] nextFinal = findmultipleRowsWithContent(rows, firstfinal, finalcolumns, nextFinalIndicator);
-			generateRoboSlots(rows, firstfinal, nextFinal[0], 4, roboslots, teamList);
-			generateRoboSlots(rows, nextFinal[0], nextFinal[1], 5, roboslots, teamList);
-			generateRoboSlots(rows, nextFinal[1], nextFinal[2], 6, roboslots, teamList);
+			generateRoboSlots(rows, firstfinal, nextFinal[0], 4, timeSlots, teamList);
+			generateRoboSlots(rows, nextFinal[0], nextFinal[1], 5, timeSlots, teamList);
+			generateRoboSlots(rows, nextFinal[1], nextFinal[2], 6, timeSlots, teamList);
 		} else { //no quarter-finals
 			char[] finalcolumns = {'H', 'E'};
 			String[] nextFinalIndicator = {"^[A-Z]*1[A-Z]*$", "-"};
 			int[] nextfinal = findmultipleRowsWithContent(rows, firstfinal, finalcolumns, nextFinalIndicator);
-			generateRoboSlots(rows, firstfinal, nextfinal[0], 5, roboslots, teamList);
-			generateRoboSlots(rows, nextfinal[0], nextfinal[1], 6, roboslots, teamList);
+			generateRoboSlots(rows, firstfinal, nextfinal[0], 5, timeSlots, teamList);
+			generateRoboSlots(rows, nextfinal[0], nextfinal[1], 6, timeSlots, teamList);
 		}
 
-		FLLController.setTimeSlots(roboslots);
+		FLLController.setTimeSlots(timeSlots);
 
 		System.out.println("Import fertig");
 	}

@@ -7,8 +7,6 @@ Konfiguration speichern
 
 
 // Optional
-
-Sequentielle Suche nach Werten in einem Array in einer Liste
 Timer?
 OBS
 Musik (Foobar, noch andere?)

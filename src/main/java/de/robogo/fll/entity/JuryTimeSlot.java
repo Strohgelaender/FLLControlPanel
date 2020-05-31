@@ -46,7 +46,7 @@ public class JuryTimeSlot extends TimeSlot {
 	}
 
 	public enum JuryType {
-		Research, RobotDesign, Teamwork, Testround
+		TestRound, RobotDesign, Teamwork, Research
 	}
 
 }
