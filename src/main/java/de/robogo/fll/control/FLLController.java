@@ -9,6 +9,8 @@ import de.robogo.fll.entity.RoundMode;
 import de.robogo.fll.entity.Table;
 import de.robogo.fll.entity.Team;
 import de.robogo.fll.entity.TimeSlot;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 
 public class FLLController {
 
@@ -20,6 +22,8 @@ public class FLLController {
 	private static final List<Table> tables = new ArrayList<>(Arrays.asList(new Table("1"), new Table("2"), new Table("3"), new Table("4")));
 
 	private static final List<TimeSlot> timeSlots = new ArrayList<>();
+
+	private static final ObjectProperty<RobotGameTimeSlot> activeSlot = new SimpleObjectProperty<>();
 
 	public static List<Team> getTeams() {
 		return teams;
@@ -78,5 +82,17 @@ public class FLLController {
 
 	public static void setEventName(final String eventName) {
 		FLLController.eventName = eventName;
+	}
+
+	public static RobotGameTimeSlot getActiveSlot() {
+		return activeSlot.get();
+	}
+
+	public static ObjectProperty<RobotGameTimeSlot> getActiveSlotProperty() {
+		return activeSlot;
+	}
+
+	public static void setActiveSlot(final RobotGameTimeSlot activeSlot) {
+		FLLController.activeSlot.setValue(activeSlot);
 	}
 }

@@ -1,7 +1,9 @@
 package de.robogo.fll.gui;
 
+import static de.robogo.fll.control.FLLController.getActiveSlot;
 import static de.robogo.fll.control.FLLController.getTeams;
 import static de.robogo.fll.control.FLLController.getTimeSlots;
+import static de.robogo.fll.control.FLLController.setActiveSlot;
 
 import java.io.File;
 import java.time.LocalTime;
@@ -29,13 +31,14 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -54,6 +57,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.Duration;
+import javafx.util.Pair;
 
 @Component
 public class ControlApplication extends Application {
@@ -62,8 +66,6 @@ public class ControlApplication extends Application {
 
 	private static final DateTimeFormatter HHmmFormatter = DateTimeFormatter.ofPattern("HH:mm");
 	private static final DateTimeFormatter HHmmssFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-
-	private final ObjectProperty<RobotGameTimeSlot> activeSlot = new SimpleObjectProperty<>();
 
 	private TableView<TimeSlot> tableView;
 	private ObservableList<TimeSlot> tableItems;
@@ -104,36 +106,10 @@ public class ControlApplication extends Application {
 		// Wählen der aktuellen Runde
 		Button left_arrow = new Button("<-");
 		lrp.add(left_arrow, 0, 0);
-		left_arrow.setOnAction(event -> {
-			List<RobotGameTimeSlot> slots = FLLController.getTimeSlotsByRoundMode(rg_state.getValue());
-			if (activeSlot.getValue() == null) {
-				if (!slots.isEmpty())
-					setActiveSlot(slots.get(0));
-			} else {
-				int i = slots.indexOf(activeSlot.getValue());
-				if (i > 0) {
-					setActiveSlot(slots.get(i - 1));
-				} else {
-					//TODO zu vorheriger Tabelle springen
-				}
-			}
-		});
+		left_arrow.setOnAction(generateArrowEventHandler(-1, p -> p.getKey() > 0));
 		Button right_arrow = new Button("->");
 		lrp.add(right_arrow, 1, 0);
-		right_arrow.setOnAction(event -> {
-			List<RobotGameTimeSlot> slots = FLLController.getTimeSlotsByRoundMode(rg_state.getValue());
-			if (activeSlot.getValue() == null) {
-				if (!slots.isEmpty())
-					setActiveSlot(slots.get(0));
-			} else {
-				int i = slots.indexOf(activeSlot.getValue());
-				if (i != slots.size() - 1) {
-					setActiveSlot(slots.get(i + 1));
-				} else {
-					//TODO zu nächster Tabelle springen
-				}
-			}
-		});
+		right_arrow.setOnAction(generateArrowEventHandler(1, p -> p.getKey() < p.getValue() - 1));
 
 		//Rest
 
@@ -299,7 +275,7 @@ public class ControlApplication extends Application {
 		tableView.setRowFactory(param -> {
 			TableRow<TimeSlot> row = new TableRow<>();
 
-			BooleanBinding active = row.itemProperty().isEqualTo(activeSlot);
+			BooleanBinding active = row.itemProperty().isEqualTo(FLLController.getActiveSlotProperty());
 			row.styleProperty().bind(Bindings.when(active)
 					.then(" -fx-background-color: lightgreen ;")
 					.otherwise(""));
@@ -340,12 +316,25 @@ public class ControlApplication extends Application {
 		return cell;
 	}
 
+	private EventHandler<ActionEvent> generateArrowEventHandler(final int adder, final Callback<Pair<Integer, Integer>, Boolean> condition) {
+		return event -> {
+			List<RobotGameTimeSlot> slots = FLLController.getTimeSlotsByRoundMode(rg_state.getValue());
+			if (getActiveSlot() == null) {
+				if (!slots.isEmpty())
+					setActiveSlot(slots.get(0));
+			} else {
+				int i = slots.indexOf(getActiveSlot());
+				if (condition.call(new Pair<>(i, slots.size()))) {
+					setActiveSlot(slots.get(i + adder));
+				} else {
+					//TODO zu nächster Tabelle springen
+				}
+			}
+		};
+	}
+
 	public static void launchApp(Class<? extends ControlApplication> appClass, ConfigurableApplicationContext context, String[] args) {
 		ControlApplication.context = context;
 		Application.launch(appClass, args);
-	}
-
-	public void setActiveSlot(final RobotGameTimeSlot activeSlot) {
-		this.activeSlot.setValue(activeSlot);
 	}
 }

@@ -2,7 +2,6 @@ package de.robogo.fll.control;
 
 import static de.robogo.fll.control.FLLController.getTableByNumber;
 
-import java.awt.Stroke;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -77,7 +76,7 @@ public class Importer {
 				break;
 			}
 		} catch (Exception e) {
-			//TODO handle
+			//TODO handle (v.a FileNotFoundException kann nicht zugreifen mit Hinweis)
 			e.printStackTrace();
 		}
 
@@ -148,7 +147,10 @@ public class Importer {
 		for (int i = juryTableRow + 2; i < findRowWithContent(rows, juryTableRow + 2, 'E', " - "); i += 2) {
 
 			NodeList juryList = rows.item(i).getChildNodes();
-			LocalTime time = LocalTime.parse(juryList.item(1).getTextContent());
+			String stringTime = juryList.item(1).getTextContent();
+			if (stringTime.length() == 4)
+				stringTime = "0" + stringTime;
+			LocalTime time = LocalTime.parse(stringTime);
 			for (int j = 3; j < juryList.getLength(); j += 2) {
 				int tempteam = 0;
 				Node cell = juryList.item(j);
