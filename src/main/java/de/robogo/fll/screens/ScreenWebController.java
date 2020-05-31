@@ -22,16 +22,23 @@ public class ScreenWebController {
 	@GetMapping("/timetable")
 	public String timetable(@RequestParam(name = "round", required = false, defaultValue = "current") String round, Model model) {
 		model.addAttribute("eventName", FLLController.getEventName());
+		RoundMode roundMode = null;
 		if (round.equalsIgnoreCase("current")) {
 			if (FLLController.getActiveSlot() != null)
-				model.addAttribute("timeslots", FLLController.getTimeSlotsByRoundMode(FLLController.getActiveSlot().getRoundMode()));
+				roundMode = FLLController.getActiveSlot().getRoundMode();
 		} else {
 			try {
-				RoundMode roundMode = RoundMode.valueOf(round);
-				model.addAttribute("timeslots", FLLController.getTimeSlotsByRoundMode(roundMode));
+				roundMode = RoundMode.valueOf(round);
 			} catch (IllegalArgumentException ignored) {
+				try {
+					int i = Integer.parseInt(round);
+					roundMode = RoundMode.values()[i];
+				} catch (Exception ignored2) {
+				}
 			}
 		}
+		if (roundMode != null)
+			model.addAttribute("timeslots", FLLController.getTimeSlotsByRoundMode(roundMode));
 		return "timetable";
 	}
 

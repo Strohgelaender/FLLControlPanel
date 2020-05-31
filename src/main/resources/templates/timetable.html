@@ -17,10 +17,10 @@
 	</tr>
 	<tr th:each="ts : ${timeslots}">
 		<td th:text="${ts.time}">Uhrzeit</td>
-		<td th:text="${ts.teamA.name}">Team 1</td>
+		<td th:text="${ts.teamA == null ? '' : ts.teamA.name}">Team 1</td>
 		<td th:text="${ts.tableA.name}">Tisch 1</td>
 		<td th:text="${ts.tableB.name}">Tisch 2</td>
-		<td th:text="${ts.teamB.name}">Team 2</td>
+		<td th:text="${ts.teamB == null ? '' : ts.teamB.name}">Team 2</td>
 	</tr>
 </table>
 </body>
