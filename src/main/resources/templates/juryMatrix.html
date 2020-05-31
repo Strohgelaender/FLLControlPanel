@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>FLL Jury Matrix</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<h1 th:text="${eventName}"></h1>
+<h2>Zeitplan Vormittag</h2>
+
+<table>
+	<tr>
+		<th>Zeit</th>
+		<th th:each="team : ${teams}" th:text="${team.id}">-1</th>
+	</tr>
+	<tr th:each="group : ${slots}">
+		<td th:text="${group.key}">10:00</td>
+		<td th:each="st : ${group.value}" th:text="${st}">TR1</td>
+	</tr>
+</table>
+
+<table>
+
+</table>
+
+</body>
+</html>

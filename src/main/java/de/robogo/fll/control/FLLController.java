@@ -1,9 +1,13 @@
 package de.robogo.fll.control;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import de.robogo.fll.entity.JuryTimeSlot;
 import de.robogo.fll.entity.RobotGameTimeSlot;
 import de.robogo.fll.entity.RoundMode;
 import de.robogo.fll.entity.Table;
@@ -70,6 +74,19 @@ public class FLLController {
 			}
 		}
 		return retVal;
+	}
+
+	public static List<JuryTimeSlot> getJuryTimeSlots() {
+		List<JuryTimeSlot> retVal = new ArrayList<>();
+		for (TimeSlot timeSlot : getTimeSlots()) {
+			if (timeSlot instanceof JuryTimeSlot)
+				retVal.add((JuryTimeSlot) timeSlot);
+		}
+		return retVal;
+	}
+
+	public static Map<LocalTime, List<JuryTimeSlot>> getJuryTimeSlotsGrouped() {
+		return getJuryTimeSlots().stream().collect(Collectors.groupingBy(TimeSlot::getTime));
 	}
 
 	public static Table getTableByNumber(int num) {

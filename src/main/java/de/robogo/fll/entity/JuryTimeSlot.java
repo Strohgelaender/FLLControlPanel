@@ -46,7 +46,17 @@ public class JuryTimeSlot extends TimeSlot {
 	}
 
 	public enum JuryType {
-		TestRound, RobotDesign, Teamwork, Research
+		TestRound("TR"), RobotDesign("R"), Teamwork("T"), Research("F");
+
+		private final String text;
+
+		JuryType(String text) {
+			this.text = text;
+		}
+
+		public String getText() {
+			return text;
+		}
 	}
 
 }
