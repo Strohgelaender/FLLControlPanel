@@ -219,16 +219,16 @@ public class Importer {
 		//Final rounds in tables below
 
 		int firstfinal = findRowWithContent(rows, endRoundRows[2], 'H', "^[A-Z]*1[A-Z]*$");
-		if (rows.item(firstfinal).getChildNodes().getLength() > 20) { //if quarter-final exists, there are more than 20 nodes in the header of the timetable
-			char[] finalcolumns = {'H', 'H', 'E'};
-			String[] nextFinalIndicator = {"^[A-Z]*1[A-Z]*$", "^[A-Z]*1[A-Z]*$", "-"};
+		if (rows.item(firstfinal).getChildNodes().getLength() > 25) { //if quarter-final exists, there are more than 25 nodes in the header of the timetable
+			char[] finalcolumns = {'E', 'E', 'E'};
+			String[] nextFinalIndicator = {" - ", " - ", " - "};
 			int[] nextFinal = findmultipleRowsWithContent(rows, firstfinal, finalcolumns, nextFinalIndicator);
 			generateRoboSlots(rows, firstfinal, nextFinal[0], 4, timeSlots, teamList);
 			generateRoboSlots(rows, nextFinal[0], nextFinal[1], 5, timeSlots, teamList);
 			generateRoboSlots(rows, nextFinal[1], nextFinal[2], 6, timeSlots, teamList);
 		} else { //no quarter-finals
-			char[] finalcolumns = {'H', 'E'};
-			String[] nextFinalIndicator = {"^[A-Z]*1[A-Z]*$", "-"};
+			char[] finalcolumns = {'E', 'E'};
+			String[] nextFinalIndicator = {" - ", " - "};
 			int[] nextfinal = findmultipleRowsWithContent(rows, firstfinal, finalcolumns, nextFinalIndicator);
 			generateRoboSlots(rows, firstfinal, nextfinal[0], 5, timeSlots, teamList);
 			generateRoboSlots(rows, nextfinal[0], nextfinal[1], 6, timeSlots, teamList);
