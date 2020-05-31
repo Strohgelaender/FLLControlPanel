@@ -78,6 +78,7 @@ public class Importer {
 		} catch (Exception e) {
 			//TODO handle (v.a FileNotFoundException kann nicht zugreifen mit Hinweis)
 			e.printStackTrace();
+			return;
 		}
 
 		if (xml == null)
@@ -145,7 +146,9 @@ public class Importer {
 
 		//Import Testrounds and Jury Sessions
 
-		for (int i = juryTableRow + 2; i < findRowWithContent(rows, juryTableRow + 2, 'E', " - "); i += 2) {
+		int loopEnd = findRowWithContent(rows, juryTableRow + 2, 'E', " - ") - 2;
+		outerLoop:
+		for (int i = juryTableRow + 2; i < loopEnd; i += 2) {
 
 			NodeList juryList = rows.item(i).getChildNodes();
 			String stringTime = juryList.item(1).getTextContent();
@@ -158,7 +161,13 @@ public class Importer {
 				String name = getColumnIndex(cell);
 				String jurySession = juryList.item(j).getTextContent();
 				String juryTypeString = jurySession.replaceAll("[0-9]", "");
-				int juryNumber = Integer.parseInt(jurySession.replaceAll("[A-Z]", ""));
+				int juryNumber;
+				try {
+					juryNumber = Integer.parseInt(jurySession.replaceAll("[A-Z]", ""));
+				} catch (NumberFormatException e) { //Pause
+					continue outerLoop;
+				}
+
 				int juryTypeIndex = 0;
 				for (int k = 0; k < 4; k++) {
 					if (juryRegex[k].matches(juryTypeString)) {
@@ -173,7 +182,7 @@ public class Importer {
 					tempteam = name.charAt(1) - 46;
 
 				Team t1 = tempteam < teamList.size() ? teamList.get(tempteam) : null;
-				timeSlots.add(new JuryTimeSlot(t1, time, JuryTimeSlot.JuryType.values()[juryTypeIndex], juryRooms[juryTypeIndex][juryNumber], juryNumber));
+				timeSlots.add(new JuryTimeSlot(t1, time, JuryTimeSlot.JuryType.values()[juryTypeIndex], juryRooms[juryTypeIndex][juryNumber - 1], juryNumber));
 
 			}
 
