@@ -116,7 +116,8 @@ public class Importer {
 				numberOfJury++;
 			}
 		}
-
+		juryRooms[0][1] = juryRooms[0][0];
+		juryRooms[0][2] = juryRooms[0][0];
 
 		int juryTableRow = findRowWithContent(rows, 0, 'H', "^#1$");
 
