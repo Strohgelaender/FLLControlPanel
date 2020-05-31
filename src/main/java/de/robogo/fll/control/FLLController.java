@@ -8,6 +8,7 @@ import de.robogo.fll.entity.RobotGameTimeSlot;
 import de.robogo.fll.entity.RoundMode;
 import de.robogo.fll.entity.Table;
 import de.robogo.fll.entity.Team;
+import de.robogo.fll.entity.TimeSlot;
 
 public class FLLController {
 
@@ -18,13 +19,13 @@ public class FLLController {
 
 	private static final List<Table> tables = new ArrayList<>(Arrays.asList(new Table("1"), new Table("2"), new Table("3"), new Table("4")));
 
-	private static final List<RobotGameTimeSlot> timeSlots = new ArrayList<>();
+	private static final List<TimeSlot> timeSlots = new ArrayList<>();
 
 	public static List<Team> getTeams() {
 		return teams;
 	}
 
-	public static List<RobotGameTimeSlot> getTimeSlots() {
+	public static List<TimeSlot> getTimeSlots() {
 		return timeSlots;
 	}
 
@@ -42,7 +43,7 @@ public class FLLController {
 		FLLController.teams.addAll(teams);
 	}
 
-	public static void setTimeSlots(final List<RobotGameTimeSlot> timeSlots) {
+	public static void setTimeSlots(final List<TimeSlot> timeSlots) {
 		FLLController.timeSlots.clear();
 		FLLController.timeSlots.addAll(timeSlots);
 	}
@@ -57,9 +58,12 @@ public class FLLController {
 
 	public static List<RobotGameTimeSlot> getTimeSlotsByRoundMode(RoundMode roundMode) {
 		List<RobotGameTimeSlot> retVal = new ArrayList<>();
-		for (RobotGameTimeSlot timeSlot : getTimeSlots()) {
-			if (timeSlot.getRoundMode().equals(roundMode))
-				retVal.add(timeSlot);
+		for (TimeSlot timeSlot : getTimeSlots()) {
+			if (timeSlot instanceof RobotGameTimeSlot) {
+				RobotGameTimeSlot rgts = (RobotGameTimeSlot) timeSlot;
+				if (rgts.getRoundMode().equals(roundMode))
+					retVal.add(rgts);
+			}
 		}
 		return retVal;
 	}

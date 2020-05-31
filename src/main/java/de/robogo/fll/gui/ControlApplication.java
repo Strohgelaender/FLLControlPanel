@@ -6,6 +6,7 @@ import static de.robogo.fll.control.FLLController.getTimeSlots;
 import java.io.File;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,10 +17,12 @@ import org.springframework.stereotype.Component;
 import de.robogo.fll.control.FLLController;
 import de.robogo.fll.control.Importer;
 import de.robogo.fll.control.ScoreboardDownloader;
+import de.robogo.fll.entity.JuryTimeSlot;
 import de.robogo.fll.entity.RobotGameTimeSlot;
 import de.robogo.fll.entity.RoundMode;
 import de.robogo.fll.entity.Table;
 import de.robogo.fll.entity.Team;
+import de.robogo.fll.entity.TimeSlot;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -28,9 +31,11 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -60,16 +65,15 @@ public class ControlApplication extends Application {
 
 	private final ObjectProperty<RobotGameTimeSlot> activeSlot = new SimpleObjectProperty<>();
 
-	private TableView<RobotGameTimeSlot> tableView;
+	private TableView<TimeSlot> tableView;
+	private ObservableList<TimeSlot> tableItems;
+	private final List<TableColumn<TimeSlot, ?>> robotGameTableColumns = new ArrayList<>();
+	private final List<TableColumn<TimeSlot, ?>> juryTableColumns = new ArrayList<>();
 
-	private static final List<Team> teams = Arrays.asList(new Team("GO Robot", 1), new Team("RoboGO", 2), new Team("NEEDSNONAME", 3));
-	private final List<RobotGameTimeSlot> timeSlots = Arrays.asList(new RobotGameTimeSlot(teams.get(0), teams.get(1), new Table("1"), new Table("2"), LocalTime.now(), RoundMode.Round1), new RobotGameTimeSlot(teams.get(1), teams.get(2), new Table("3"), new Table("4"), LocalTime.MIDNIGHT, RoundMode.Round1));
+	private ComboBox<RoundMode> rg_state;
 
 	@Override
 	public void start(final Stage stage) throws Exception {
-
-		FLLController.setTeams(teams);
-		FLLController.setTimeSlots(timeSlots);
 
 		// Grid panes
 		AnchorPane windowRoot = new AnchorPane();
@@ -101,18 +105,34 @@ public class ControlApplication extends Application {
 		Button left_arrow = new Button("<-");
 		lrp.add(left_arrow, 0, 0);
 		left_arrow.setOnAction(event -> {
-			int i = getTimeSlots().indexOf(activeSlot.getValue());
-			if (i > 0) {
-				setActiveSlot(getTimeSlots().get(i - 1));
-			} else {/* TODO zu vorheriger Tabelle springen*/}
+			List<RobotGameTimeSlot> slots = FLLController.getTimeSlotsByRoundMode(rg_state.getValue());
+			if (activeSlot.getValue() == null) {
+				if (!slots.isEmpty())
+					setActiveSlot(slots.get(0));
+			} else {
+				int i = slots.indexOf(activeSlot.getValue());
+				if (i > 0) {
+					setActiveSlot(slots.get(i - 1));
+				} else {
+					//TODO zu vorheriger Tabelle springen
+				}
+			}
 		});
 		Button right_arrow = new Button("->");
 		lrp.add(right_arrow, 1, 0);
 		right_arrow.setOnAction(event -> {
-			int i = getTimeSlots().indexOf(activeSlot.getValue());
-			if (i != getTimeSlots().size() - 1) {
-				setActiveSlot(getTimeSlots().get(i + 1));
-			} else {/* TODO zu nächster Tabelle springen*/}
+			List<RobotGameTimeSlot> slots = FLLController.getTimeSlotsByRoundMode(rg_state.getValue());
+			if (activeSlot.getValue() == null) {
+				if (!slots.isEmpty())
+					setActiveSlot(slots.get(0));
+			} else {
+				int i = slots.indexOf(activeSlot.getValue());
+				if (i != slots.size() - 1) {
+					setActiveSlot(slots.get(i + 1));
+				} else {
+					//TODO zu nächster Tabelle springen
+				}
+			}
 		});
 
 		//Rest
@@ -128,6 +148,7 @@ public class ControlApplication extends Application {
 			fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel-Timetable", "*.xlsb"));
 			File sheet = fileChooser.showOpenDialog(stage);
 			Importer.importFile(sheet);
+			refreshTable();
 		});
 
 		download_file.setOnAction(event -> ScoreboardDownloader.downloadScoreboard());
@@ -135,7 +156,8 @@ public class ControlApplication extends Application {
 		CheckBox autodelay = new CheckBox("Auto"); // einzige Checkbox
 		tbp.add(autodelay, 2, 0);
 
-		ComboBox rg_state = new ComboBox(FXCollections.observableArrayList(RoundMode.values()));
+		rg_state = new ComboBox<>(FXCollections.observableArrayList(RoundMode.values()));
+		rg_state.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> refreshTable());
 		rgr.add(rg_state, 1, 0);
 
 
@@ -149,53 +171,10 @@ public class ControlApplication extends Application {
 
 
 		//Table
+		initTable();
 
-		tableView = new TableView<>();
-		TableColumn<RobotGameTimeSlot, LocalTime> time = new TableColumn<>("Time");
-		time.setCellValueFactory(new PropertyValueFactory<>("time"));
-		time.setCellFactory(robotGameTimeSlotStringTableColumn -> new TableCell<>() {
-			@Override
-			protected void updateItem(final LocalTime item, final boolean empty) {
-				if (item != null) {
-					setText(HHmmFormatter.format(item));
-				}
-			}
-		});
-
-		TableColumn<RobotGameTimeSlot, Property<Team>> teamA = new TableColumn<>("Team");
-		teamA.setCellValueFactory(i -> createTeamValue(i, t -> t.getTeamA()));
-		teamA.setCellFactory(this::createTeamComboBoxCell);
-
-		TableColumn<RobotGameTimeSlot, Table> tableA = new TableColumn<>("TischA");
-		tableA.setCellValueFactory(new PropertyValueFactory<>("tableA"));
-
-		TableColumn<RobotGameTimeSlot, Table> tableB = new TableColumn<>("TischB");
-		tableB.setCellValueFactory(new PropertyValueFactory<>("tableB"));
-
-		TableColumn<RobotGameTimeSlot, Property<Team>> teamB = new TableColumn<>("Team");
-		teamB.setCellValueFactory(i -> createTeamValue(i, t -> t.getTeamB()));
-		teamB.setCellFactory(this::createTeamComboBoxCell);
-
-		tableView.setRowFactory(param -> {
-			TableRow<RobotGameTimeSlot> row = new TableRow<>();
-
-			BooleanBinding active = row.itemProperty().isEqualTo(activeSlot);
-			row.styleProperty().bind(Bindings.when(active)
-					.then(" -fx-background-color: lightgreen ;")
-					.otherwise(""));
-
-			return row;
-		});
-
-		tableView.setItems(FXCollections.observableList(getTimeSlots()));
-
-		teamA.setPrefWidth(200);
-
-		tableView.getColumns().addAll(time, teamA, tableA, tableB, teamB);
-
-		tableView.setPrefWidth(1150);
-
-		tableView.setEditable(true);
+		//updates Table Columns
+		rg_state.getSelectionModel().selectFirst(); //call after Table-Init!
 
 		root.add(tableView, 0, 2);
 
@@ -221,8 +200,6 @@ public class ControlApplication extends Application {
 
 		stage.setScene(scene);
 
-		setActiveSlot(getTimeSlots().get(0));
-
 		ScoreboardDownloader.initLoginDialog(stage);
 
 		stage.setTitle("KuC Control Ball");
@@ -243,12 +220,113 @@ public class ControlApplication extends Application {
 		context.close();
 	}
 
-	private ObservableValue<Property<Team>> createTeamValue(TableColumn.CellDataFeatures<RobotGameTimeSlot, Property<Team>> i, Callback<RobotGameTimeSlot, Team> tcb) {
+	public void refreshTable() {
+		tableView.getColumns().remove(1, tableView.getColumns().size());
+		if (rg_state.getValue() == RoundMode.TestRound) {
+			tableView.getColumns().addAll(juryTableColumns);
+			tableView.setItems(tableItems.filtered(timeSlot -> timeSlot instanceof JuryTimeSlot));
+			//TODO rename and change to own enum / remove from RoundMode (Import!)
+		} else {
+			tableView.getColumns().addAll(robotGameTableColumns);
+			tableView.setItems(tableItems.filtered(timeSlot -> timeSlot instanceof RobotGameTimeSlot && ((RobotGameTimeSlot) timeSlot).getRoundMode().equals(rg_state.getValue())));
+		}
+		tableView.refresh();
+	}
+
+	private static final int PREF_TEAM_COLUMN_WIDTH = 200;
+
+	private void initTable() {
+		tableView = new TableView<>();
+
+		TableColumn<TimeSlot, LocalTime> time = new TableColumn<>("Time");
+		time.setCellValueFactory(new PropertyValueFactory<>("time"));
+		time.setCellFactory(robotGameTimeSlotStringTableColumn -> new TableCell<>() {
+			@Override
+			protected void updateItem(final LocalTime item, final boolean empty) {
+				if (item != null) {
+					setText(HHmmFormatter.format(item));
+				}
+			}
+		});
+
+		//RobotGame Columns
+		TableColumn<TimeSlot, Property<Team>> teamA = new TableColumn<>("Team");
+		teamA.setCellValueFactory(i -> createTeamValue(i, t -> ((RobotGameTimeSlot) t).getTeamA()));
+		teamA.setCellFactory(this::createTeamComboBoxCell);
+
+		TableColumn<TimeSlot, Table> tableA = new TableColumn<>("TischA");
+		tableA.setCellValueFactory(param -> {
+			if (param.getValue() instanceof RobotGameTimeSlot)
+				return new SimpleObjectProperty<>(((RobotGameTimeSlot) param.getValue()).getTableA());
+			return null;
+		});
+
+		TableColumn<TimeSlot, Table> tableB = new TableColumn<>("TischB");
+		tableB.setCellValueFactory(param -> {
+			if (param.getValue() instanceof RobotGameTimeSlot)
+				return new SimpleObjectProperty<>(((RobotGameTimeSlot) param.getValue()).getTableB());
+			return null;
+		});
+
+		TableColumn<TimeSlot, Property<Team>> teamB = new TableColumn<>("Team");
+		teamB.setCellValueFactory(i -> createTeamValue(i, t -> ((RobotGameTimeSlot) t).getTeamB()));
+		teamB.setCellFactory(this::createTeamComboBoxCell);
+
+		robotGameTableColumns.addAll(Arrays.asList(teamA, tableA, tableB, teamB));
+
+		//Jury Columns
+
+		TableColumn<TimeSlot, Property<Team>> teamJ = new TableColumn<>("Team");
+		teamJ.setCellValueFactory(i -> createTeamValue(i, t -> ((JuryTimeSlot) t).getTeam()));
+		teamJ.setCellFactory(this::createTeamComboBoxCell);
+
+		TableColumn<TimeSlot, JuryTimeSlot.JuryType> juryType = new TableColumn<>("Jury Type");
+		juryType.setCellValueFactory(param -> {
+			if (param.getValue() instanceof JuryTimeSlot)
+				return new SimpleObjectProperty<>(((JuryTimeSlot) param.getValue()).getJuryType());
+			return null;
+		});
+
+		TableColumn<TimeSlot, Integer> juryNumber = new TableColumn<>("Number");
+		juryNumber.setCellValueFactory(param -> {
+			if (param.getValue() instanceof JuryTimeSlot)
+				return new SimpleIntegerProperty(((JuryTimeSlot) param.getValue()).getJuryNumber()).asObject();
+			return null;
+		});
+
+		juryTableColumns.addAll(Arrays.asList(teamJ, juryType, juryNumber));
+
+		tableView.setRowFactory(param -> {
+			TableRow<TimeSlot> row = new TableRow<>();
+
+			BooleanBinding active = row.itemProperty().isEqualTo(activeSlot);
+			row.styleProperty().bind(Bindings.when(active)
+					.then(" -fx-background-color: lightgreen ;")
+					.otherwise(""));
+
+			return row;
+		});
+
+		tableItems = FXCollections.observableList(getTimeSlots());
+		tableView.setItems(tableItems);
+
+		teamA.setPrefWidth(PREF_TEAM_COLUMN_WIDTH);
+		teamB.setPrefWidth(PREF_TEAM_COLUMN_WIDTH);
+		teamJ.setPrefWidth(PREF_TEAM_COLUMN_WIDTH);
+
+		tableView.getColumns().add(time);
+
+		tableView.setPrefWidth(1000);
+
+		tableView.setEditable(true);
+	}
+
+	private ObservableValue<Property<Team>> createTeamValue(TableColumn.CellDataFeatures<? extends TimeSlot, Property<Team>> i, Callback<TimeSlot, Team> tcb) {
 		return Bindings.createObjectBinding(() -> new SimpleObjectProperty<>(tcb.call(i.getValue())));
 	}
 
-	private TableCell<RobotGameTimeSlot, Property<Team>> createTeamComboBoxCell(TableColumn<RobotGameTimeSlot, Property<Team>> col) {
-		TableCell<RobotGameTimeSlot, Property<Team>> cell = new TableCell<>();
+	private TableCell<TimeSlot, Property<Team>> createTeamComboBoxCell(TableColumn<TimeSlot, Property<Team>> col) {
+		TableCell<TimeSlot, Property<Team>> cell = new TableCell<>();
 		ComboBox<Team> comboBox = new ComboBox<>(FXCollections.observableList(getTeams()));
 		cell.itemProperty().addListener((observable, oldValue, newValue) -> {
 			if (oldValue != null) {

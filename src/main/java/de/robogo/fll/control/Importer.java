@@ -35,6 +35,7 @@ import org.xml.sax.SAXException;
 import de.robogo.fll.entity.RobotGameTimeSlot;
 import de.robogo.fll.entity.RoundMode;
 import de.robogo.fll.entity.Team;
+import de.robogo.fll.entity.TimeSlot;
 
 public class Importer {
 
@@ -81,8 +82,6 @@ public class Importer {
 		if (xml == null)
 			//TODO show Exeption to User
 			return;
-
-		System.out.println(xml);
 
 		Document document = null;
 		try {
@@ -144,7 +143,7 @@ public class Importer {
 
 
 		int rground = 1;
-		List<RobotGameTimeSlot> roboslots = new ArrayList<>();
+		List<TimeSlot> roboslots = new ArrayList<>();
 		// int rgff = rground; // Index für Finalrunden
 
 		generateRoboSlots(rows, rgrone, endRoundRows[0], 1, roboslots, teamList);
@@ -302,7 +301,7 @@ public class Importer {
 		return results;
 	}
 
-	static void generateRoboSlots(NodeList matches, int tableHead, int nextTableHead, int round, List<RobotGameTimeSlot> roboSlots, List<Team> teamList) {
+	static void generateRoboSlots(NodeList matches, int tableHead, int nextTableHead, int round, List<TimeSlot> roboSlots, List<Team> teamList) {
 
 		for (int i = tableHead + 2; i < nextTableHead - 2; i += 2) {
 

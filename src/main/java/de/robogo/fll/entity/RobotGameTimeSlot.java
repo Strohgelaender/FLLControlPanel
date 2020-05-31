@@ -8,22 +8,17 @@ public class RobotGameTimeSlot extends TimeSlot {
 	private Team teamB;
 	private Table tableA;
 	private Table tableB;
-	private LocalTime time;
 	private final RoundMode roundMode;
 	private Status status;
 
 	public RobotGameTimeSlot(final Team teamA, final Team teamB, final Table tableA, final Table tableB, final LocalTime time, RoundMode roundMode) {
+		super(time);
 		this.teamA = teamA;
 		this.teamB = teamB;
 		this.tableA = tableA;
 		this.tableB = tableB;
-		this.time = time;
 		this.roundMode = roundMode;
 		status = Status.Scheduled;
-	}
-
-	public LocalTime getTime() {
-		return time;
 	}
 
 	public Table getTableA() {
@@ -68,10 +63,6 @@ public class RobotGameTimeSlot extends TimeSlot {
 
 	public void setTeamB(final Team teamB) {
 		this.teamB = teamB;
-	}
-
-	public void setTime(final LocalTime time) {
-		this.time = time;
 	}
 
 	public enum Status {
