@@ -73,6 +73,7 @@ public class ControlApplication extends Application {
 	private final List<TableColumn<TimeSlot, ?>> juryTableColumns = new ArrayList<>();
 
 	private ComboBox<RoundMode> rg_state;
+	private StatusBar statusBar;
 
 	@Override
 	public void start(final Stage stage) throws Exception {
@@ -119,12 +120,22 @@ public class ControlApplication extends Application {
 		Button import_teams = new Button("Import teams and times");
 		tbp.add(import_teams, 3, 0);
 		import_teams.setOnAction(actionEvent -> {
+			statusBar.progressProperty().set(-1);
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Select Timetable-Generator-File");
 			fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel-Timetable", "*.xlsb"));
-			File sheet = fileChooser.showOpenDialog(stage);
-			Importer.importFile(sheet);
-			refreshTable();
+			File file = fileChooser.showOpenDialog(stage);
+			if (file != null) {
+				Importer importer = new Importer(file, () -> {
+					statusBar.progressProperty().unbind();
+					statusBar.progressProperty().setValue(0);
+					refreshTable();
+				});
+				new Thread(importer).start();
+				statusBar.progressProperty().bind(importer.progressProperty());
+			} else {
+				statusBar.progressProperty().set(0);
+			}
 		});
 
 		download_file.setOnAction(event -> ScoreboardDownloader.downloadScoreboard());
@@ -156,7 +167,7 @@ public class ControlApplication extends Application {
 
 		root.setPadding(new Insets(10));
 
-		StatusBar statusBar = new StatusBar();
+		statusBar = new StatusBar();
 		statusBar.setText("13:42:44");
 
 

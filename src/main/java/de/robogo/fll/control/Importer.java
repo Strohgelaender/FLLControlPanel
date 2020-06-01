@@ -37,16 +37,32 @@ import de.robogo.fll.entity.RobotGameTimeSlot;
 import de.robogo.fll.entity.RoundMode;
 import de.robogo.fll.entity.Team;
 import de.robogo.fll.entity.TimeSlot;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 
-public class Importer {
+public class Importer extends Task<Void> {
 
-	public static void importFile(File file) {
+	private static final int maxStatus = 8;
+	private final File file;
+	private final Runnable runLater;
+
+	public Importer(final File file, Runnable runLater) {
+		this.file = file;
+		this.runLater = runLater;
+	}
+
+	@Override
+	protected Void call() throws Exception {
+		updateProgress(0.5, maxStatus);
+
 		if (file == null || file.isDirectory() || !file.exists() || !file.canRead())
 			//TODO Fehlermeldung
-			return;
+			return null;
 
 		String xml = null;
 		try (OPCPackage opcPackage = OPCPackage.open(file)) {
+
+			updateProgress(1, maxStatus);
 
 			XSSFBReader reader = new XSSFBReader(opcPackage);
 
@@ -54,6 +70,7 @@ public class Importer {
 			XSSFBStylesTable stylesTable = reader.getXSSFBStylesTable();
 			XSSFBReader.SheetIterator iterator = (XSSFBReader.SheetIterator) reader.getSheetsData();
 
+			updateProgress(2, maxStatus);
 
 			//TODO das geht bestimmt irgendwie effizienter ohne Schleife...
 			while (iterator.hasNext()) {
@@ -78,12 +95,14 @@ public class Importer {
 		} catch (Exception e) {
 			//TODO handle (v.a FileNotFoundException kann nicht zugreifen mit Hinweis)
 			e.printStackTrace();
-			return;
+			return null;
 		}
 
 		if (xml == null)
 			//TODO show Exeption to User
-			return;
+			return null;
+
+		updateProgress(3, maxStatus);
 
 		Document document = null;
 		try {
@@ -94,7 +113,9 @@ public class Importer {
 		}
 
 		if (document == null)
-			return;
+			return null;
+
+		updateProgress(4, maxStatus);
 
 		NodeList rows = document.getChildNodes().item(0).getChildNodes();
 		int lastIndexInName = StringUtils.lastIndexOf(rows.item(21).getChildNodes().item(1).getTextContent(), "-");
@@ -123,12 +144,14 @@ public class Importer {
 		juryRooms[0][2] = juryRooms[0][0];
 		juryRooms[0][3] = juryRooms[0][0];
 
+		updateProgress(5, maxStatus);
+
 		int juryTableRow = findRowWithContent(rows, 0, 'H', "^#1$");
 
 		if (juryTableRow == -1) {
 			//TODO show Exeption to User
 			System.err.println("Jury Table not found!");
-			return;
+			return null;
 		}
 
 		//Table above judging-sessions = Team names
@@ -146,6 +169,8 @@ public class Importer {
 			teamList.add(new Team(ttName.trim(), i / 2));
 		}
 		FLLController.setTeams(teamList);
+
+		updateProgress(5, maxStatus);
 
 		//Import Testrounds and Jury Sessions
 
@@ -192,6 +217,7 @@ public class Importer {
 
 		}
 
+		updateProgress(6, maxStatus);
 
 		//Begin importing Robot Game times
 
@@ -200,7 +226,7 @@ public class Importer {
 		if (rgrone == -1) {
 			//TODO show Exeption to User
 			System.err.println("RobotGameTimeTable not found!");
-			return;
+			return null;
 		}
 
 
@@ -215,6 +241,8 @@ public class Importer {
 		generateRoboSlots(rows, rgrone, endRoundRows[0], 1, timeSlots, teamList);
 		generateRoboSlots(rows, endRoundRows[0], endRoundRows[1], 2, timeSlots, teamList);
 		generateRoboSlots(rows, endRoundRows[1], endRoundRows[2], 3, timeSlots, teamList);
+
+		updateProgress(7, maxStatus);
 
 		//Final rounds in tables below
 
@@ -237,6 +265,9 @@ public class Importer {
 		FLLController.setTimeSlots(timeSlots);
 
 		System.out.println("Import fertig");
+		updateProgress(8, maxStatus);
+		Platform.runLater(runLater);
+		return null;
 	}
 
 	private static String getColumnIndex(Node cell) {

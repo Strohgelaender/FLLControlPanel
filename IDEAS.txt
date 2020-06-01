@@ -20,9 +20,12 @@ Manuelles festlegen von Teams und Robotgame-Runden
 Screen-Vorlagen
 GUI für Screen-Customization
 Next-Up-Screen (nur nächstes Match) + Zustzliche Infos (z.B. Musik)
+RobotGame-Screen für Beamer / Stream (wie von HoT aber customizable)
+Info-Overlay (Lower Thirds)
 Herzlich Willkommen / Auf Wiedersehen - Ansicht für die Screens
 Scoreboard: Paging und autwechsel an / aus
 generlel automatisches Updaten der Screens
+Tests
 
 //Grundlagen
 
