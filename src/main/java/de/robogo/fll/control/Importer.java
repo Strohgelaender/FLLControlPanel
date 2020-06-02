@@ -37,237 +37,234 @@ import de.robogo.fll.entity.RobotGameTimeSlot;
 import de.robogo.fll.entity.RoundMode;
 import de.robogo.fll.entity.Team;
 import de.robogo.fll.entity.TimeSlot;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 
 public class Importer extends Task<Void> {
 
 	private static final int maxStatus = 8;
 	private final File file;
-	private final Runnable runLater;
 
-	public Importer(final File file, Runnable runLater) {
+	public Importer(final File file) {
 		this.file = file;
-		this.runLater = runLater;
 	}
 
 	@Override
-	protected Void call() throws Exception {
-		updateProgress(0.5, maxStatus);
-
-		if (file == null || file.isDirectory() || !file.exists() || !file.canRead())
-			//TODO Fehlermeldung
-			return null;
-
-		String xml = null;
-		try (OPCPackage opcPackage = OPCPackage.open(file)) {
-
-			updateProgress(1, maxStatus);
-
-			XSSFBReader reader = new XSSFBReader(opcPackage);
-
-			XSSFBSharedStringsTable sst = new XSSFBSharedStringsTable(opcPackage);
-			XSSFBStylesTable stylesTable = reader.getXSSFBStylesTable();
-			XSSFBReader.SheetIterator iterator = (XSSFBReader.SheetIterator) reader.getSheetsData();
-
-			updateProgress(2, maxStatus);
-
-			//TODO das geht bestimmt irgendwie effizienter ohne Schleife...
-			while (iterator.hasNext()) {
-				InputStream is = iterator.next();
-
-				if (!iterator.getSheetPart().getPartName().getName().endsWith("sheet25.bin"))
-					continue;
-
-				String name = iterator.getSheetName();
-				System.out.println(name);
-
-				TestSheetHandler testSheetHandler = new TestSheetHandler();
-				testSheetHandler.startSheet(name);
-
-				XSSFBSheetHandler sheetHandler = new XSSFBSheetHandler(is, stylesTable, iterator.getXSSFBSheetComments(), sst, testSheetHandler, new DataFormatter(), false);
-				sheetHandler.parse();
-				testSheetHandler.endSheet();
-
-				xml = testSheetHandler.toString();
-				break;
-			}
-		} catch (Exception e) {
-			//TODO handle (v.a FileNotFoundException kann nicht zugreifen mit Hinweis)
-			e.printStackTrace();
-			return null;
-		}
-
-		if (xml == null)
-			//TODO show Exeption to User
-			return null;
-
-		updateProgress(3, maxStatus);
-
-		Document document = null;
+	protected Void call() throws ImportFailedException {
 		try {
-			document = DocumentBuilderFactory.newDefaultInstance().newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
-		} catch (SAXException | IOException | ParserConfigurationException e) {
-			//TODO handle
-			e.printStackTrace();
-		}
+			updateProgress(0.5, maxStatus);
 
-		if (document == null)
-			return null;
+			if (file == null || file.isDirectory() || !file.exists() || !file.canRead())
+				throw new ImportFailedException("the selected file is not supported!");
 
-		updateProgress(4, maxStatus);
+			String xml = null;
+			try (OPCPackage opcPackage = OPCPackage.open(file)) {
 
-		NodeList rows = document.getChildNodes().item(0).getChildNodes();
-		int lastIndexInName = StringUtils.lastIndexOf(rows.item(21).getChildNodes().item(1).getTextContent(), "-");
-		String nameOfCompetition = rows.item(21).getChildNodes().item(1).getTextContent().substring(0, lastIndexInName).trim();
-		FLLController.setEventName(nameOfCompetition);
-		List<TimeSlot> timeSlots = new ArrayList<>();
+				updateProgress(1, maxStatus);
 
-		//Import Locations
-		char[] juryColumn = {'I', 'I', 'I', 'I'};
-		String[] juryRegex = {"^TR\\S$", "R", "T", "F"};
-		int[] juryTypeRows = findmultipleRowsWithContent(rows, 0, juryColumn, juryRegex);
-		String[][] juryRooms = new String[4][4]; // in this order : testRoundRooms, robotDesignRooms,teamworkRooms, researchRooms
-		for (int i = 0; i < 3; i++) {
-			NodeList juryList = rows.item(juryTypeRows[i]).getChildNodes();
-			int numberOfJury = 0;
-			for (int j = 1; i < juryList.getLength(); i += 2) {
-				Node juryCell = juryList.item(j);
-				String column = getColumnIndex(juryCell);
-				if (column.charAt(0) < 'J') continue;
-				if (juryCell.getTextContent().replaceAll("[0-9]", "").matches(juryRegex[i])) continue;
-				juryRooms[i][numberOfJury] = juryCell.getTextContent();
-				numberOfJury++;
-			}
-		}
-		juryRooms[0][1] = juryRooms[0][0];
-		juryRooms[0][2] = juryRooms[0][0];
-		juryRooms[0][3] = juryRooms[0][0];
+				XSSFBReader reader = new XSSFBReader(opcPackage);
 
-		updateProgress(5, maxStatus);
+				XSSFBSharedStringsTable sst = new XSSFBSharedStringsTable(opcPackage);
+				XSSFBStylesTable stylesTable = reader.getXSSFBStylesTable();
+				XSSFBReader.SheetIterator iterator = (XSSFBReader.SheetIterator) reader.getSheetsData();
 
-		int juryTableRow = findRowWithContent(rows, 0, 'H', "^#1$");
+				updateProgress(2, maxStatus);
 
-		if (juryTableRow == -1) {
-			//TODO show Exeption to User
-			System.err.println("Jury Table not found!");
-			return null;
-		}
+				//TODO das geht bestimmt irgendwie effizienter ohne Schleife...
+				while (iterator.hasNext()) {
+					InputStream is = iterator.next();
 
-		//Table above judging-sessions = Team names
+					if (!iterator.getSheetPart().getPartName().getName().endsWith("sheet25.bin"))
+						continue;
 
-		NodeList teams = rows.item(juryTableRow - 2).getChildNodes();
+					String name = iterator.getSheetName();
+					System.out.println(name);
 
-		List<Team> teamList = new ArrayList<>();
-		for (int i = 3; i < teams.getLength(); i += 2) {
-			Node tt = teams.item(i);
-			if (tt.getAttributes() == null)
-				continue;
-			String ttName = tt.getTextContent();
-			if (StringUtils.isEmpty(ttName))
-				break;
-			teamList.add(new Team(ttName.trim(), i / 2));
-		}
-		FLLController.setTeams(teamList);
+					TestSheetHandler testSheetHandler = new TestSheetHandler();
+					testSheetHandler.startSheet(name);
 
-		updateProgress(5, maxStatus);
+					XSSFBSheetHandler sheetHandler = new XSSFBSheetHandler(is, stylesTable, iterator.getXSSFBSheetComments(), sst, testSheetHandler, new DataFormatter(), false);
+					sheetHandler.parse();
+					testSheetHandler.endSheet();
 
-		//Import Testrounds and Jury Sessions
-
-		int loopEnd = findRowWithContent(rows, juryTableRow + 2, 'E', " - ") - 2;
-		outerLoop:
-		for (int i = juryTableRow + 2; i < loopEnd; i += 2) {
-
-			NodeList juryList = rows.item(i).getChildNodes();
-			String stringTime = juryList.item(1).getTextContent();
-			if (stringTime.length() == 4)
-				stringTime = "0" + stringTime;
-			LocalTime time = LocalTime.parse(stringTime);
-			for (int j = 3; j < juryList.getLength(); j += 2) {
-				int tempteam = 0;
-				Node cell = juryList.item(j);
-				String name = getColumnIndex(cell);
-				String jurySession = juryList.item(j).getTextContent();
-				String juryTypeString = jurySession.replaceAll("[0-9]", "");
-				int juryNumber;
-				try {
-					juryNumber = Integer.parseInt(jurySession.replaceAll("[A-Z]", ""));
-				} catch (NumberFormatException e) { //Pause
-					continue outerLoop;
+					xml = testSheetHandler.toString();
+					break;
 				}
+			} catch (Exception e) {
+				//TODO translation
+				throw new ImportFailedException("Die Datei konnte nicht eingelesn werden. Dies passiert typischerweise, wenn Sie die Datei noch zuätzlich in Excel offen haben. Bitte stellen Sie sicher, dass kein anderes Programm auf diese Datei zugreift.", e);
+			}
 
-				int juryTypeIndex = 0;
-				for (int k = 0; k < 4; k++) {
-					if (juryRegex[k].matches(juryTypeString)) {
-						juryTypeIndex = k;
-						break;
+			if (xml == null)
+				throw new ImportFailedException("Die Datei konnte nicht eingelesen werden.");
+
+			updateProgress(3, maxStatus);
+
+			Document document;
+			try {
+				document = DocumentBuilderFactory.newDefaultInstance().newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
+			} catch (SAXException | IOException | ParserConfigurationException e) {
+				throw new ImportFailedException("Die eingelesene Datei ist fehlerhaft.", e);
+			}
+
+			if (document == null)
+				throw new NullPointerException("Die eingelesene Datei ist fehlerhaft.");
+
+			updateProgress(4, maxStatus);
+
+			NodeList rows = document.getChildNodes().item(0).getChildNodes();
+			int lastIndexInName = StringUtils.lastIndexOf(rows.item(21).getChildNodes().item(1).getTextContent(), "-");
+			String nameOfCompetition = rows.item(21).getChildNodes().item(1).getTextContent().substring(0, lastIndexInName).trim();
+			FLLController.setEventName(nameOfCompetition);
+			List<TimeSlot> timeSlots = new ArrayList<>();
+
+			//Import Locations
+			char[] juryColumn = {'I', 'I', 'I', 'I'};
+			String[] juryRegex = {"^TR\\S$", "R", "T", "F"};
+			int[] juryTypeRows = findmultipleRowsWithContent(rows, 0, juryColumn, juryRegex);
+			String[][] juryRooms = new String[4][4]; // in this order : testRoundRooms, robotDesignRooms,teamworkRooms, researchRooms
+			for (int i = 0; i < 3; i++) {
+				NodeList juryList = rows.item(juryTypeRows[i]).getChildNodes();
+				int numberOfJury = 0;
+				for (int j = 1; i < juryList.getLength(); i += 2) {
+					Node juryCell = juryList.item(j);
+					String column = getColumnIndex(juryCell);
+					if (column.charAt(0) < 'J')
+						continue;
+					if (juryCell.getTextContent().replaceAll("[0-9]", "").matches(juryRegex[i]))
+						continue;
+					juryRooms[i][numberOfJury] = juryCell.getTextContent();
+					numberOfJury++;
+				}
+			}
+			//Testround Rooms
+			juryRooms[0][1] = juryRooms[0][0];
+			juryRooms[0][2] = juryRooms[0][0];
+			juryRooms[0][3] = juryRooms[0][0];
+
+			updateProgress(5, maxStatus);
+
+			int juryTableRow = findRowWithContent(rows, 0, 'H', "^#1$");
+
+			if (juryTableRow == -1) {
+				throw new ImportFailedException("In der Datei konnten keine Informationen zu den Jury-Bewertugen gefunden werden. Bitte stellen sie sicher, dass die Datei ein korrekter Zeitplan ist.");
+			}
+
+			//Table above judging-sessions = Team names
+
+			NodeList teams = rows.item(juryTableRow - 2).getChildNodes();
+
+			List<Team> teamList = new ArrayList<>();
+			for (int i = 3; i < teams.getLength(); i += 2) {
+				Node tt = teams.item(i);
+				if (tt.getAttributes() == null)
+					continue;
+				String ttName = tt.getTextContent();
+				if (StringUtils.isEmpty(ttName))
+					break;
+				teamList.add(new Team(ttName.trim(), i / 2));
+			}
+			FLLController.setTeams(teamList);
+
+			updateProgress(5, maxStatus);
+
+			//Import Testrounds and Jury Sessions
+
+			int loopEnd = findRowWithContent(rows, juryTableRow + 2, 'E', " - ") - 2;
+			outerLoop:
+			for (int i = juryTableRow + 2; i < loopEnd; i += 2) {
+
+				NodeList juryList = rows.item(i).getChildNodes();
+				String stringTime = juryList.item(1).getTextContent();
+				if (stringTime.length() == 4)
+					stringTime = "0" + stringTime;
+				LocalTime time = LocalTime.parse(stringTime);
+				for (int j = 3; j < juryList.getLength(); j += 2) {
+					int tempteam = 0;
+					Node cell = juryList.item(j);
+					String name = getColumnIndex(cell);
+					String jurySession = juryList.item(j).getTextContent();
+					String juryTypeString = jurySession.replaceAll("[0-9]", "");
+					int juryNumber;
+					try {
+						juryNumber = Integer.parseInt(jurySession.replaceAll("[A-Z]", ""));
+					} catch (NumberFormatException e) { //Pause
+						continue outerLoop;
 					}
+
+					int juryTypeIndex = 0;
+					for (int k = 0; k < 4; k++) {
+						if (juryRegex[k].matches(juryTypeString)) {
+							juryTypeIndex = k;
+							break;
+						}
+					}
+					if (name.length() == 1)
+						tempteam = name.charAt(0) - 72;
+
+					if (name.length() == 2)
+						tempteam = name.charAt(1) - 46;
+
+					Team t1 = tempteam < teamList.size() ? teamList.get(tempteam) : null;
+					timeSlots.add(new JuryTimeSlot(t1, time, JuryTimeSlot.JuryType.values()[juryTypeIndex], juryRooms[juryTypeIndex][juryNumber - 1], juryNumber));
+
 				}
-				if (name.length() == 1)
-					tempteam = name.charAt(0) - 72;
 
-				if (name.length() == 2)
-					tempteam = name.charAt(1) - 46;
-
-				Team t1 = tempteam < teamList.size() ? teamList.get(tempteam) : null;
-				timeSlots.add(new JuryTimeSlot(t1, time, JuryTimeSlot.JuryType.values()[juryTypeIndex], juryRooms[juryTypeIndex][juryNumber - 1], juryNumber));
 
 			}
 
+			updateProgress(6, maxStatus);
 
-		}
+			//Begin importing Robot Game times
 
-		updateProgress(6, maxStatus);
+			int rgrone = findRowWithContent(rows, juryTableRow + 1, 'H', "^#1$");
 
-		//Begin importing Robot Game times
+			if (rgrone == -1) {
+				throw new ImportFailedException("In der Datei konnten keine Informationen zu den RobotGames gefunden werden. Bitte stellen sie sicher, dass die Datei ein korrekter Zeitplan ist.");
+			}
 
-		int rgrone = findRowWithContent(rows, juryTableRow + 1, 'H', "^#1$");
 
-		if (rgrone == -1) {
-			//TODO show Exeption to User
-			System.err.println("RobotGameTimeTable not found!");
+			char[] roboclumn = {'E', 'E', 'E'};
+			String[] roboregex = {" - ", " - ", " - ",};
+
+			int[] endRoundRows = findmultipleRowsWithContent(rows, rgrone, roboclumn, roboregex);
+
+			// Lines in the next 3 section below the 2nd "#1": Robotgame-preliminary Rounds
+
+
+			generateRoboSlots(rows, rgrone, endRoundRows[0], 1, timeSlots, teamList);
+			generateRoboSlots(rows, endRoundRows[0], endRoundRows[1], 2, timeSlots, teamList);
+			generateRoboSlots(rows, endRoundRows[1], endRoundRows[2], 3, timeSlots, teamList);
+
+			updateProgress(7, maxStatus);
+
+			//Final rounds in tables below
+
+			int firstfinal = findRowWithContent(rows, endRoundRows[2], 'H', "^[A-Z]*1[A-Z]*$");
+			if (rows.item(firstfinal).getChildNodes().getLength() > 25) { //if quarter-final exists, there are more than 25 nodes in the header of the timetable
+				char[] finalcolumns = {'E', 'E', 'E'};
+				String[] nextFinalIndicator = {" - ", " - ", " - "};
+				int[] nextFinal = findmultipleRowsWithContent(rows, firstfinal, finalcolumns, nextFinalIndicator);
+				generateRoboSlots(rows, firstfinal, nextFinal[0], 4, timeSlots, teamList);
+				generateRoboSlots(rows, nextFinal[0], nextFinal[1], 5, timeSlots, teamList);
+				generateRoboSlots(rows, nextFinal[1], nextFinal[2], 6, timeSlots, teamList);
+			} else { //no quarter-finals
+				char[] finalcolumns = {'E', 'E'};
+				String[] nextFinalIndicator = {" - ", " - "};
+				int[] nextfinal = findmultipleRowsWithContent(rows, firstfinal, finalcolumns, nextFinalIndicator);
+				generateRoboSlots(rows, firstfinal, nextfinal[0], 5, timeSlots, teamList);
+				generateRoboSlots(rows, nextfinal[0], nextfinal[1], 6, timeSlots, teamList);
+			}
+
+			FLLController.setTimeSlots(timeSlots);
+
+			System.out.println("Import fertig");
+			updateProgress(8, maxStatus);
 			return null;
+		} catch (Exception e) {
+			if (e instanceof ImportFailedException)
+				throw e;
+			throw new ImportFailedException(e);
 		}
-
-
-		char[] roboclumn = {'E', 'E', 'E'};
-		String[] roboregex = {" - ", " - ", " - ",};
-
-		int[] endRoundRows = findmultipleRowsWithContent(rows, rgrone, roboclumn, roboregex);
-
-		// Lines in the next 3 section below the 2nd "#1": Robotgame-preliminary Rounds
-
-
-		generateRoboSlots(rows, rgrone, endRoundRows[0], 1, timeSlots, teamList);
-		generateRoboSlots(rows, endRoundRows[0], endRoundRows[1], 2, timeSlots, teamList);
-		generateRoboSlots(rows, endRoundRows[1], endRoundRows[2], 3, timeSlots, teamList);
-
-		updateProgress(7, maxStatus);
-
-		//Final rounds in tables below
-
-		int firstfinal = findRowWithContent(rows, endRoundRows[2], 'H', "^[A-Z]*1[A-Z]*$");
-		if (rows.item(firstfinal).getChildNodes().getLength() > 25) { //if quarter-final exists, there are more than 25 nodes in the header of the timetable
-			char[] finalcolumns = {'E', 'E', 'E'};
-			String[] nextFinalIndicator = {" - ", " - ", " - "};
-			int[] nextFinal = findmultipleRowsWithContent(rows, firstfinal, finalcolumns, nextFinalIndicator);
-			generateRoboSlots(rows, firstfinal, nextFinal[0], 4, timeSlots, teamList);
-			generateRoboSlots(rows, nextFinal[0], nextFinal[1], 5, timeSlots, teamList);
-			generateRoboSlots(rows, nextFinal[1], nextFinal[2], 6, timeSlots, teamList);
-		} else { //no quarter-finals
-			char[] finalcolumns = {'E', 'E'};
-			String[] nextFinalIndicator = {" - ", " - "};
-			int[] nextfinal = findmultipleRowsWithContent(rows, firstfinal, finalcolumns, nextFinalIndicator);
-			generateRoboSlots(rows, firstfinal, nextfinal[0], 5, timeSlots, teamList);
-			generateRoboSlots(rows, nextfinal[0], nextfinal[1], 6, timeSlots, teamList);
-		}
-
-		FLLController.setTimeSlots(timeSlots);
-
-		System.out.println("Import fertig");
-		updateProgress(8, maxStatus);
-		Platform.runLater(runLater);
-		return null;
 	}
 
 	private static String getColumnIndex(Node cell) {

@@ -3,12 +3,10 @@ package de.robogo.fll.main;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.ComponentScan;
 
 import de.robogo.fll.gui.ControlApplication;
 
-@SpringBootApplication
-@ComponentScan("de.robogo.fll")
+@SpringBootApplication(scanBasePackages = "de.robogo.fll")
 public class Main {
 
 	public static void main(String[] args) {

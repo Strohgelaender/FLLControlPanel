@@ -126,7 +126,14 @@ public class ControlApplication extends Application {
 			fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel-Timetable", "*.xlsb"));
 			File file = fileChooser.showOpenDialog(stage);
 			if (file != null) {
-				Importer importer = new Importer(file, () -> {
+				Importer importer = new Importer(file);
+				importer.setOnFailed(event -> {
+					statusBar.progressProperty().unbind();
+					statusBar.progressProperty().setValue(0);
+					ExceptionDialog dialog = new ExceptionDialog(event.getSource().getException());
+					dialog.show();
+				});
+				importer.setOnSucceeded(event -> {
 					statusBar.progressProperty().unbind();
 					statusBar.progressProperty().setValue(0);
 					refreshTable();

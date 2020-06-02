@@ -4,6 +4,7 @@ Ideen Y A Y:
 Konfiguration speichern
 -> Überschreibungs-Abfrage bei neuem Import
 
+Exceptions: Übersetzung (Einheitlich!)
 
 
 // Optional
