@@ -80,7 +80,10 @@ public final class ScoreboardDownloader {
 
 				if (excelURL == null) {
 					System.err.println("no Excel URL found!");
-					//TODO show to User -> open Navigation Screen
+					if (!loginDialog.isShowing()) {
+						loginDialog.getInfoLabel().setText("No Scores found! Please make sure you're logged in and have selected a tournament.");
+						loginDialog.show();
+					}
 					return;
 				}
 
@@ -109,7 +112,10 @@ public final class ScoreboardDownloader {
 					updateFinalRounds();
 
 				} catch (Exception e) {
-					//TODO show or handle Error
+					loginDialog.getInfoLabel().setText("Could not download Scores. Please make sure you have selected a tournament and try again");
+					//If the error persists you can try this fallback option. Please not that this option is not actively supported and may contain errors.
+					//TODO provide fallback option (should we really support this)
+					loginDialog.show();
 					e.printStackTrace();
 				}
 			});

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import de.robogo.fll.control.FLLController;
+import de.robogo.fll.entity.Jury;
 import de.robogo.fll.entity.JuryTimeSlot;
 import de.robogo.fll.entity.RobotGameTimeSlot;
 import de.robogo.fll.entity.RoundMode;
@@ -34,8 +35,8 @@ public class ScreenWebController {
 		model.addAttribute("eventName", FLLController.getEventName());
 		RoundMode roundMode = null;
 		if (round.equalsIgnoreCase("current")) {
-			if (FLLController.getActiveSlot() != null)
-				roundMode = FLLController.getActiveSlot().getRoundMode();
+			if (FLLController.getActiveSlot() != null && FLLController.getActiveSlot() instanceof RobotGameTimeSlot)
+				roundMode = ((RobotGameTimeSlot) FLLController.getActiveSlot()).getRoundMode();
 		} else {
 			try {
 				roundMode = RoundMode.valueOf(round);
@@ -62,7 +63,7 @@ public class ScreenWebController {
 		model.addAttribute("eventName", FLLController.getEventName());
 		List<Team> teams = FLLController.getTeams();
 		model.addAttribute("teams", teams);
-		Map<LocalTime, List<JuryTimeSlot>> juryGrooped =  FLLController.getJuryTimeSlotsGrouped();
+		Map<LocalTime, List<JuryTimeSlot>> juryGrooped = FLLController.getJuryTimeSlotsGrouped();
 		SortedMap<LocalTime, String[]> juryExport = new TreeMap<>(Comparator.naturalOrder());
 		for (List<JuryTimeSlot> slotList : juryGrooped.values()) {
 			String[] strings = new String[teams.size()];
