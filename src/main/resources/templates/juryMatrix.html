@@ -7,7 +7,7 @@
 <body>
 <h1 th:text="${eventName}"></h1>
 <h2>Zeitplan Vormittag</h2>
-
+<br>
 <table>
 	<tr>
 		<th>Zeit</th>
@@ -18,8 +18,12 @@
 		<td th:each="st : ${group.value}" th:text="${st}">TR1</td>
 	</tr>
 </table>
-
+<br>
 <table>
+	<tr th:each="team : ${teams}">
+		<td th:text="${team.id}">-1</td>
+		<td th:text="${team.name}">Name</td>
+	</tr>
 
 </table>
 

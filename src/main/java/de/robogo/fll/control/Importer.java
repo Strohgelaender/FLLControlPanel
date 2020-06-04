@@ -167,6 +167,7 @@ public class Importer extends Task<Void> {
 			//Import Testrounds and Jury Sessions
 
 			int loopEnd = findRowWithContent(rows, juryTableRow + 2, 'E', " - ") - 2;
+			outerLoop:
 			for (int i = juryTableRow + 2; i < loopEnd; i += 2) {
 
 				NodeList juryList = rows.item(i).getChildNodes();
@@ -185,8 +186,12 @@ public class Importer extends Task<Void> {
 					if (name.length() == 2)
 						tempTeam = name.charAt(1) - 46;
 
+					Jury jury = FLLController.getJuryByIdentifier(jurySession.trim());
+					if (jury == null)
+						continue outerLoop;
+
 					Team t1 = tempTeam < teamList.size() ? teamList.get(tempTeam) : null;
-					timeSlots.add(new JuryTimeSlot(t1, time, FLLController.getJuryByIdentifier(jurySession.trim())));
+					timeSlots.add(new JuryTimeSlot(t1, time, jury));
 
 				}
 			}

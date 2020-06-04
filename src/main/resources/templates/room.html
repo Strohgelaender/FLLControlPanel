@@ -1,0 +1,22 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>FLL Timetable</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<h1 th:text="${eventName}"></h1>
+<h2 th:text="|${jury.juryType.longName} ${jury.num} |+ '| ' + ${jury.room}"></h2>
+
+<table>
+	<tr>
+		<th>Time</th>
+		<th>Team</th>
+	</tr>
+	<tr th:each="ts : ${timeslots}">
+		<td th:text="${ts.time}">Uhrzeit</td>
+		<td th:if="ts.team != null" th:text="|${ts.team.name} (${ts.team.id})|">Team 1</td>
+	</tr>
+</table>
+</body>
+</html>

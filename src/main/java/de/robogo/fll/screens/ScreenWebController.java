@@ -8,9 +8,11 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import de.robogo.fll.control.FLLController;
@@ -75,6 +77,24 @@ public class ScreenWebController {
 		}
 		model.addAttribute("slots", juryExport);
 		return "juryMatrix";
+	}
+
+	@GetMapping("/room")
+	public String room(@RequestParam(name = "jury", required = false, defaultValue = "") String juryParam, @RequestParam(name = "room", required = false, defaultValue = "") String room, Model model) {
+		if (StringUtils.isEmpty(room))
+			room = juryParam;
+		model.addAttribute("eventName", FLLController.getEventName());
+		Jury jury = FLLController.getJuryByIdentifier(room);
+		if (jury != null) {
+			model.addAttribute("timeslots", FLLController.getTimeSlotsByJury(jury));
+			model.addAttribute("jury", jury);
+		}
+		return "room";
+	}
+
+	@GetMapping("/room/{room}")
+	public String roomWithPath(@PathVariable String room, Model model) {
+		return room(room, "", model);
 	}
 
 }
