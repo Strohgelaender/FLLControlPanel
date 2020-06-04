@@ -118,7 +118,7 @@ public class Importer extends Task<Void> {
 			int[] juryTypeRows = findmultipleRowsWithContent(rows, 0, juryColumn, juryRegex);
 			juryRegex[0] = "TR";
 			//reading data in this order : testRoundRooms, robotDesignRooms,teamworkRooms, researchRooms
-			for (int i = 0; i < 3; i++) {
+			for (int i = 0; i < 4; i++) {
 				NodeList juryList = rows.item(juryTypeRows[i]).getChildNodes();
 				int numberOfJury = 1;
 				for (int j = 1; j < juryList.getLength(); j += 2) {
@@ -175,17 +175,17 @@ public class Importer extends Task<Void> {
 					stringTime = "0" + stringTime;
 				LocalTime time = LocalTime.parse(stringTime);
 				for (int j = 3; j < juryList.getLength(); j += 2) {
-					int tempteam = 0;
+					int tempTeam = 0;
 					Node cell = juryList.item(j);
 					String name = getColumnIndex(cell);
 					String jurySession = juryList.item(j).getTextContent();
 					if (name.length() == 1)
-						tempteam = name.charAt(0) - 72;
+						tempTeam = name.charAt(0) - 72;
 
 					if (name.length() == 2)
-						tempteam = name.charAt(1) - 46;
+						tempTeam = name.charAt(1) - 46;
 
-					Team t1 = tempteam < teamList.size() ? teamList.get(tempteam) : null;
+					Team t1 = tempTeam < teamList.size() ? teamList.get(tempTeam) : null;
 					timeSlots.add(new JuryTimeSlot(t1, time, FLLController.getJuryByIdentifier(jurySession.trim())));
 
 				}
