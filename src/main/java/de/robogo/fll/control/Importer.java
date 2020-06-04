@@ -116,17 +116,19 @@ public class Importer extends Task<Void> {
 			char[] juryColumn = {'I', 'I', 'I', 'I'};
 			String[] juryRegex = {"^TR\\S$", "R", "T", "F"};
 			int[] juryTypeRows = findmultipleRowsWithContent(rows, 0, juryColumn, juryRegex);
+			juryRegex[0] = "TR";
 			//reading data in this order : testRoundRooms, robotDesignRooms,teamworkRooms, researchRooms
 			for (int i = 0; i < 3; i++) {
 				NodeList juryList = rows.item(juryTypeRows[i]).getChildNodes();
-				int numberOfJury = 0;
+				int numberOfJury = 1;
 				for (int j = 1; j < juryList.getLength(); j += 2) {
 					Node juryCell = juryList.item(j);
 					String column = getColumnIndex(juryCell);
-					if (column.charAt(0) < 'J')
+					if (column.charAt(0) < 'K')
 						continue;
 					if (juryCell.getTextContent().replaceAll("[0-9]", "").matches(juryRegex[i]))
 						continue;
+
 					FLLController.addJuries(new Jury(Jury.JuryType.values()[i], numberOfJury, juryCell.getTextContent()));
 					numberOfJury++;
 				}
