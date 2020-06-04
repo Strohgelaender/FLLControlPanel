@@ -1,6 +1,7 @@
 package de.robogo.fll.control;
 
 import static de.robogo.fll.control.FLLController.getTableByNumber;
+import static de.robogo.fll.entity.Jury.JuryType.TestRound;
 
 import java.io.File;
 import java.io.IOException;
@@ -77,7 +78,7 @@ public class Importer extends Task<Void> {
 
 					if (iterator.getSheetPart().getPartName().getName().endsWith("sheet25.bin")) {
 						xml = readExcelBinarySheet(is, iterator, sst, stylesTable);
-					} else if (iterator.getSheetPart().getPartName().getName().endsWith("sheet26.bin") && iterator.getSheetName().contains("LC")){
+					} else if (iterator.getSheetPart().getPartName().getName().endsWith("sheet26.bin") && iterator.getSheetName().contains("LC")) {
 						lcXml = readExcelBinarySheet(is, iterator, sst, stylesTable);
 					}
 					if (xml != null && lcXml != null)
@@ -111,7 +112,7 @@ public class Importer extends Task<Void> {
 			FLLController.setEventName(nameOfCompetition);
 			List<TimeSlot> timeSlots = new ArrayList<>();
 			//Import Locations
-			FLLController.setJuries();
+			FLLController.getJuries().clear();
 			char[] juryColumn = {'I', 'I', 'I', 'I'};
 			String[] juryRegex = {"^TR\\S$", "R", "T", "F"};
 			int[] juryTypeRows = findmultipleRowsWithContent(rows, 0, juryColumn, juryRegex);
@@ -119,7 +120,7 @@ public class Importer extends Task<Void> {
 			for (int i = 0; i < 3; i++) {
 				NodeList juryList = rows.item(juryTypeRows[i]).getChildNodes();
 				int numberOfJury = 0;
-				for (int j = 1; i < juryList.getLength(); i += 2) {
+				for (int j = 1; j < juryList.getLength(); j += 2) {
 					Node juryCell = juryList.item(j);
 					String column = getColumnIndex(juryCell);
 					if (column.charAt(0) < 'J')
@@ -131,9 +132,8 @@ public class Importer extends Task<Void> {
 				}
 			}
 			//Testround Jurys 2-4
-			Jury.JuryType trtype = Jury.JuryType.values()[0];
-			String trroom = getJury(trtype, 1);
-			FLLController.addJuries(new Jury(trtype, 2, trroom), new Jury(trtype, 3, trroom), new Jury(trtype, 4, trroom));
+			String trroom = FLLController.getJury(TestRound, 1).getRoom();
+			FLLController.addJuries(new Jury(TestRound, 2, trroom), new Jury(TestRound, 3, trroom), new Jury(TestRound, 4, trroom));
 
 
 			updateProgress(5, maxStatus);
@@ -165,7 +165,6 @@ public class Importer extends Task<Void> {
 			//Import Testrounds and Jury Sessions
 
 			int loopEnd = findRowWithContent(rows, juryTableRow + 2, 'E', " - ") - 2;
-			outerLoop:
 			for (int i = juryTableRow + 2; i < loopEnd; i += 2) {
 
 				NodeList juryList = rows.item(i).getChildNodes();
@@ -185,11 +184,9 @@ public class Importer extends Task<Void> {
 						tempteam = name.charAt(1) - 46;
 
 					Team t1 = tempteam < teamList.size() ? teamList.get(tempteam) : null;
-					timeSlots.add(new JuryTimeSlot(t1, time, getJuryTypeByShortName(jurySession.trim().replaceAll("[0-9]", ""))));
+					timeSlots.add(new JuryTimeSlot(t1, time, FLLController.getJuryByIdentifier(jurySession.trim())));
 
 				}
-
-
 			}
 
 			updateProgress(6, maxStatus);
@@ -247,6 +244,7 @@ public class Importer extends Task<Void> {
 		} catch (Exception e) {
 			if (e instanceof ImportFailedException)
 				throw e;
+			e.printStackTrace();
 			throw new ImportFailedException(e);
 		}
 	}

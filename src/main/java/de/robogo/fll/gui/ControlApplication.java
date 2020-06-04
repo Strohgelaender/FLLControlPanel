@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NavigableMap;
 
 import org.controlsfx.control.StatusBar;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -58,7 +59,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.Duration;
-import javafx.util.Pair;
 
 @Component
 public class ControlApplication extends Application {
@@ -108,10 +108,10 @@ public class ControlApplication extends Application {
 		// Wählen der aktuellen Runde
 		Button left_arrow = new Button("<-");
 		lrp.add(left_arrow, 0, 0);
-		left_arrow.setOnAction(generateArrowEventHandler(-1, p -> p.getKey() > 0));
+		left_arrow.setOnAction(generateArrowEventHandler(-1));
 		Button right_arrow = new Button("->");
 		lrp.add(right_arrow, 1, 0);
-		right_arrow.setOnAction(generateArrowEventHandler(1, p -> p.getKey() < p.getValue() - 1));
+		right_arrow.setOnAction(generateArrowEventHandler(1));
 
 		//Rest
 
@@ -294,13 +294,21 @@ public class ControlApplication extends Application {
 		tableView.setRowFactory(param -> {
 			TableRow<TimeSlot> row = new TableRow<>();
 
-			BooleanBinding active = row.itemProperty().isEqualTo(FLLController.getActiveSlotProperty());
+			/*BooleanBinding active = Bindings.createBooleanBinding(() ->
+					row.getItem() != null
+					&& row.getItem().equals(FLLController.getActiveSlot())
+							|| (FLLController.getActiveSlot() instanceof JuryTimeSlot
+								&& row.getItem() instanceof JuryTimeSlot
+								&& FLLController.getActiveSlot().getTime().equals(row.getItem().getTime())));*/
+			BooleanBinding active = Bindings.equal(row.itemProperty(), FLLController.getActiveSlotProperty());
 			row.styleProperty().bind(Bindings.when(active)
 					.then(" -fx-background-color: lightgreen ;")
 					.otherwise(""));
 
 			return row;
 		});
+
+		tableView.setSelectionModel(null);
 
 		tableItems = FXCollections.observableList(getTimeSlots());
 		tableView.setItems(tableItems);
@@ -335,18 +343,44 @@ public class ControlApplication extends Application {
 		return cell;
 	}
 
-	private EventHandler<ActionEvent> generateArrowEventHandler(final int adder, final Callback<Pair<Integer, Integer>, Boolean> condition) {
+	private EventHandler<ActionEvent> generateArrowEventHandler(final int adder) {
 		return event -> {
-			List<RobotGameTimeSlot> slots = FLLController.getTimeSlotsByRoundMode(rg_state.getValue());
-			if (getActiveSlot() == null) {
-				if (!slots.isEmpty())
-					setActiveSlot(slots.get(0));
-			} else {
-				int i = slots.indexOf(getActiveSlot());
-				if (condition.call(new Pair<>(i, slots.size()))) {
-					setActiveSlot(slots.get(i + adder));
+			boolean nextPage = false;
+			if (rg_state.getValue() == RoundMode.TestRound) {
+				//TODO das ändert sich noch (RoundMode != ZeitMode)
+				NavigableMap<LocalTime, List<JuryTimeSlot>> slots = FLLController.getJuryTimeSlotsGrouped();
+				if (getActiveSlot() == null) {
+					if (!slots.isEmpty())
+						setActiveSlot(slots.get(slots.firstKey()).get(0));
 				} else {
-					//TODO zu nächster Tabelle springen
+					LocalTime current = getActiveSlot().getTime();
+					LocalTime next = adder > 0 ? slots.higherKey(current) : slots.lowerKey(current);
+					if (next != null) {
+						setActiveSlot(slots.get(next).get(0));
+					} else {
+						nextPage = true;
+					}
+				}
+			} else {
+				List<RobotGameTimeSlot> slots = FLLController.getTimeSlotsByRoundMode(rg_state.getValue());
+				if (getActiveSlot() == null) {
+					if (!slots.isEmpty())
+						setActiveSlot(slots.get(0));
+				} else {
+					int i = slots.indexOf(getActiveSlot());
+					if (i + adder >= 0 && i + adder < slots.size()) {
+						setActiveSlot(slots.get(i + adder));
+					} else {
+						nextPage = true;
+					}
+				}
+			}
+			if (nextPage) {
+				//TODO das ändert sich noch
+				int i = rg_state.getValue().ordinal() + adder;
+				if (i >= 0 && i < RoundMode.values().length) {
+					rg_state.setValue(RoundMode.values()[i]);
+					refreshTable();
 				}
 			}
 		};

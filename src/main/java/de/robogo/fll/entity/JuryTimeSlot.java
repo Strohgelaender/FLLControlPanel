@@ -9,6 +9,8 @@ public class JuryTimeSlot extends TimeSlot {
 
 	public JuryTimeSlot(final Team team, final LocalTime time, final Jury jury) {
 		super(time);
+		if (jury == null)
+			throw new NullPointerException();
 		this.team = team;
 		this.jury = jury;
 	}
