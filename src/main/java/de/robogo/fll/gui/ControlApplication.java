@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import de.robogo.fll.control.FLLController;
 import de.robogo.fll.control.Importer;
 import de.robogo.fll.control.ScoreboardDownloader;
+import de.robogo.fll.entity.Jury;
 import de.robogo.fll.entity.JuryTimeSlot;
 import de.robogo.fll.entity.RobotGameTimeSlot;
 import de.robogo.fll.entity.RoundMode;
@@ -274,17 +275,17 @@ public class ControlApplication extends Application {
 		teamJ.setCellValueFactory(i -> createTeamValue(i, t -> ((JuryTimeSlot) t).getTeam()));
 		teamJ.setCellFactory(this::createTeamComboBoxCell);
 
-		TableColumn<TimeSlot, JuryTimeSlot.JuryType> juryType = new TableColumn<>("Jury Type");
+		TableColumn<TimeSlot, Jury.JuryType> juryType = new TableColumn<>("Jury Type");
 		juryType.setCellValueFactory(param -> {
 			if (param.getValue() instanceof JuryTimeSlot)
-				return new SimpleObjectProperty<>(((JuryTimeSlot) param.getValue()).getJuryType());
+				return new SimpleObjectProperty<>(((JuryTimeSlot) param.getValue()).getJury().getJuryType());
 			return null;
 		});
 
 		TableColumn<TimeSlot, Integer> juryNumber = new TableColumn<>("Number");
 		juryNumber.setCellValueFactory(param -> {
 			if (param.getValue() instanceof JuryTimeSlot)
-				return new SimpleIntegerProperty(((JuryTimeSlot) param.getValue()).getJuryNumber()).asObject();
+				return new SimpleIntegerProperty(((JuryTimeSlot) param.getValue()).getJury().getNum()).asObject();
 			return null;
 		});
 

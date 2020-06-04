@@ -5,28 +5,12 @@ import java.time.LocalTime;
 public class JuryTimeSlot extends TimeSlot {
 
 	private Team team;
-	private final JuryType juryType;
-	private String location;
-	private int juryNumber;
+	private final Jury jury;
 
-	public JuryTimeSlot(final Team team, final LocalTime time, final JuryType juryType, final String location, final int juryNumber) {
+	public JuryTimeSlot(final Team team, final LocalTime time, final Jury jury) {
 		super(time);
 		this.team = team;
-		this.juryType = juryType;
-		this.location = location;
-		this.juryNumber = juryNumber;
-	}
-
-	public int getJuryNumber() {
-		return juryNumber;
-	}
-
-	public JuryType getJuryType() {
-		return juryType;
-	}
-
-	public String getLocation() {
-		return location;
+		this.jury = jury;
 	}
 
 	public Team getTeam() {
@@ -37,26 +21,7 @@ public class JuryTimeSlot extends TimeSlot {
 		this.team = team;
 	}
 
-	public void setLocation(final String location) {
-		this.location = location;
+	public Jury getJury() {
+		return jury;
 	}
-
-	public void setJuryNumber(final int juryNumber) {
-		this.juryNumber = juryNumber;
-	}
-
-	public enum JuryType {
-		TestRound("TR"), RobotDesign("R"), Teamwork("T"), Research("F");
-
-		private final String text;
-
-		JuryType(String text) {
-			this.text = text;
-		}
-
-		public String getText() {
-			return text;
-		}
-	}
-
 }

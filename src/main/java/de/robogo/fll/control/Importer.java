@@ -32,6 +32,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import de.robogo.fll.entity.Jury;
 import de.robogo.fll.entity.JuryTimeSlot;
 import de.robogo.fll.entity.RobotGameTimeSlot;
 import de.robogo.fll.entity.RoundMode;
@@ -57,6 +58,7 @@ public class Importer extends Task<Void> {
 				throw new ImportFailedException("the selected file is not supported!");
 
 			String xml = null;
+			String lcXml = null;
 			try (OPCPackage opcPackage = OPCPackage.open(file)) {
 
 				updateProgress(1, maxStatus);
@@ -73,21 +75,13 @@ public class Importer extends Task<Void> {
 				while (iterator.hasNext()) {
 					InputStream is = iterator.next();
 
-					if (!iterator.getSheetPart().getPartName().getName().endsWith("sheet25.bin"))
-						continue;
-
-					String name = iterator.getSheetName();
-					System.out.println(name);
-
-					TestSheetHandler testSheetHandler = new TestSheetHandler();
-					testSheetHandler.startSheet(name);
-
-					XSSFBSheetHandler sheetHandler = new XSSFBSheetHandler(is, stylesTable, iterator.getXSSFBSheetComments(), sst, testSheetHandler, new DataFormatter(), false);
-					sheetHandler.parse();
-					testSheetHandler.endSheet();
-
-					xml = testSheetHandler.toString();
-					break;
+					if (iterator.getSheetPart().getPartName().getName().endsWith("sheet25.bin")) {
+						xml = readExcelBinarySheet(is, iterator, sst, stylesTable);
+					} else if (iterator.getSheetPart().getPartName().getName().endsWith("sheet26.bin") && iterator.getSheetName().contains("LC")){
+						lcXml = readExcelBinarySheet(is, iterator, sst, stylesTable);
+					}
+					if (xml != null && lcXml != null)
+						break;
 				}
 			} catch (Exception e) {
 				//TODO translation
@@ -205,7 +199,7 @@ public class Importer extends Task<Void> {
 						tempteam = name.charAt(1) - 46;
 
 					Team t1 = tempteam < teamList.size() ? teamList.get(tempteam) : null;
-					timeSlots.add(new JuryTimeSlot(t1, time, JuryTimeSlot.JuryType.values()[juryTypeIndex], juryRooms[juryTypeIndex][juryNumber - 1], juryNumber));
+					timeSlots.add(new JuryTimeSlot(t1, time, Jury.JuryType.values()[juryTypeIndex], juryRooms[juryTypeIndex][juryNumber - 1], juryNumber));
 
 				}
 
@@ -253,6 +247,10 @@ public class Importer extends Task<Void> {
 				int[] nextfinal = findmultipleRowsWithContent(rows, firstfinal, finalcolumns, nextFinalIndicator);
 				generateRoboSlots(rows, firstfinal, nextfinal[0], 5, timeSlots, teamList);
 				generateRoboSlots(rows, nextfinal[0], nextfinal[1], 6, timeSlots, teamList);
+			}
+
+			if (lcXml != null) {
+				//TODO LiveChallenge Import
 			}
 
 			FLLController.setTimeSlots(timeSlots);
@@ -391,7 +389,7 @@ public class Importer extends Task<Void> {
 	}
 
 
-	//TODO
+	//TODO nemove txt-attributs (how?) [might break Importer!]
 	private static class TestSheetHandler implements XSSFSheetXMLHandler.SheetContentsHandler {
 		private final StringBuilder sb = new StringBuilder();
 
@@ -442,5 +440,19 @@ public class Importer extends Task<Void> {
 		public String toString() {
 			return sb.toString();
 		}
+	}
+
+	private static String readExcelBinarySheet(InputStream is, XSSFBReader.SheetIterator iterator, XSSFBSharedStringsTable sst, XSSFBStylesTable stylesTable) throws IOException {
+		String name = iterator.getSheetName();
+		System.out.println(name);
+
+		TestSheetHandler testSheetHandler = new TestSheetHandler();
+		testSheetHandler.startSheet(name);
+
+		XSSFBSheetHandler sheetHandler = new XSSFBSheetHandler(is, stylesTable, iterator.getXSSFBSheetComments(), sst, testSheetHandler, new DataFormatter(), false);
+		sheetHandler.parse();
+		testSheetHandler.endSheet();
+
+		return testSheetHandler.toString();
 	}
 }
