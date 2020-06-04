@@ -110,12 +110,12 @@ public class Importer extends Task<Void> {
 			String nameOfCompetition = rows.item(21).getChildNodes().item(1).getTextContent().substring(0, lastIndexInName).trim();
 			FLLController.setEventName(nameOfCompetition);
 			List<TimeSlot> timeSlots = new ArrayList<>();
-
 			//Import Locations
+			FLLController.setJuries();
 			char[] juryColumn = {'I', 'I', 'I', 'I'};
 			String[] juryRegex = {"^TR\\S$", "R", "T", "F"};
 			int[] juryTypeRows = findmultipleRowsWithContent(rows, 0, juryColumn, juryRegex);
-			String[][] juryRooms = new String[4][4]; // in this order : testRoundRooms, robotDesignRooms,teamworkRooms, researchRooms
+			//reading data in this order : testRoundRooms, robotDesignRooms,teamworkRooms, researchRooms
 			for (int i = 0; i < 3; i++) {
 				NodeList juryList = rows.item(juryTypeRows[i]).getChildNodes();
 				int numberOfJury = 0;
@@ -126,14 +126,15 @@ public class Importer extends Task<Void> {
 						continue;
 					if (juryCell.getTextContent().replaceAll("[0-9]", "").matches(juryRegex[i]))
 						continue;
-					juryRooms[i][numberOfJury] = juryCell.getTextContent();
+					FLLController.addJuries(new Jury(Jury.JuryType.values()[i], numberOfJury, juryCell.getTextContent()));
 					numberOfJury++;
 				}
 			}
-			//Testround Rooms
-			juryRooms[0][1] = juryRooms[0][0];
-			juryRooms[0][2] = juryRooms[0][0];
-			juryRooms[0][3] = juryRooms[0][0];
+			//Testround Jurys 2-4
+			Jury.JuryType trtype = Jury.JuryType.values()[0];
+			String trroom = getJury(trtype, 1);
+			FLLController.addJuries(new Jury(trtype, 2, trroom), new Jury(trtype, 3, trroom), new Jury(trtype, 4, trroom));
+
 
 			updateProgress(5, maxStatus);
 
@@ -177,21 +178,6 @@ public class Importer extends Task<Void> {
 					Node cell = juryList.item(j);
 					String name = getColumnIndex(cell);
 					String jurySession = juryList.item(j).getTextContent();
-					String juryTypeString = jurySession.replaceAll("[0-9]", "");
-					int juryNumber;
-					try {
-						juryNumber = Integer.parseInt(jurySession.replaceAll("[A-Z]", ""));
-					} catch (NumberFormatException e) { //Pause
-						continue outerLoop;
-					}
-
-					int juryTypeIndex = 0;
-					for (int k = 0; k < 4; k++) {
-						if (juryRegex[k].matches(juryTypeString)) {
-							juryTypeIndex = k;
-							break;
-						}
-					}
 					if (name.length() == 1)
 						tempteam = name.charAt(0) - 72;
 
@@ -199,7 +185,7 @@ public class Importer extends Task<Void> {
 						tempteam = name.charAt(1) - 46;
 
 					Team t1 = tempteam < teamList.size() ? teamList.get(tempteam) : null;
-					timeSlots.add(new JuryTimeSlot(t1, time, Jury.JuryType.values()[juryTypeIndex], juryRooms[juryTypeIndex][juryNumber - 1], juryNumber));
+					timeSlots.add(new JuryTimeSlot(t1, time, getJuryTypeByShortName(jurySession.trim().replaceAll("[0-9]", ""))));
 
 				}
 

@@ -14,6 +14,12 @@ Musik (Foobar, noch andere?)
 Übersetzungen für die Screens
 
 
+
+
+
+
+(Support für) Bildschirme für Juryräume
+
 //Weiterführendes
 
 Support für andere Importmöglichkeiten
