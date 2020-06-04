@@ -21,6 +21,8 @@ public class FoobarTelnetClient implements Runnable {
 	private boolean active = true;
 	private MusicThread musicThread;
 
+	private final Thread shutdownHook = new Thread(() -> disconnect(false));
+
 	public FoobarTelnetClient() {
 		client = new TelnetClient();
 		//TODO was bedeutet das?
@@ -50,12 +52,13 @@ public class FoobarTelnetClient implements Runnable {
 
 			reader = new Thread(this);
 			reader.start();
+
+			Runtime.getRuntime().addShutdownHook(shutdownHook);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	//TODO register as Shutdown handler
 	public void disconnect(boolean removeShutdownHandler) {
 		try {
 			client.disconnect();
@@ -64,7 +67,7 @@ public class FoobarTelnetClient implements Runnable {
 		}
 		reader.interrupt();
 		if (removeShutdownHandler) {
-			//TODO remove shutdown handler
+			Runtime.getRuntime().removeShutdownHook(shutdownHook);
 		}
 	}
 

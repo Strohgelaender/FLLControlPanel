@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import de.robogo.fll.control.FLLController;
 import de.robogo.fll.entity.JuryTimeSlot;
+import de.robogo.fll.entity.RobotGameTimeSlot;
 import de.robogo.fll.entity.RoundMode;
 import de.robogo.fll.entity.Team;
 
@@ -28,7 +29,6 @@ public class ScreenWebController {
 		return "scoreboard";
 	}
 
-	//TODO TestRound / Jury Timetable
 	@GetMapping("/timetable")
 	public String timetable(@RequestParam(name = "round", required = false, defaultValue = "current") String round, Model model) {
 		model.addAttribute("eventName", FLLController.getEventName());
@@ -68,7 +68,7 @@ public class ScreenWebController {
 			String[] strings = new String[teams.size()];
 			Arrays.fill(strings, "");
 			for (JuryTimeSlot timeSlot : slotList) {
-				strings[timeSlot.getTeam().getId() - 1] = timeSlot.getJuryType().getText() + timeSlot.getJuryNumber();
+				strings[timeSlot.getTeam().getId() - 1] = timeSlot.getJury().getJuryType().getShortName() + timeSlot.getJury().getNum();
 			}
 			juryExport.put(slotList.get(0).getTime(), strings);
 		}
