@@ -26,9 +26,7 @@ import de.robogo.fll.entity.Team;
 public class ScreenWebController {
 
 	@GetMapping("/scoreboard")
-	public String scoreboard(Model model) {
-		model.addAttribute("eventName", FLLController.getEventName());
-		model.addAttribute("teams", FLLController.getTeams());
+	public String scoreboard() {
 		return "scoreboard";
 	}
 
