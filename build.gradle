@@ -24,6 +24,7 @@ dependencies {
 	compile group: 'commons-net', name: 'commons-net', version: '3.6'
 	compile 'org.controlsfx:controlsfx:8.40.16'
 	compile group: 'net.harawata', name: 'appdirs', version: '1.0.3'
+	compile 'com.jfoenix:jfoenix:9.0.10'
 
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-web'

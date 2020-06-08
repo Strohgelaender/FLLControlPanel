@@ -119,7 +119,8 @@ public class FLLController {
 		try {
 			int num = Integer.parseInt(juryNum);
 			return getJury(type, num);
-		} catch (NumberFormatException ignore) {}
+		} catch (NumberFormatException ignore) {
+		}
 		return null;
 	}
 
@@ -135,6 +136,11 @@ public class FLLController {
 			if (jury.getJuryType().equals(type) && jury.getNum() == num)
 				return jury;
 		return null;
+	}
+
+	public static int getMaxJuryNum() {
+		//TODO
+		return 4;
 	}
 
 	public static List<JuryTimeSlot> getTimeSlotsByJury(Jury jury) {

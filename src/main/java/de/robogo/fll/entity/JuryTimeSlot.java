@@ -5,7 +5,7 @@ import java.time.LocalTime;
 public class JuryTimeSlot extends TimeSlot {
 
 	private Team team;
-	private final Jury jury;
+	private Jury jury;
 
 	public JuryTimeSlot(final Team team, final LocalTime time, final Jury jury) {
 		super(time);
@@ -25,5 +25,9 @@ public class JuryTimeSlot extends TimeSlot {
 
 	public Jury getJury() {
 		return jury;
+	}
+
+	public void setJury(final Jury jury) {
+		this.jury = jury;
 	}
 }

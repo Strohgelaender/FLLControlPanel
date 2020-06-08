@@ -1,7 +1,6 @@
 package de.robogo.fll.gui;
 
 import static de.robogo.fll.control.FLLController.getActiveSlot;
-import static de.robogo.fll.control.FLLController.getTeams;
 import static de.robogo.fll.control.FLLController.getTimeSlots;
 import static de.robogo.fll.control.FLLController.setActiveSlot;
 
@@ -12,10 +11,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NavigableMap;
+import java.util.Optional;
+import java.util.concurrent.Callable;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.controlsfx.control.StatusBar;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
+
+import com.jfoenix.controls.JFXTimePicker;
 
 import de.robogo.fll.control.FLLController;
 import de.robogo.fll.control.Importer;
@@ -33,10 +39,8 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.Property;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -57,8 +61,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 import javafx.util.Duration;
+import javafx.util.Pair;
 
 @Component
 public class ControlApplication extends Application {
@@ -235,19 +239,16 @@ public class ControlApplication extends Application {
 
 		TableColumn<TimeSlot, LocalTime> time = new TableColumn<>("Time");
 		time.setCellValueFactory(new PropertyValueFactory<>("time"));
-		time.setCellFactory(robotGameTimeSlotStringTableColumn -> new TableCell<>() {
-			@Override
-			protected void updateItem(final LocalTime item, final boolean empty) {
-				if (item != null) {
-					setText(HHmmFormatter.format(item));
-				}
-			}
-		});
+		time.setCellFactory(p -> createTimePickerCell());
 
 		//RobotGame Columns
-		TableColumn<TimeSlot, Property<Team>> teamA = new TableColumn<>("Team");
-		teamA.setCellValueFactory(i -> createTeamValue(i, t -> ((RobotGameTimeSlot) t).getTeamA()));
-		teamA.setCellFactory(this::createTeamComboBoxCell);
+		TableColumn<TimeSlot, Team> teamA = new TableColumn<>("Team");
+		teamA.setCellValueFactory(param -> {
+			if (param.getValue() instanceof RobotGameTimeSlot)
+				return new SimpleObjectProperty<>(((RobotGameTimeSlot) param.getValue()).getTeamA());
+			return null;
+		});
+		teamA.setCellFactory(param -> createComboBoxCell(FLLController::getTeams, p -> ((RobotGameTimeSlot) p.getKey()).setTeamA(p.getValue())));
 
 		TableColumn<TimeSlot, Table> tableA = new TableColumn<>("TischA");
 		tableA.setCellValueFactory(param -> {
@@ -255,6 +256,8 @@ public class ControlApplication extends Application {
 				return new SimpleObjectProperty<>(((RobotGameTimeSlot) param.getValue()).getTableA());
 			return null;
 		});
+		tableA.setCellFactory(param -> createComboBoxCell(FLLController::getTables, p -> ((RobotGameTimeSlot) p.getKey()).setTableA(p.getValue())));
+		//TODO only used tables (?)
 
 		TableColumn<TimeSlot, Table> tableB = new TableColumn<>("TischB");
 		tableB.setCellValueFactory(param -> {
@@ -262,18 +265,27 @@ public class ControlApplication extends Application {
 				return new SimpleObjectProperty<>(((RobotGameTimeSlot) param.getValue()).getTableB());
 			return null;
 		});
+		tableB.setCellFactory(param -> createComboBoxCell(FLLController::getTables, p -> ((RobotGameTimeSlot) p.getKey()).setTableB(p.getValue())));
 
-		TableColumn<TimeSlot, Property<Team>> teamB = new TableColumn<>("Team");
-		teamB.setCellValueFactory(i -> createTeamValue(i, t -> ((RobotGameTimeSlot) t).getTeamB()));
-		teamB.setCellFactory(this::createTeamComboBoxCell);
+		TableColumn<TimeSlot, Team> teamB = new TableColumn<>("Team");
+		teamB.setCellValueFactory(param -> {
+			if (param.getValue() instanceof RobotGameTimeSlot)
+				return new SimpleObjectProperty<>(((RobotGameTimeSlot) param.getValue()).getTeamB());
+			return null;
+		});
+		teamB.setCellFactory(param -> createComboBoxCell(FLLController::getTeams, p -> ((RobotGameTimeSlot) p.getKey()).setTeamB(p.getValue())));
 
 		robotGameTableColumns.addAll(Arrays.asList(teamA, tableA, tableB, teamB));
 
 		//Jury Columns
 
-		TableColumn<TimeSlot, Property<Team>> teamJ = new TableColumn<>("Team");
-		teamJ.setCellValueFactory(i -> createTeamValue(i, t -> ((JuryTimeSlot) t).getTeam()));
-		teamJ.setCellFactory(this::createTeamComboBoxCell);
+		TableColumn<TimeSlot, Team> teamJ = new TableColumn<>("Team");
+		teamJ.setCellValueFactory(param -> {
+			if (param.getValue() instanceof JuryTimeSlot)
+				return new SimpleObjectProperty<>(((JuryTimeSlot) param.getValue()).getTeam());
+			return null;
+		});
+		teamJ.setCellFactory(param -> createComboBoxCell(FLLController::getTeams, p -> ((JuryTimeSlot) p.getKey()).setTeam(p.getValue())));
 
 		TableColumn<TimeSlot, Jury.JuryType> juryType = new TableColumn<>("Jury Type");
 		juryType.setCellValueFactory(param -> {
@@ -281,6 +293,12 @@ public class ControlApplication extends Application {
 				return new SimpleObjectProperty<>(((JuryTimeSlot) param.getValue()).getJury().getJuryType());
 			return null;
 		});
+		juryType.setCellFactory(param -> createComboBoxCell(() -> Arrays.asList(Jury.JuryType.values()), p -> {
+			JuryTimeSlot jts = ((JuryTimeSlot) p.getKey());
+			Jury jury = FLLController.getJury(p.getValue(), jts.getJury().getNum());
+			if (jury != null)
+				jts.setJury(jury);
+		}));
 
 		TableColumn<TimeSlot, Integer> juryNumber = new TableColumn<>("Number");
 		juryNumber.setCellValueFactory(param -> {
@@ -288,6 +306,13 @@ public class ControlApplication extends Application {
 				return new SimpleIntegerProperty(((JuryTimeSlot) param.getValue()).getJury().getNum()).asObject();
 			return null;
 		});
+		//TODO real jury count
+		juryNumber.setCellFactory(param -> createComboBoxCell(() -> IntStream.range(1, FLLController.getMaxJuryNum() + 1).boxed().collect(Collectors.toList()), p -> {
+			JuryTimeSlot jts = ((JuryTimeSlot) p.getKey());
+			Jury jury = FLLController.getJury(jts.getJury().getJuryType(), p.getValue());
+			if (jury != null)
+				jts.setJury(jury);
+		}));
 
 		juryTableColumns.addAll(Arrays.asList(teamJ, juryType, juryNumber));
 
@@ -316,6 +341,7 @@ public class ControlApplication extends Application {
 		teamA.setPrefWidth(PREF_TEAM_COLUMN_WIDTH);
 		teamB.setPrefWidth(PREF_TEAM_COLUMN_WIDTH);
 		teamJ.setPrefWidth(PREF_TEAM_COLUMN_WIDTH);
+		juryType.setPrefWidth(150);
 
 		tableView.getColumns().add(time);
 
@@ -324,22 +350,42 @@ public class ControlApplication extends Application {
 		tableView.setEditable(true);
 	}
 
-	private ObservableValue<Property<Team>> createTeamValue(TableColumn.CellDataFeatures<? extends TimeSlot, Property<Team>> i, Callback<TimeSlot, Team> tcb) {
-		return Bindings.createObjectBinding(() -> new SimpleObjectProperty<>(tcb.call(i.getValue())));
+	private static <T> TableCell<TimeSlot, T> createComboBoxCell(final Callable<List<T>> listCreator, final Consumer<Pair<TimeSlot, T>> saveValue) {
+		try {
+			TableCell<TimeSlot, T> cell = new TableCell<>();
+			ComboBox<T> comboBox = new ComboBox<>(FXCollections.observableList(listCreator.call()));
+			cell.itemProperty().addListener((observable, oldValue, newValue) -> {
+				comboBox.setValue(newValue);
+			});
+			comboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+				if (cell.getTableRow() == null)
+					return;
+				TimeSlot t = cell.getTableRow().getItem();
+				if (t != null)
+					saveValue.accept(new Pair<>(t, newValue));
+			});
+			cell.graphicProperty().bind(Bindings.when(cell.emptyProperty()).then((Node) null).otherwise(comboBox));
+			return cell;
+		} catch (Exception e) {
+			//this should never happen!
+			e.printStackTrace();
+			return null;
+		}
 	}
 
-	private TableCell<TimeSlot, Property<Team>> createTeamComboBoxCell(TableColumn<TimeSlot, Property<Team>> col) {
-		TableCell<TimeSlot, Property<Team>> cell = new TableCell<>();
-		ComboBox<Team> comboBox = new ComboBox<>(FXCollections.observableList(getTeams()));
+	private static TableCell<TimeSlot, LocalTime> createTimePickerCell() {
+		TableCell<TimeSlot, LocalTime> cell = new TableCell<>();
+		JFXTimePicker timePicker = new JFXTimePicker();
+		timePicker.set24HourView(true);
 		cell.itemProperty().addListener((observable, oldValue, newValue) -> {
-			if (oldValue != null) {
-				comboBox.valueProperty().unbindBidirectional(oldValue);
-			}
-			if (newValue != null) {
-				comboBox.valueProperty().bindBidirectional(newValue);
-			}
+			timePicker.setValue(newValue);
 		});
-		cell.graphicProperty().bind(Bindings.when(cell.emptyProperty()).then((Node) null).otherwise(comboBox));
+		timePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+			TimeSlot ts = cell.getTableRow().getItem();
+			if (ts != null)
+				ts.setTime(newValue);
+		});
+		cell.graphicProperty().bind(Bindings.when(cell.emptyProperty()).then((Node) null).otherwise(timePicker));
 		return cell;
 	}
 

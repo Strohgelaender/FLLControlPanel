@@ -3,7 +3,7 @@ package de.robogo.fll.entity;
 public class Jury {
 
 	private final JuryType juryType;
-	private int num;
+	private final int num;
 	private final String room;
 
 	public Jury(final JuryType juryType, final int num, final String room) {
