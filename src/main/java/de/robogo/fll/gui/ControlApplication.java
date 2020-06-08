@@ -48,7 +48,9 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -125,6 +127,13 @@ public class ControlApplication extends Application {
 		Button import_teams = new Button("Import teams and times");
 		tbp.add(import_teams, 3, 0);
 		import_teams.setOnAction(actionEvent -> {
+			if (!FLLController.getTeams().isEmpty()) {
+				Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION, "continue?", ButtonType.YES, ButtonType.NO);
+				confirmation.setContentText("This will overwrite all existing data. Do you really want to continue?");
+				Optional<ButtonType> type = confirmation.showAndWait();
+				if (type.isEmpty() || type.get().equals(ButtonType.NO))
+					return;
+			}
 			statusBar.progressProperty().set(-1);
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Select Timetable-Generator-File");
