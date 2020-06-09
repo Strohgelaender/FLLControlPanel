@@ -8,8 +8,12 @@ public class RobotGameTimeSlot extends TimeSlot {
 	private Team teamB;
 	private Table tableA;
 	private Table tableB;
-	private final RoundMode roundMode;
+	private RoundMode roundMode;
 	private Status status;
+
+	public RobotGameTimeSlot() {
+		//default constructor for object mapping
+	}
 
 	public RobotGameTimeSlot(final Team teamA, final Team teamB, final Table tableA, final Table tableB, final LocalTime time, RoundMode roundMode) {
 		super(time);
@@ -63,6 +67,10 @@ public class RobotGameTimeSlot extends TimeSlot {
 
 	public void setTeamB(final Team teamB) {
 		this.teamB = teamB;
+	}
+
+	public void setRoundMode(final RoundMode roundMode) {
+		this.roundMode = roundMode;
 	}
 
 	public enum Status {

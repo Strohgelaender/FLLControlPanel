@@ -1,10 +1,19 @@
 package de.robogo.fll.entity;
 
-public class Jury {
+import java.io.Serializable;
 
-	private final JuryType juryType;
-	private final int num;
-	private final String room;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+public class Jury implements Serializable {
+
+	private JuryType juryType;
+	private int num;
+	private String room;
+
+	public Jury() {
+		//default constructor for serialization
+	}
 
 	public Jury(final JuryType juryType, final int num, final String room) {
 		this.juryType = juryType;
@@ -22,6 +31,19 @@ public class Jury {
 
 	public String getRoom() {
 		return room;
+	}
+
+	//setters for Object mapping
+	public void setJuryType(final JuryType juryType) {
+		this.juryType = juryType;
+	}
+
+	public void setNum(final int num) {
+		this.num = num;
+	}
+
+	public void setRoom(final String room) {
+		this.room = room;
 	}
 
 	public enum JuryType {

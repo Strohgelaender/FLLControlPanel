@@ -1,15 +1,26 @@
 package de.robogo.fll.entity;
 
-public class Team {
+import java.io.Serializable;
 
-	private final String name;
-	private final int id;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+public class Team implements Serializable {
+
+	private String name;
+	private int id;
 	private int round1;
 	private int round2;
 	private int round3;
 	private int rank;
 	private int QF;
 	private int SF;
+
+	public Team() {
+		//default constructor for object mapping
+	}
 
 	public Team(String name, int id) {
 		this.name = name;
@@ -66,19 +77,20 @@ public class Team {
 		return SF;
 	}
 
+	public void setName(final String name) {
+		this.name = name;
+	}
+
+	public void setId(final int id) {
+		this.id = id;
+	}
+
 	public void setRound(int round, int points) {
 		switch (round) {
-			case 1:
-				setRound1(points);
-				break;
-			case 2:
-				setRound2(points);
-				break;
-			case 3:
-				setRound3(points);
-				break;
-			default:
-				throw new IllegalArgumentException();
+			case 1 -> setRound1(points);
+			case 2 -> setRound2(points);
+			case 3 -> setRound3(points);
+			default -> throw new IllegalArgumentException();
 		}
 	}
 

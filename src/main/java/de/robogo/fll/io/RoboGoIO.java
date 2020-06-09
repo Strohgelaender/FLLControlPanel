@@ -3,6 +3,8 @@ package de.robogo.fll.io;
 import java.io.File;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.DefaultBaseTypeLimitingValidator;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import de.robogo.fll.util.Directories;
 import javafx.concurrent.Task;
@@ -23,6 +25,8 @@ public abstract class RoboGoIO extends Task<Void> {
 		juryFile = new File(dataDir, "juries.txt");
 		tableFile = new File(dataDir, "tables.txt");
 		objectMapper = new ObjectMapper();
+		objectMapper.activateDefaultTyping(new DefaultBaseTypeLimitingValidator());
+		objectMapper.registerModule(new JavaTimeModule());
 	}
 
 

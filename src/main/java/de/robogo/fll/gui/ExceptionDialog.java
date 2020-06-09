@@ -3,6 +3,7 @@ package de.robogo.fll.gui;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 
+//TODO show StackTrace and causes
 public class ExceptionDialog extends Alert {
 
 	public ExceptionDialog(final Throwable e) {

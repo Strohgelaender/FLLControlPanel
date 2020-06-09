@@ -25,6 +25,7 @@ dependencies {
 	compile 'org.controlsfx:controlsfx:8.40.16'
 	compile group: 'net.harawata', name: 'appdirs', version: '1.0.3'
 	compile 'com.jfoenix:jfoenix:9.0.10'
+	runtime group: 'com.fasterxml.jackson.module', name: 'jackson-modules-java8', version: '2.11.0', ext: 'pom'
 
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-web'

@@ -125,7 +125,7 @@ public class ControlApplication extends Application {
 		tbp.add(export_file, 3, 1);
 		export_file.setOnAction(event -> {
 			RoboGoExporter exporter = new RoboGoExporter();
-			exporter.exportAll();
+			new Thread(exporter).start();
 		});
 
 		Button download_file = new Button("Download Scoreboard");
