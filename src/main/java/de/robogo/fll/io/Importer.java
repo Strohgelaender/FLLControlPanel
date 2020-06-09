@@ -1,4 +1,4 @@
-package de.robogo.fll.control;
+package de.robogo.fll.io;
 
 import static de.robogo.fll.control.FLLController.getTableByNumber;
 import static de.robogo.fll.entity.Jury.JuryType.TestRound;
@@ -33,6 +33,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import de.robogo.fll.control.FLLController;
+import de.robogo.fll.control.ImportFailedException;
 import de.robogo.fll.entity.Jury;
 import de.robogo.fll.entity.JuryTimeSlot;
 import de.robogo.fll.entity.RobotGameTimeSlot;

@@ -1,33 +1,16 @@
-package de.robogo.fll.control;
+package de.robogo.fll.io;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import de.robogo.fll.control.FLLController;
+import de.robogo.fll.io.RoboGoIO;
 
-import de.robogo.fll.entity.Team;
-import de.robogo.fll.util.Directories;
-
-public class Exporter {
-
-	private final File dataDir;
-	private final File teamFile;
-	private final File slotsFile;
-	private final File juryFile;
-	private final File tableFile;
-	private final ObjectMapper objectMapper;
-
-	public Exporter() {
-		dataDir = Directories.getDataDir();
-		teamFile = new File(dataDir, "teams.txt");
-		slotsFile = new File(dataDir, "slots.txt");
-		juryFile = new File(dataDir, "juries.txt");
-		tableFile = new File(dataDir, "tables.txt");
-		objectMapper = new ObjectMapper();
-	}
+public class Exporter extends RoboGoIO {
 
 	public void exportAll() {
+		System.out.println("Exporting Data to:");
+		System.out.println(dataDir.getAbsolutePath());
 		try {
 			exportTeamData();
 			exportSlots();

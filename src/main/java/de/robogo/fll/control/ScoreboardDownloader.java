@@ -21,6 +21,7 @@ import de.robogo.fll.entity.RobotGameTimeSlot;
 import de.robogo.fll.entity.RoundMode;
 import de.robogo.fll.entity.Team;
 import de.robogo.fll.gui.HoTLoginPromptDialog;
+import de.robogo.fll.io.Importer;
 import javafx.concurrent.Worker;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;

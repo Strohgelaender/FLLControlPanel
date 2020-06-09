@@ -21,11 +21,12 @@ import org.controlsfx.control.StatusBar;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
-import de.robogo.fll.control.Exporter;
+import de.robogo.fll.io.Exporter;
+
 import com.jfoenix.controls.JFXTimePicker;
 
 import de.robogo.fll.control.FLLController;
-import de.robogo.fll.control.Importer;
+import de.robogo.fll.io.Importer;
 import de.robogo.fll.control.ScoreboardDownloader;
 import de.robogo.fll.entity.Jury;
 import de.robogo.fll.entity.JuryTimeSlot;
@@ -125,6 +126,7 @@ public class ControlApplication extends Application {
 			@Override
 			public void handle(final ActionEvent event) {
 				Exporter exporter = new Exporter();
+				exporter.exportAll();
 			}
 		});
 
