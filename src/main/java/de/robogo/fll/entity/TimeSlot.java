@@ -10,7 +10,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonSubTypes({
 		@JsonSubTypes.Type(value = JuryTimeSlot.class, name = "juryTimeSlot"),
 		@JsonSubTypes.Type(value = RobotGameTimeSlot.class, name = "robotGameTimeSlot"),
-		@JsonSubTypes.Type(value = EventTimeSlot.class, name = "eventTimeSlot")
+		@JsonSubTypes.Type(value = EventTimeSlot.class, name = "eventTimeSlot"),
+		@JsonSubTypes.Type(value = RobotGamePauseTimeSlot.class, name = "robotGamePauseTimeSlot"),
+		@JsonSubTypes.Type(value = JuryPauseTimeSlot.class, name = "juryPauseTimeSlot")
 })
 public abstract class TimeSlot implements Serializable {
 
