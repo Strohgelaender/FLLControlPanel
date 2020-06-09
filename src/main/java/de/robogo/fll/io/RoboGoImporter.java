@@ -10,7 +10,7 @@ import de.robogo.fll.control.FLLController;
 
 public class RoboGoImporter extends RoboGoIO {
 
-	public void importAll() throws IOException {
+	public void importAll() {
 		try {
 			importJuries();
 			importTable();
@@ -22,10 +22,8 @@ public class RoboGoImporter extends RoboGoIO {
 	}
 
 	private <T> List<T> importStuff(File file) throws IOException {
-
-		return objectMapper.readValue(file, new TypeReference<List<T>>() {
+		return objectMapper.readValue(file, new TypeReference<>() {
 		});
-
 	}
 
 	public void importTimeSlot() throws IOException {
@@ -44,4 +42,9 @@ public class RoboGoImporter extends RoboGoIO {
 		FLLController.setTimeSlots(importStuff(juryFile));
 	}
 
+	@Override
+	protected Void call() {
+		importAll();
+		return null;
+	}
 }

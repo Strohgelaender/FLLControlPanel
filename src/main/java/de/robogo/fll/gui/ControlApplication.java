@@ -21,12 +21,9 @@ import org.controlsfx.control.StatusBar;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
-import de.robogo.fll.io.Exporter;
-
 import com.jfoenix.controls.JFXTimePicker;
 
 import de.robogo.fll.control.FLLController;
-import de.robogo.fll.io.Importer;
 import de.robogo.fll.control.ScoreboardDownloader;
 import de.robogo.fll.entity.Jury;
 import de.robogo.fll.entity.JuryTimeSlot;
@@ -35,6 +32,8 @@ import de.robogo.fll.entity.RoundMode;
 import de.robogo.fll.entity.Table;
 import de.robogo.fll.entity.Team;
 import de.robogo.fll.entity.TimeSlot;
+import de.robogo.fll.io.ExcelImporter;
+import de.robogo.fll.io.RoboGoExporter;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -122,12 +121,9 @@ public class ControlApplication extends Application {
 
 		Button export_file = new Button("Export Tournament");
 		tbp.add(export_file, 3, 1);
-		export_file.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(final ActionEvent event) {
-				Exporter exporter = new Exporter();
-				exporter.exportAll();
-			}
+		export_file.setOnAction(event -> {
+			RoboGoExporter exporter = new RoboGoExporter();
+			exporter.exportAll();
 		});
 
 		Button download_file = new Button("Download Scoreboard");
@@ -149,7 +145,7 @@ public class ControlApplication extends Application {
 			fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel-Timetable", "*.xlsb"));
 			File file = fileChooser.showOpenDialog(stage);
 			if (file != null) {
-				Importer importer = new Importer(file);
+				ExcelImporter importer = new ExcelImporter(file);
 				importer.setOnFailed(event -> {
 					statusBar.progressProperty().unbind();
 					statusBar.progressProperty().setValue(0);

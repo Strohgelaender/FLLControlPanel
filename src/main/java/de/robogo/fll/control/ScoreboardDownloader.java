@@ -21,7 +21,7 @@ import de.robogo.fll.entity.RobotGameTimeSlot;
 import de.robogo.fll.entity.RoundMode;
 import de.robogo.fll.entity.Team;
 import de.robogo.fll.gui.HoTLoginPromptDialog;
-import de.robogo.fll.io.Importer;
+import de.robogo.fll.io.ExcelImporter;
 import javafx.concurrent.Worker;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
@@ -105,7 +105,7 @@ public final class ScoreboardDownloader {
 					//import excel sheet
 					XSSFWorkbook wb = new XSSFWorkbook(connection.getInputStream());
 
-					Importer.importScores(wb);
+					ExcelImporter.importScores(wb);
 
 					//update QF / SF / Final - Teams
 					updateQFSFRounds(RoundMode.QF, Comparator.comparingInt(Team::getRank));

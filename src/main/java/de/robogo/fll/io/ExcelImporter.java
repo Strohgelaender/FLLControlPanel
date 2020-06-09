@@ -34,7 +34,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import de.robogo.fll.control.FLLController;
-import de.robogo.fll.control.ImportFailedException;
 import de.robogo.fll.entity.Jury;
 import de.robogo.fll.entity.JuryTimeSlot;
 import de.robogo.fll.entity.RobotGameTimeSlot;
@@ -43,12 +42,12 @@ import de.robogo.fll.entity.Team;
 import de.robogo.fll.entity.TimeSlot;
 import javafx.concurrent.Task;
 
-public class Importer extends Task<Void> {
+public class ExcelImporter extends Task<Void> {
 
 	private static final int maxStatus = 8;
 	private final File file;
 
-	public Importer(final File file) {
+	public ExcelImporter(final File file) {
 		this.file = file;
 	}
 

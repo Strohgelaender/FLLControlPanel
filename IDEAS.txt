@@ -12,6 +12,7 @@ Timer?
 OBS
 Musik (Foobar, noch andere?)
 Übersetzungen für die Screens
+Gant-Diagramm
 
 
 
@@ -30,6 +31,7 @@ Info-Overlay (Lower Thirds)
 Herzlich Willkommen / Auf Wiedersehen - Ansicht für die Screens
 Scoreboard: Paging und autwechsel an / aus
 generlel automatisches Updaten der Screens
+GUI in JFoenix umwandeln
 Tests
 Manuelles Speichern?
 

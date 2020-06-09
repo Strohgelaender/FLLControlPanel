@@ -4,9 +4,8 @@ import java.io.File;
 import java.io.IOException;
 
 import de.robogo.fll.control.FLLController;
-import de.robogo.fll.io.RoboGoIO;
 
-public class Exporter extends RoboGoIO {
+public class RoboGoExporter extends RoboGoIO {
 
 	public void exportAll() {
 		System.out.println("Exporting Data to:");
@@ -41,6 +40,12 @@ public class Exporter extends RoboGoIO {
 
 	public void exportTables() throws IOException {
 		exportStuff(tableFile, FLLController.getTables());
+	}
+
+	@Override
+	protected Void call() {
+		exportAll();
+		return null;
 	}
 
 

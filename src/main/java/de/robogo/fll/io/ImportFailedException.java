@@ -1,16 +1,16 @@
-package de.robogo.fll.control;
+package de.robogo.fll.io;
 
 public class ImportFailedException extends Exception {
 
-	public ImportFailedException(String msg) {
+	ImportFailedException(String msg) {
 		super(msg);
 	}
 
-	public ImportFailedException(Throwable cause) {
+	ImportFailedException(Throwable cause) {
 		super("An unexpected Error occurred. Please send a bug report to the developers: " + cause.getMessage(), cause);
 	}
 
-	public ImportFailedException(String msg, Throwable cause) {
+	ImportFailedException(String msg, Throwable cause) {
 		super(msg, cause);
 	}
 }

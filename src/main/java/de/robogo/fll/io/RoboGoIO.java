@@ -5,8 +5,9 @@ import java.io.File;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.robogo.fll.util.Directories;
+import javafx.concurrent.Task;
 
-public class RoboGoIO {
+public abstract class RoboGoIO extends Task<Void> {
 
 	protected final File dataDir;
 	protected final File teamFile;
