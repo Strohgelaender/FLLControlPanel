@@ -34,6 +34,7 @@ import de.robogo.fll.entity.Team;
 import de.robogo.fll.entity.TimeSlot;
 import de.robogo.fll.io.ExcelImporter;
 import de.robogo.fll.io.RoboGoExporter;
+import de.robogo.fll.io.RoboGoImporter;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -85,6 +86,7 @@ public class ControlApplication extends Application {
 
 	@Override
 	public void start(final Stage stage) throws Exception {
+
 
 		// Grid panes
 		AnchorPane windowRoot = new AnchorPane();
@@ -219,6 +221,10 @@ public class ControlApplication extends Application {
 		stage.setWidth(1150);
 		stage.setHeight(650);
 		stage.show();
+
+		RoboGoImporter autoimporter = new RoboGoImporter();
+		autoimporter.setOnSucceeded(event -> refreshTable());
+		new Thread(autoimporter).start();
 	}
 
 	@Override
