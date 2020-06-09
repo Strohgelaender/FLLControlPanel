@@ -22,6 +22,10 @@ import org.apache.poi.xslf.usermodel.XSLFTableCell;
 import org.apache.poi.xslf.usermodel.XSLFTableRow;
 import org.apache.poi.xslf.usermodel.XSLFTextRun;
 
+import de.robogo.fll.entity.RoundMode;
+import de.robogo.fll.entity.Team;
+import de.robogo.fll.teams.TeamSelectionComboBox;
+import de.robogo.fll.telnet.FoobarTelnetClient;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -34,10 +38,6 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import de.robogo.fll.entity.RoundMode;
-import de.robogo.fll.entity.Team;
-import de.robogo.fll.teams.TeamSelectionComboBox;
-import de.robogo.fll.telnet.FoobarTelnetClient;
 
 public class MainApplication extends Application {
 

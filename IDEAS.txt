@@ -16,8 +16,6 @@ Musik (Foobar, noch andere?)
 
 
 
-
-
 (Support für) Bildschirme für Juryräume
 
 //Weiterführendes
@@ -34,6 +32,9 @@ Scoreboard: Paging und autwechsel an / aus
 generlel automatisches Updaten der Screens
 Tests
 Manuelles Speichern?
+
+//Bugs
+leere Zeilen in der Tabelle sehen hässlich aus
 
 //Grundlagen
 
