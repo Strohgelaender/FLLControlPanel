@@ -7,7 +7,7 @@ import net.harawata.appdirs.AppDirsFactory;
 
 public class Directories {
 
-	public static File getTempDir() {
+	public static File getDataDir() {
 		return checkDir(AppDirsFactory.getInstance().getSiteDataDir("FLLControlPanel", null, "RoboGO"));
 	}
 

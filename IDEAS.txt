@@ -33,6 +33,7 @@ Herzlich Willkommen / Auf Wiedersehen - Ansicht für die Screens
 Scoreboard: Paging und autwechsel an / aus
 generlel automatisches Updaten der Screens
 Tests
+Manuelles Speichern?
 
 //Grundlagen
 

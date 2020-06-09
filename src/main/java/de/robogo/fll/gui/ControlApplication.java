@@ -17,6 +17,7 @@ import org.controlsfx.control.StatusBar;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
+import de.robogo.fll.control.Exporter;
 import de.robogo.fll.control.FLLController;
 import de.robogo.fll.control.Importer;
 import de.robogo.fll.control.ScoreboardDownloader;
@@ -105,7 +106,6 @@ public class ControlApplication extends Application {
 
 		//Buttons
 
-		// Wählen der aktuellen Runde
 		Button left_arrow = new Button("<-");
 		lrp.add(left_arrow, 0, 0);
 		left_arrow.setOnAction(generateArrowEventHandler(-1));
@@ -113,7 +113,14 @@ public class ControlApplication extends Application {
 		lrp.add(right_arrow, 1, 0);
 		right_arrow.setOnAction(generateArrowEventHandler(1));
 
-		//Rest
+		Button export_file = new Button("Export Tournament");
+		tbp.add(export_file, 3, 1);
+		export_file.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(final ActionEvent event) {
+				Exporter exporter = new Exporter();
+			}
+		});
 
 		Button download_file = new Button("Download Scoreboard");
 		tbp.add(download_file, 0, 1);
