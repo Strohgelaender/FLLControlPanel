@@ -1,8 +1,9 @@
 package de.robogo.fll.gui;
 
 import static de.robogo.fll.control.FLLController.getActiveSlot;
+import static de.robogo.fll.control.FLLController.getActiveTime;
 import static de.robogo.fll.control.FLLController.getTimeSlots;
-import static de.robogo.fll.control.FLLController.setActiveSlot;
+import static de.robogo.fll.control.FLLController.setActiveTime;
 
 import java.io.File;
 import java.time.LocalTime;
@@ -25,12 +26,12 @@ import com.jfoenix.controls.JFXTimePicker;
 import de.robogo.fll.control.FLLController;
 import de.robogo.fll.control.ScoreboardDownloader;
 import de.robogo.fll.entity.Jury;
-import de.robogo.fll.entity.timeslot.PauseTimeSlot;
 import de.robogo.fll.entity.RoundMode;
 import de.robogo.fll.entity.Table;
 import de.robogo.fll.entity.Team;
 import de.robogo.fll.entity.timeslot.JurySlot;
 import de.robogo.fll.entity.timeslot.JuryTimeSlot;
+import de.robogo.fll.entity.timeslot.PauseTimeSlot;
 import de.robogo.fll.entity.timeslot.RobotGameSlot;
 import de.robogo.fll.entity.timeslot.RobotGameTimeSlot;
 import de.robogo.fll.entity.timeslot.TimeSlot;
@@ -343,13 +344,9 @@ public class ControlApplication extends Application {
 		tableView.setRowFactory(param -> {
 			TableRow<TimeSlot> row = new TableRow<>();
 
-			/*BooleanBinding active = Bindings.createBooleanBinding(() ->
-					row.getItem() != null
-					&& row.getItem().equals(FLLController.getActiveSlot())
-							|| (FLLController.getActiveSlot() instanceof JuryTimeSlot
-								&& row.getItem() instanceof JuryTimeSlot
-								&& FLLController.getActiveSlot().getTime().equals(row.getItem().getTime())));*/
-			BooleanBinding active = Bindings.equal(row.itemProperty(), FLLController.getActiveSlotProperty());
+			BooleanBinding active = Bindings.createBooleanBinding(() -> FLLController.getActiveTime() != null && row.getItem() != null && FLLController.getActiveTime().equals(row.getItem().getTime()),
+					row.itemProperty(), FLLController.getActiveTimeProperty());
+
 			row.styleProperty().bind(Bindings.when(active)
 					.then(" -fx-background-color: lightgreen ;")
 					.otherwise(""));
@@ -431,28 +428,31 @@ public class ControlApplication extends Application {
 			if (rg_state.getValue() == RoundMode.TestRound) {
 				//TODO das ändert sich noch (RoundMode != ZeitMode)
 				NavigableMap<LocalTime, List<JurySlot>> slots = FLLController.getJuryTimeSlotsWithPauseGrouped();
-				if (getActiveSlot() == null) {
-					if (!slots.isEmpty())
-						setActiveSlot((TimeSlot) slots.get(slots.firstKey()).get(0));
+				if (getActiveTime() == null) {
+					if (!slots.isEmpty() && adder > 0)
+						setActiveTime(slots.firstKey());
 				} else {
-					LocalTime current = getActiveSlot().getTime();
+					LocalTime current = getActiveTime();
 					LocalTime next = adder > 0 ? slots.higherKey(current) : slots.lowerKey(current);
 					if (next != null) {
-						setActiveSlot((TimeSlot) slots.get(next).get(0));
+						setActiveTime(next);
 					} else {
 						nextPage = true;
 					}
 				}
 			} else {
-				if (getActiveSlot() == null) {
-					if (!tableView.getItems().isEmpty())
-						setActiveSlot(tableView.getItems().get(0));
+				List<TimeSlot> slots = tableView.getItems();
+				if (getActiveTime() == null) {
+					if (!slots.isEmpty() && adder > 0)
+						setActiveTime(slots.get(0));
 				} else {
-					int i = tableView.getItems().indexOf(getActiveSlot());
+					Optional<TimeSlot> timeSlot = getActiveSlot();
+					assert timeSlot.isPresent();
+					int i = slots.indexOf(timeSlot.get());
 					if (i == -1)
-						setActiveSlot(tableView.getItems().get(adder > 0 ? 0 : tableView.getItems().size() - 1));
-					else if (i + adder >= 0 && i + adder < tableView.getItems().size())
-						setActiveSlot(tableView.getItems().get(i + adder));
+						setActiveTime(slots.get(adder > 0 ? 0 : slots.size() - 1));
+					else if (i + adder >= 0 && i + adder < slots.size())
+						setActiveTime(slots.get(i + adder));
 					else
 						nextPage = true;
 				}

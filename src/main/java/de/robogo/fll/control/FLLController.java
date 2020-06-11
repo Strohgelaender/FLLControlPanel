@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NavigableMap;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -42,7 +43,7 @@ public class FLLController {
 
 	private static final ObservableList<Jury> juries = FXCollections.observableArrayList();
 
-	private static final ObjectProperty<TimeSlot> activeSlot = new SimpleObjectProperty<>(); //TODO chage to DayTimeProperty
+	private static final ObjectProperty<LocalTime> activeTime = new SimpleObjectProperty<>();
 
 	public static ObservableList<Team> getTeams() {
 		return teams;
@@ -205,7 +206,7 @@ public class FLLController {
 			JuryTimeSlot slot = juryTimeSlots.get(i);
 			result.add(slot);
 			LocalTime nextTime = slot.getTime().plusMinutes(duration);
-			if (juryTimeSlots.get(i+1).getTime().isAfter(nextTime)) {
+			if (juryTimeSlots.get(i + 1).getTime().isAfter(nextTime)) {
 				result.add(new JuryPauseTimeSlot(nextTime));
 			}
 		}
@@ -220,15 +221,31 @@ public class FLLController {
 		FLLController.eventName = eventName;
 	}
 
-	public static TimeSlot getActiveSlot() {
-		return activeSlot.get();
+	public static Optional<TimeSlot> getActiveSlot() {
+		return getTimeSlots().stream()
+				.filter(timeSlot -> timeSlot.getTime().equals(getActiveTime()))
+				.findFirst();
 	}
 
-	public static ObjectProperty<TimeSlot> getActiveSlotProperty() {
-		return activeSlot;
+	public static List<TimeSlot> getActiveSlots() {
+		return getTimeSlots().stream()
+				.filter(timeSlot -> timeSlot.getTime().equals(getActiveTime()))
+				.collect(Collectors.toList());
 	}
 
-	public static void setActiveSlot(final TimeSlot activeSlot) {
-		FLLController.activeSlot.setValue(activeSlot);
+	public static LocalTime getActiveTime() {
+		return activeTime.get();
+	}
+
+	public static ObjectProperty<LocalTime> getActiveTimeProperty() {
+		return activeTime;
+	}
+
+	public static void setActiveTime(final TimeSlot activeTime) {
+		FLLController.activeTime.setValue(activeTime == null ? null : activeTime.getTime());
+	}
+
+	public static void setActiveTime(final LocalTime localTime) {
+		FLLController.activeTime.setValue(localTime);
 	}
 }

@@ -16,6 +16,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 })
 public abstract class TimeSlot implements Serializable {
 
+	//TODO chage to DayTime for multiple Day events
 	private LocalTime time;
 
 	protected TimeSlot() {

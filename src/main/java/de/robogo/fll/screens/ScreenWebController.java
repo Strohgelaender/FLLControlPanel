@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -17,10 +19,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import de.robogo.fll.control.FLLController;
 import de.robogo.fll.entity.Jury;
-import de.robogo.fll.entity.JuryTimeSlot;
-import de.robogo.fll.entity.RobotGameTimeSlot;
+import de.robogo.fll.entity.timeslot.JuryTimeSlot;
+import de.robogo.fll.entity.timeslot.RobotGameTimeSlot;
 import de.robogo.fll.entity.RoundMode;
 import de.robogo.fll.entity.Team;
+import de.robogo.fll.entity.timeslot.TimeSlot;
 
 @Controller
 public class ScreenWebController {
@@ -35,8 +38,9 @@ public class ScreenWebController {
 		model.addAttribute("eventName", FLLController.getEventName());
 		RoundMode roundMode = null;
 		if (round.equalsIgnoreCase("current")) {
-			if (FLLController.getActiveSlot() != null && FLLController.getActiveSlot() instanceof RobotGameTimeSlot)
-				roundMode = ((RobotGameTimeSlot) FLLController.getActiveSlot()).getRoundMode();
+			Optional<TimeSlot> activeSlot = FLLController.getActiveSlot();
+			if (activeSlot.isPresent() && activeSlot.get() instanceof RobotGameTimeSlot)
+				roundMode = ((RobotGameTimeSlot) activeSlot.get()).getRoundMode();
 		} else {
 			try {
 				roundMode = RoundMode.valueOf(round);
@@ -61,7 +65,7 @@ public class ScreenWebController {
 	@GetMapping("/jury")
 	public String jury(Model model) {
 		model.addAttribute("eventName", FLLController.getEventName());
-		List<Team> teams = FLLController.getTeams();
+		List<Team> teams = FLLController.getTeams().filtered(Objects::nonNull);
 		model.addAttribute("teams", teams);
 		Map<LocalTime, List<JuryTimeSlot>> juryGrooped = FLLController.getJuryTimeSlotsGrouped();
 		SortedMap<LocalTime, String[]> juryExport = new TreeMap<>(Comparator.naturalOrder());
@@ -74,6 +78,7 @@ public class ScreenWebController {
 			juryExport.put(slotList.get(0).getTime(), strings);
 		}
 		model.addAttribute("slots", juryExport);
+		model.addAttribute("juries", FLLController.getJuries());
 		return "juryMatrix";
 	}
 
