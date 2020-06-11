@@ -3,6 +3,7 @@ package de.robogo.fll.control;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NavigableMap;
@@ -11,53 +12,70 @@ import java.util.stream.Collectors;
 
 import de.robogo.fll.entity.Jury;
 import de.robogo.fll.entity.Jury.JuryType;
-import de.robogo.fll.entity.JuryTimeSlot;
-import de.robogo.fll.entity.RobotGameTimeSlot;
 import de.robogo.fll.entity.RoundMode;
 import de.robogo.fll.entity.Table;
 import de.robogo.fll.entity.Team;
-import de.robogo.fll.entity.TimeSlot;
+import de.robogo.fll.entity.timeslot.JuryPauseTimeSlot;
+import de.robogo.fll.entity.timeslot.JurySlot;
+import de.robogo.fll.entity.timeslot.JuryTimeSlot;
+import de.robogo.fll.entity.timeslot.RobotGameTimeSlot;
+import de.robogo.fll.entity.timeslot.TimeSlot;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 public class FLLController {
 
+	//kann sich das ändern?
+	public static final int ROBOT_GAME_SLOT_DURATION = 5;
+	public static final int JURY_SLOT_DURATION = 15;
+	public static final int LC_SLOT_DURATION = 30;
+
 	private static String eventName = "FLL Regio Hochtesthausen";
 
-	private static final List<Team> teams = new ArrayList<>();
+	private static final ObservableList<Team> teams = FXCollections.observableArrayList();
 
-	private static final List<Table> tables = new ArrayList<>(Arrays.asList(new Table("1"), new Table("2"), new Table("3"), new Table("4")));
+	private static final ObservableList<Table> tables = FXCollections.observableArrayList(Arrays.asList(new Table("1"), new Table("2"), new Table("3"), new Table("4")));
 
-	private static final List<TimeSlot> timeSlots = new ArrayList<>();
+	private static final ObservableList<TimeSlot> timeSlots = FXCollections.observableArrayList();
 
-	private static final List<Jury> juries = new ArrayList<>();
+	private static final ObservableList<Jury> juries = FXCollections.observableArrayList();
 
-	private static final ObjectProperty<TimeSlot> activeSlot = new SimpleObjectProperty<>();
+	private static final ObjectProperty<TimeSlot> activeSlot = new SimpleObjectProperty<>(); //TODO chage to DayTimeProperty
 
-	public static List<Team> getTeams() {
+	public static ObservableList<Team> getTeams() {
 		return teams;
 	}
 
-	public static List<TimeSlot> getTimeSlots() {
+	public static ObservableList<TimeSlot> getTimeSlots() {
 		return timeSlots;
 	}
 
-	public static List<Table> getTables() {
+	public static ObservableList<Table> getTables() {
 		return tables;
 	}
 
-	public static List<Jury> getJuries() {
+	public static ObservableList<Jury> getJuries() {
 		return juries;
 	}
 
 	public static void setTables(final List<Table> tables) {
 		FLLController.tables.clear();
-		FLLController.tables.addAll(tables);
+		if (tables != null && !tables.isEmpty()) {
+			if (!tables.contains(null))
+				FLLController.tables.add(null);
+			FLLController.tables.addAll(tables);
+		}
 	}
 
 	public static void setTeams(final List<Team> teams) {
 		FLLController.teams.clear();
-		FLLController.teams.addAll(teams);
+		if (teams != null && !teams.isEmpty()) {
+			if (!teams.contains(null))
+				FLLController.teams.add(null);
+			FLLController.teams.addAll(teams);
+		}
 	}
 
 	public static void setTimeSlots(final List<TimeSlot> timeSlots) {
@@ -81,7 +99,7 @@ public class FLLController {
 
 	public static Team getTeamByName(String name) {
 		for (Team t : getTeams()) {
-			if (t.getName().equals(name))
+			if (t != null && t.getName().equals(name))
 				return t;
 		}
 		return null;
@@ -105,10 +123,32 @@ public class FLLController {
 	}
 
 	public static NavigableMap<LocalTime, List<JuryTimeSlot>> getJuryTimeSlotsGrouped() {
-		return getJuryTimeSlots().stream().sorted(Comparator.comparing(TimeSlot::getTime)).collect(Collectors.groupingBy(TimeSlot::getTime, () -> new TreeMap<>(Comparator.naturalOrder()), Collectors.toList()));
+		return getTimeSlots().stream()
+				.filter(timeSlot -> timeSlot instanceof JuryTimeSlot)
+				.map(timeSlot -> (JuryTimeSlot) timeSlot)
+				.sorted(Comparator.comparing(TimeSlot::getTime))
+				.collect(Collectors.groupingBy(TimeSlot::getTime, () -> new TreeMap<>(Comparator.naturalOrder()), Collectors.toList()));
+	}
+
+	public static List<JurySlot> getJurySlotsWithPause() {
+		return getTimeSlots().stream()
+				.filter(timeSlot -> timeSlot instanceof JurySlot)
+				.map(timeSlot -> (JurySlot) timeSlot)
+				.sorted(Comparator.comparing(JurySlot::getTime))
+				.collect(Collectors.toList());
+	}
+
+	public static NavigableMap<LocalTime, List<JurySlot>> getJuryTimeSlotsWithPauseGrouped() {
+		return getTimeSlots().stream()
+				.filter(timeSlot -> timeSlot instanceof JurySlot)
+				.map(timeSlot -> (JurySlot) timeSlot)
+				.sorted(Comparator.comparing(JurySlot::getTime))
+				.collect(Collectors.groupingBy(JurySlot::getTime, () -> new TreeMap<>(Comparator.naturalOrder()), Collectors.toList()));
 	}
 
 	public static Table getTableByNumber(int num) {
+		if (tables.contains(null))
+			return tables.get(num - 2);
 		return getTables().get(num - 1);
 	}
 
@@ -139,8 +179,11 @@ public class FLLController {
 	}
 
 	public static int getMaxJuryNum() {
-		//TODO
-		return 4;
+		int max = 0;
+		for (Jury jury : getJuries()) {
+			max = Math.max(max, jury.getNum());
+		}
+		return max;
 	}
 
 	public static List<JuryTimeSlot> getTimeSlotsByJury(Jury jury) {
@@ -150,6 +193,23 @@ public class FLLController {
 				.filter(timeSlot -> timeSlot.getJury().equals(jury))
 				.sorted(Comparator.comparing(TimeSlot::getTime))
 				.collect(Collectors.toList());
+	}
+
+	public static List<JurySlot> getJuryTimeSlotsByJuryWithPauses(Jury jury) {
+		if (jury == null)
+			return Collections.emptyList();
+		int duration = jury.getJuryType() == JuryType.LiveChallenge ? LC_SLOT_DURATION : JURY_SLOT_DURATION;
+		List<JurySlot> result = new ArrayList<>();
+		List<JuryTimeSlot> juryTimeSlots = getTimeSlotsByJury(jury);
+		for (int i = 0; i < juryTimeSlots.size() - 1; i++) {
+			JuryTimeSlot slot = juryTimeSlots.get(i);
+			result.add(slot);
+			LocalTime nextTime = slot.getTime().plusMinutes(duration);
+			if (juryTimeSlots.get(i+1).getTime().isAfter(nextTime)) {
+				result.add(new JuryPauseTimeSlot(nextTime));
+			}
+		}
+		return result;
 	}
 
 	public static String getEventName() {

@@ -1,8 +1,11 @@
-package de.robogo.fll.entity;
+package de.robogo.fll.entity.timeslot;
 
 import java.time.LocalTime;
 
-public class JuryTimeSlot extends TimeSlot {
+import de.robogo.fll.entity.Jury;
+import de.robogo.fll.entity.Team;
+
+public class JuryTimeSlot extends TimeSlot implements JurySlot {
 
 	private Team team;
 	private Jury jury;

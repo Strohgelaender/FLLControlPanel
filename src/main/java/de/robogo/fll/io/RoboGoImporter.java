@@ -12,7 +12,7 @@ import de.robogo.fll.control.FLLController;
 import de.robogo.fll.entity.Jury;
 import de.robogo.fll.entity.Table;
 import de.robogo.fll.entity.Team;
-import de.robogo.fll.entity.TimeSlot;
+import de.robogo.fll.entity.timeslot.TimeSlot;
 
 public class RoboGoImporter extends RoboGoIO {
 

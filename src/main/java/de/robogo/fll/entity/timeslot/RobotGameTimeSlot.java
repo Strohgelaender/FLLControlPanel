@@ -1,8 +1,12 @@
-package de.robogo.fll.entity;
+package de.robogo.fll.entity.timeslot;
 
 import java.time.LocalTime;
 
-public class RobotGameTimeSlot extends TimeSlot {
+import de.robogo.fll.entity.RoundMode;
+import de.robogo.fll.entity.Table;
+import de.robogo.fll.entity.Team;
+
+public class RobotGameTimeSlot extends TimeSlot implements RobotGameSlot {
 
 	private Team teamA;
 	private Team teamB;

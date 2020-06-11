@@ -1,4 +1,4 @@
-package de.robogo.fll.entity;
+package de.robogo.fll.entity.timeslot;
 
 import java.time.LocalTime;
 

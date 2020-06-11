@@ -1,8 +1,8 @@
-package de.robogo.fll.entity;
+package de.robogo.fll.entity.timeslot;
 
 import java.time.LocalTime;
 
-public class JuryPauseTimeSlot extends PauseTimeSlot {
+public class JuryPauseTimeSlot extends PauseTimeSlot implements JurySlot {
 
 	public JuryPauseTimeSlot() {
 		//default constructor for object mapping

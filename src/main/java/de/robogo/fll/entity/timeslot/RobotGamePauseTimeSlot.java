@@ -1,8 +1,10 @@
-package de.robogo.fll.entity;
+package de.robogo.fll.entity.timeslot;
 
 import java.time.LocalTime;
 
-public class RobotGamePauseTimeSlot extends PauseTimeSlot {
+import de.robogo.fll.entity.RoundMode;
+
+public class RobotGamePauseTimeSlot extends PauseTimeSlot implements RobotGameSlot {
 
 	//pause on the end of this round mode
 	private RoundMode roundMode;
