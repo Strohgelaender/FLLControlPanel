@@ -13,7 +13,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -117,10 +117,9 @@ public class ExcelImporter extends Task<Void> {
 			NodeList rows = document.getChildNodes().item(0).getChildNodes();
 			int lastIndexInName = StringUtils.lastIndexOf(rows.item(21).getChildNodes().item(1).getTextContent(), "-");
 			String nameOfCompetition = rows.item(21).getChildNodes().item(1).getTextContent().substring(0, lastIndexInName).trim();
-			FLLController.setEventName(nameOfCompetition);
 			List<TimeSlot> timeSlots = new ArrayList<>();
 			//Import Locations
-			FLLController.getJuries().clear();
+			List<Jury> juries = new ArrayList<>();
 			char[] juryColumn = {'I', 'I', 'I', 'I'};
 			String[] juryRegex = {"^TR\\S$", "R", "T", "F"};
 			int[] juryTypeRows = findMultipleRowsWithContent(rows, 0, juryColumn, juryRegex);
@@ -137,14 +136,20 @@ public class ExcelImporter extends Task<Void> {
 					if (juryCell.getTextContent().replaceAll("[0-9]", "").matches(juryRegex[i]))
 						continue;
 
-					FLLController.addJuries(new Jury(Jury.JuryType.values()[i], numberOfJury, juryCell.getTextContent()));
+					juries.add(new Jury(Jury.JuryType.values()[i], numberOfJury, juryCell.getTextContent()));
 					numberOfJury++;
 				}
 			}
-			//Testround Jurys 2-4
-			String trroom = Objects.requireNonNull(FLLController.getJury(TestRound, 1)).getRoom();
-			FLLController.addJuries(new Jury(TestRound, 2, trroom), new Jury(TestRound, 3, trroom), new Jury(TestRound, 4, trroom));
-
+			//Testround Jurys
+			Optional<Jury> testRoundJuryO = juries.stream().filter(jury -> jury.getJuryType().equals(TestRound)).findFirst();
+			if (testRoundJuryO.isPresent()) {
+				int max = juries.stream().mapToInt(Jury::getNum).max().orElse(0);
+				max = Math.max(max, 4);
+				String trroom = testRoundJuryO.get().getRoom();
+				for (int i = 2; i <= max; i++) {
+					juries.add(new Jury(TestRound, i, trroom));
+				}
+			}
 
 			updateProgress(5, maxStatus);
 
@@ -168,7 +173,6 @@ public class ExcelImporter extends Task<Void> {
 					break;
 				teamList.add(new Team(ttName.trim(), i / 2));
 			}
-			FLLController.setTeams(teamList);
 
 			updateProgress(5, maxStatus);
 
@@ -195,7 +199,7 @@ public class ExcelImporter extends Task<Void> {
 					if (name.length() == 2)
 						tempTeam = name.charAt(1) - 46;
 
-					Jury jury = FLLController.getJuryByIdentifier(jurySession.trim());
+					Jury jury = FLLController.getJuryByIdentifier(jurySession.trim(), juries);
 					if (jury == null) {
 						addPauseSlot(0, timeSlots, t);
 						continue outerLoop;
@@ -220,18 +224,18 @@ public class ExcelImporter extends Task<Void> {
 				throw new ImportFailedException("In der Datei konnten keine Informationen zu den RobotGames gefunden werden. Bitte stellen sie sicher, dass die Datei ein korrekter Zeitplan ist.");
 			}
 
-			FLLController.setTables(Arrays.asList(new Table("1"), new Table("2"), new Table("3"), new Table("4")));
-
 			char[] roboclumn = {'E', 'E', 'E'};
 			String[] roboregex = {" - ", " - ", " - ",};
 
 			int[] endRoundRows = findMultipleRowsWithContent(rows, rgrone, roboclumn, roboregex);
 
+			List<Table> tables = Arrays.asList(new Table("1"), new Table("2"), new Table("3"), new Table("4"));
+
 			// Lines in the next 3 section below the 2nd "#1": Robotgame-preliminary Rounds
 
-			generateRoboSlots(rows, rgrone, endRoundRows[0], 1, timeSlots, teamList);
-			generateRoboSlots(rows, endRoundRows[0], endRoundRows[1], 2, timeSlots, teamList);
-			generateRoboSlots(rows, endRoundRows[1], endRoundRows[2], 3, timeSlots, teamList);
+			generateRoboSlots(rows, rgrone, endRoundRows[0], 1, timeSlots, teamList, tables);
+			generateRoboSlots(rows, endRoundRows[0], endRoundRows[1], 2, timeSlots, teamList, tables);
+			generateRoboSlots(rows, endRoundRows[1], endRoundRows[2], 3, timeSlots, teamList, tables);
 
 			updateProgress(7, maxStatus);
 
@@ -242,22 +246,26 @@ public class ExcelImporter extends Task<Void> {
 				char[] finalcolumns = {'E', 'E', 'E'};
 				String[] nextFinalIndicator = {" - ", " - ", " - "};
 				int[] nextFinal = findMultipleRowsWithContent(rows, firstfinal, finalcolumns, nextFinalIndicator);
-				generateRoboSlots(rows, firstfinal, nextFinal[0], 4, timeSlots, teamList);
-				generateRoboSlots(rows, nextFinal[0], nextFinal[1], 5, timeSlots, teamList);
-				generateRoboSlots(rows, nextFinal[1], nextFinal[2], 6, timeSlots, teamList);
+				generateRoboSlots(rows, firstfinal, nextFinal[0], 4, timeSlots, teamList, tables);
+				generateRoboSlots(rows, nextFinal[0], nextFinal[1], 5, timeSlots, teamList, tables);
+				generateRoboSlots(rows, nextFinal[1], nextFinal[2], 6, timeSlots, teamList, tables);
 			} else { //no quarter-finals
 				char[] finalcolumns = {'E', 'E'};
 				String[] nextFinalIndicator = {" - ", " - "};
 				int[] nextfinal = findMultipleRowsWithContent(rows, firstfinal, finalcolumns, nextFinalIndicator);
-				generateRoboSlots(rows, firstfinal, nextfinal[0], 5, timeSlots, teamList);
-				generateRoboSlots(rows, nextfinal[0], nextfinal[1], 6, timeSlots, teamList);
+				generateRoboSlots(rows, firstfinal, nextfinal[0], 5, timeSlots, teamList, tables);
+				generateRoboSlots(rows, nextfinal[0], nextfinal[1], 6, timeSlots, teamList, tables);
 			}
 
 			if (lcXml != null) {
 				//TODO LiveChallenge Import
 			}
 
+			FLLController.setEventName(nameOfCompetition);
 			FLLController.setTimeSlots(timeSlots);
+			FLLController.setTeams(teamList);
+			FLLController.setTables(tables);
+			FLLController.setJuries(juries);
 
 			System.out.println("Import fertig");
 			updateProgress(8, maxStatus);
@@ -324,7 +332,7 @@ public class ExcelImporter extends Task<Void> {
 		return results;
 	}
 
-	private static void generateRoboSlots(NodeList matches, int tableHead, int nextTableHead, int round, List<TimeSlot> roboSlots, List<Team> teamList) {
+	private static void generateRoboSlots(NodeList matches, int tableHead, int nextTableHead, int round, List<TimeSlot> roboSlots, List<Team> teamList, List<Table> tableList) {
 		LocalTime tempTime = null;
 		for (int i = tableHead + 2; i < nextTableHead - 2; i += 2) {
 
@@ -351,7 +359,7 @@ public class ExcelImporter extends Task<Void> {
 			}
 			Team t1 = tempTeam[0] < teamList.size() ? teamList.get(tempTeam[0]) : null;
 			Team t2 = tempTeam[1] < teamList.size() ? teamList.get(tempTeam[1]) : null;
-			roboSlots.add(new RobotGameTimeSlot(t1, t2, getTableByNumber(tempTable[0]), getTableByNumber(tempTable[1]), tempTime, RoundMode.values()[round]));
+			roboSlots.add(new RobotGameTimeSlot(t1, t2, getTableByNumber(tempTable[0], tableList), getTableByNumber(tempTable[1], tableList), tempTime, RoundMode.values()[round]));
 		}
 		assert tempTime != null;
 		addPauseSlot(round, roboSlots, tempTime.plusMinutes(ROBOT_GAME_SLOT_DURATION));

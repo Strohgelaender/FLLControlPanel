@@ -267,6 +267,22 @@ public class FLLController {
 	 */
 	@NonNull
 	public static Table getTableByNumber(int num) {
+		return getTableByNumber(num, getTables());
+	}
+
+	/**
+	 * Gets the table with the provided Number using list indexes
+	 * <p>
+	 * this method is used by the importer
+	 *
+	 * @param num number
+	 * @param tables list to search in
+	 * @return table at index
+	 * @throws IndexOutOfBoundsException if the table does not exist
+	 * @see FLLController#getTables()
+	 */
+	@NonNull
+	public static Table getTableByNumber(int num, List<Table> tables) {
 		if (tables.contains(null))
 			return tables.get(num - 2);
 		return getTables().get(num - 1);
@@ -286,12 +302,33 @@ public class FLLController {
 	 */
 	@Nullable
 	public static Jury getJuryByIdentifier(String identifier) {
+		return getJuryByIdentifier(identifier, getJuries());
+	}
+
+	/**
+	 * Splits the jury identifier into type and num
+	 * and finds the matching jury object.
+	 * identifier format: shortName + number
+	 * e.g F2 -> Research 2, TR1 -> TestRound 1
+	 * <p>
+	 * this method is used by the importer.
+	 *
+	 * @param identifier the formated identifier
+	 * @param juries     list to search in
+	 * @return the matching jury object,
+	 * null if not found or a invalid identifier was given
+	 * @see JuryType#getShortName()
+	 * @see FLLController#getJuryTypeByShortName(String)
+	 * @see FLLController#getJury(JuryType, int)
+	 */
+	@Nullable
+	public static Jury getJuryByIdentifier(String identifier, List<Jury> juries) {
 		String juryType = identifier.replaceAll("[0-9]", "");
 		String juryNum = identifier.replaceAll("[a-zA-Z]", "");
 		JuryType type = getJuryTypeByShortName(juryType);
 		try {
 			int num = Integer.parseInt(juryNum);
-			return getJury(type, num);
+			return getJury(type, num, juries);
 		} catch (NumberFormatException ignore) {
 		}
 		return null;
@@ -321,7 +358,23 @@ public class FLLController {
 	 */
 	@Nullable
 	public static Jury getJury(JuryType type, int num) {
-		for (Jury jury : getJuries())
+		return getJury(type, num, getJuries());
+	}
+
+	/**
+	 * finds the jury with the matching type und number.
+	 * <p>
+	 * this method is used by the importer.
+	 *
+	 * @param type   to search for
+	 * @param num    to search for
+	 * @param juries list to search in
+	 * @return the matching jury object
+	 * null if no jury was found
+	 */
+	@Nullable
+	public static Jury getJury(JuryType type, int num, List<Jury> juries) {
+		for (Jury jury : juries)
 			if (jury.getJuryType().equals(type) && jury.getNum() == num)
 				return jury;
 		return null;
