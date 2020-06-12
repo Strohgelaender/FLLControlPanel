@@ -4,7 +4,9 @@ import java.time.LocalTime;
 
 import de.robogo.fll.entity.RoundMode;
 
-//marker interface
+/**
+ * interface for common methods in {@link RobotGameTimeSlot} and {@link RobotGamePauseTimeSlot}
+ */
 public interface RobotGameSlot {
 
 	LocalTime getTime();

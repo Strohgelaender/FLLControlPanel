@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -39,6 +40,7 @@ import org.xml.sax.SAXException;
 import de.robogo.fll.control.FLLController;
 import de.robogo.fll.entity.Jury;
 import de.robogo.fll.entity.RoundMode;
+import de.robogo.fll.entity.Table;
 import de.robogo.fll.entity.Team;
 import de.robogo.fll.entity.timeslot.JuryPauseTimeSlot;
 import de.robogo.fll.entity.timeslot.JuryTimeSlot;
@@ -218,6 +220,7 @@ public class ExcelImporter extends Task<Void> {
 				throw new ImportFailedException("In der Datei konnten keine Informationen zu den RobotGames gefunden werden. Bitte stellen sie sicher, dass die Datei ein korrekter Zeitplan ist.");
 			}
 
+			FLLController.setTables(Arrays.asList(new Table("1"), new Table("2"), new Table("3"), new Table("4")));
 
 			char[] roboclumn = {'E', 'E', 'E'};
 			String[] roboregex = {" - ", " - ", " - ",};
@@ -225,7 +228,6 @@ public class ExcelImporter extends Task<Void> {
 			int[] endRoundRows = findMultipleRowsWithContent(rows, rgrone, roboclumn, roboregex);
 
 			// Lines in the next 3 section below the 2nd "#1": Robotgame-preliminary Rounds
-
 
 			generateRoboSlots(rows, rgrone, endRoundRows[0], 1, timeSlots, teamList);
 			generateRoboSlots(rows, endRoundRows[0], endRoundRows[1], 2, timeSlots, teamList);

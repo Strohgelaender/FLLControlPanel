@@ -6,6 +6,9 @@ import java.time.LocalTime;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+/**
+ * Abstract class representing any TimeSlot
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonSubTypes({
 		@JsonSubTypes.Type(value = JuryTimeSlot.class, name = "juryTimeSlot"),

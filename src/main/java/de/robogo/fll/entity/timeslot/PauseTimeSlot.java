@@ -2,6 +2,9 @@ package de.robogo.fll.entity.timeslot;
 
 import java.time.LocalTime;
 
+/**
+ * Abstract class representing any pauses
+ */
 public abstract class PauseTimeSlot extends TimeSlot {
 
 	public PauseTimeSlot() {

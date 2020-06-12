@@ -441,18 +441,19 @@ public class ControlApplication extends Application {
 					}
 				}
 			} else {
+				//TODO allow multiple RobotGames in parallel (Opens)
 				List<TimeSlot> slots = tableView.getItems();
 				if (getActiveTime() == null) {
 					if (!slots.isEmpty() && adder > 0)
-						setActiveTime(slots.get(0));
+						FLLController.setActiveTime(slots.get(0));
 				} else {
 					Optional<TimeSlot> timeSlot = getActiveSlot();
 					assert timeSlot.isPresent();
 					int i = slots.indexOf(timeSlot.get());
 					if (i == -1)
-						setActiveTime(slots.get(adder > 0 ? 0 : slots.size() - 1));
+						FLLController.setActiveTime(slots.get(adder > 0 ? 0 : slots.size() - 1));
 					else if (i + adder >= 0 && i + adder < slots.size())
-						setActiveTime(slots.get(i + adder));
+						FLLController.setActiveTime(slots.get(i + adder));
 					else
 						nextPage = true;
 				}

@@ -36,6 +36,11 @@ public final class ScoreboardDownloader {
 	private ScoreboardDownloader() {
 	}
 
+	/**
+	 * Downloads the excel data of the scoreboard
+	 * from the Hands on Technology evaluation website
+	 * et.hands-on-technology.de
+	 */
 	public static void downloadScoreboard() {
 		if (!loggedIn) {
 

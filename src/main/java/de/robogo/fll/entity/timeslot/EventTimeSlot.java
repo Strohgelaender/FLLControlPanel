@@ -2,6 +2,11 @@ package de.robogo.fll.entity.timeslot;
 
 import java.time.LocalTime;
 
+/**
+ * TimeSlot representing any special Event
+ * as shown on the timetable
+ * e.g. team arrival, opening ceremony, ...
+ */
 //TODO this is currently completly unsupported
 public class EventTimeSlot extends TimeSlot {
 
