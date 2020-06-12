@@ -10,7 +10,6 @@
 				method: "GET",
 				url: "http://localhost:8080/rest/eventName"
 			}).done(function(msg) {
-				console.log("Done" + msg);
 				$('.eventName').text(msg + ' | Robot-Game Score');
 			}).catch(function(error) {
 				console.log(error);

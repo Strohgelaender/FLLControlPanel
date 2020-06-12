@@ -1,22 +1,104 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="de">
 <head>
 	<title>FLL Timetable</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script>
+		function updateEventName() {
+			$.ajax({
+				method: "GET",
+				url: "http://localhost:8080/rest/eventName"
+			}).done(function(msg) {
+				$('.eventName').text(msg);
+			}).catch(function(error) {
+				console.log(error);
+			});
+		}
+
+		function getJury() {
+			const urlParams = new URLSearchParams(window.location.search);
+			let jury;
+			if (urlParams.has("jury")) {
+				jury = urlParams.get('jury');
+			} else if (urlParams.has('room')) {
+				jury = urlParams.get('room');
+			}
+			return jury;
+		}
+
+		function updateJuryHeader() {
+			const jury = getJury();
+			console.log(jury)
+			if (jury === undefined) {
+				$('.juryHeader').text('no jury selected');
+				return;
+			}
+			$.ajax({
+				method: "GET",
+				url: "http://localhost:8080/rest/jury/" + jury
+			}).done(function(jury) {
+				console.log(jury);
+				$.ajax({
+					method: "GET",
+					url: "http://localhost:8080/rest/longName/" + jury.juryType
+				}).done(function(longName) {
+					$('.juryHeader').text(longName + ' ' + jury.num + ' | ' + jury.room);
+				}).catch(function(error) {
+					console.log(error);
+				});
+			}).catch(function(error) {
+				console.log(error);
+			});
+		}
+
+		function updateTable() {
+			const jury = getJury();
+			if (jury === undefined)
+				return;
+			$.ajax({
+				method: "GET",
+				url: "http://localhost:8080/rest/roomP/" + jury
+			}).done(function(msg) {
+				$('.timetable tbody').empty();
+				$.each(msg, function(i, item) {
+					$('<tr>').append(
+						$('<td>').text(item.time),
+						$('<td>').text(item.hasOwnProperty('team') ? item.team.name : 'Pause')
+					).appendTo('.timetable');
+				});
+			}).catch(function(error) {
+				console.log(error)
+			});
+		}
+
+		$(document).ready(function() {
+			updateEventName();
+			setInterval(updateEventName, 100000000);
+
+			updateJuryHeader();
+			setInterval(updateJuryHeader, 100000000);
+
+			updateTable();
+			setInterval(updateTable, 120000);
+		});
+	</script>
+
 </head>
 <body>
-<h1 th:text="${eventName}"></h1>
-<h2 th:text="|${jury.juryType.longName} ${jury.num} |+ '| ' + ${jury.room}"></h2>
+<h1 class="eventName"></h1>
+<h2 class="juryHeader"></h2>
 
-<table>
+<table class="timetable">
+	<thead>
 	<tr>
 		<th>Time</th>
 		<th>Team</th>
 	</tr>
-	<tr th:each="ts : ${timeslots}">
-		<td th:text="${ts.time}">Uhrzeit</td>
-		<td th:if="ts.team != null" th:text="|${ts.team.name} (${ts.team.id})|">Team 1</td>
-	</tr>
+	</thead>
+	<tbody>
+
+	</tbody>
 </table>
 </body>
 </html>

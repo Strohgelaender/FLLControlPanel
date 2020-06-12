@@ -452,12 +452,28 @@ public class FLLController {
 		List<JuryTimeSlot> juryTimeSlots = getTimeSlotsByJury(jury);
 		for (int i = 0; i < juryTimeSlots.size() - 1; i++) {
 			JuryTimeSlot slot = juryTimeSlots.get(i);
-			result.add(slot);
+			if (slot.getTeam() != null)
+				result.add(slot);
+			else
+				result.add(new JuryPauseTimeSlot(slot.getTime()));
+
 			LocalTime nextTime = slot.getTime().plusMinutes(duration);
 			if (juryTimeSlots.get(i + 1).getTime().isAfter(nextTime)) {
 				result.add(new JuryPauseTimeSlot(nextTime));
 			}
 		}
+		result.add(juryTimeSlots.get(juryTimeSlots.size() - 1));
+
+		LocalTime lastTime = getJuryTimeSlotsWithPauseGrouped().lastKey();
+		LocalTime tempTime = result.get(result.size() - 1).getTime();
+		while (tempTime.isBefore(lastTime)) {
+			tempTime = tempTime.plusMinutes(duration);
+			if (tempTime.isBefore(lastTime))
+				result.add(new JuryPauseTimeSlot(tempTime));
+			else
+				result.add(new JuryPauseTimeSlot(lastTime));
+		}
+
 		return result;
 	}
 
