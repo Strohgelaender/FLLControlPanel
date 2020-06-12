@@ -19,10 +19,12 @@ public class RoboGoExporter extends RoboGoIO {
 			exportJuries();
 			updateProgress(3);
 			exportTables();
+			updateProgress(4);
+			exportEventName();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		updateProgress(4);
+		updateProgress(5);
 	}
 
 	private void exportStuff(File f, Object o) throws IOException {
@@ -45,6 +47,10 @@ public class RoboGoExporter extends RoboGoIO {
 
 	public void exportTables() throws IOException {
 		exportStuff(tableFile, FLLController.getTables());
+	}
+
+	public void exportEventName() throws IOException {
+		exportStuff(eventNameFile, FLLController.getEventName());
 	}
 
 	@Override

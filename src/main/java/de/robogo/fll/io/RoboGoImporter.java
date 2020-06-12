@@ -26,10 +26,12 @@ public class RoboGoImporter extends RoboGoIO {
 			importTeam();
 			updateProgress(3);
 			importTimeSlot();
+			updateProgress(4);
+			importEventName();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		updateProgress(4);
+		updateProgress(5);
 	}
 
 	private <T> List<T> importStuff(File file, Class<T> tClass) throws IOException {
@@ -62,6 +64,12 @@ public class RoboGoImporter extends RoboGoIO {
 		List<Jury> juries = importStuff(juryFile, Jury.class);
 		if (!juries.isEmpty())
 			FLLController.setJuries(juries);
+	}
+
+	public void importEventName() throws IOException {
+		if (eventNameFile.exists()) {
+			FLLController.setEventName(objectMapper.readValue(eventNameFile, String.class));
+		}
 	}
 
 	@Override
