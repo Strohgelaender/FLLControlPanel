@@ -110,7 +110,7 @@ public class ExcelImporter extends Task<Void> {
 			}
 
 			if (document == null)
-				throw new NullPointerException("Die eingelesene Datei ist fehlerhaft.");
+				throw new ImportFailedException("Die eingelesene Datei ist fehlerhaft.");
 
 			updateProgress(4, maxStatus);
 
