@@ -54,6 +54,7 @@ public class FLLController {
 
 	/**
 	 * Returns all Teams. Changes to this List will be applied globally.
+	 *
 	 * @return team list
 	 */
 	@NonNull
@@ -63,6 +64,7 @@ public class FLLController {
 
 	/**
 	 * Returns all TimeSlots. Changes to this List will be applied globally
+	 *
 	 * @return timeSlot list
 	 */
 	@NonNull
@@ -72,6 +74,7 @@ public class FLLController {
 
 	/**
 	 * Returns all Tables. Changes to this List will be applied globally
+	 *
 	 * @return table list
 	 */
 	@NonNull
@@ -81,6 +84,7 @@ public class FLLController {
 
 	/**
 	 * Returns all Juries. Changes to this List will be applied globally
+	 *
 	 * @return jury list
 	 */
 	@NonNull
@@ -92,6 +96,7 @@ public class FLLController {
 	 * Sets the new table list.
 	 * This method first clears all other tables,
 	 * it also adds a null-Table for User-Selection
+	 *
 	 * @param tables new tables
 	 */
 	public static void setTables(final List<Table> tables) {
@@ -107,6 +112,7 @@ public class FLLController {
 	 * Sets the new team list.
 	 * this method first clears all other teams,
 	 * it also adds a null-Team for User-Selection
+	 *
 	 * @param teams new tables
 	 */
 	public static void setTeams(final List<Team> teams) {
@@ -122,6 +128,7 @@ public class FLLController {
 	 * Sets the new timeSlot list.
 	 * this method first clears all other timeSlots.
 	 * there is NO null-Slot!
+	 *
 	 * @param timeSlots new timeSlots
 	 */
 	public static void setTimeSlots(final List<TimeSlot> timeSlots) {
@@ -133,6 +140,7 @@ public class FLLController {
 	 * Sets the new jury list.
 	 * this method first clears all other juries.
 	 * there is NO null-jury!
+	 *
 	 * @param juries new juries
 	 */
 	public static void setJuries(final List<Jury> juries) {
@@ -144,6 +152,7 @@ public class FLLController {
 	 * Sets the new jury list.
 	 * this method first clears all other juries.
 	 * there is NO null-jury!
+	 *
 	 * @param juries new juries
 	 * @see FLLController#addJuries(Jury...) (no clearing)
 	 */
@@ -154,6 +163,7 @@ public class FLLController {
 
 	/**
 	 * Add new juries to the existing list without clearing the list.
+	 *
 	 * @param juries additional juries
 	 * @see FLLController#setJuries(Jury...) (with clearing)
 	 */
@@ -163,6 +173,7 @@ public class FLLController {
 
 	/**
 	 * Finds the Team-Object with the matching Name.
+	 *
 	 * @param name name to search for
 	 * @return the first matching team, null if no team was found
 	 */
@@ -178,6 +189,7 @@ public class FLLController {
 	/**
 	 * Filters the TimeSlots by the given RoundMode.
 	 * Changes to this list are not applied to the global data!
+	 *
 	 * @param roundMode to filter
 	 * @return a new list containing all matching RobotGameTimeSlots.
 	 * @see FLLController#getTimeSlots()
@@ -196,6 +208,7 @@ public class FLLController {
 	 * Filters the timeslots by JuryTimeSlot subclass.
 	 * Changes to this list are not applied to the global data!
 	 * This list contains no pause slots.
+	 *
 	 * @return all JurySlots
 	 * @see FLLController#getJurySlotsWithPause()
 	 */
@@ -213,6 +226,7 @@ public class FLLController {
 	 * the resulting Map is navigable with higherKey() and lowerKey().
 	 * this map does not contain any pauses.
 	 * Changes to this map are not applied to the global data!
+	 *
 	 * @return the grouped map
 	 * @see FLLController#getJuryTimeSlotsWithPauseGrouped() (with pauses)
 	 */
@@ -229,6 +243,7 @@ public class FLLController {
 	 * Filters the TimeSlots by JurySlot interface.
 	 * The resulting List also contains the pause slots of all Juries.
 	 * Changes to this list are not applied to the global data!
+	 *
 	 * @return the filtered list
 	 * @see FLLController#getJuryTimeSlots()
 	 */
@@ -246,6 +261,7 @@ public class FLLController {
 	 * the resulting Map is navigable with higherKey() and lowerKey().
 	 * this map contains common jury pauses.
 	 * Changes to this map are not applied to the global data!
+	 *
 	 * @return the grouped map
 	 * @see FLLController#getJuryTimeSlotsGrouped() () (without pauses)
 	 */
@@ -260,6 +276,7 @@ public class FLLController {
 
 	/**
 	 * Gets the table with the provided Number using list indexes
+	 *
 	 * @param num number
 	 * @return table at index
 	 * @throws IndexOutOfBoundsException if the table does not exist
@@ -293,6 +310,7 @@ public class FLLController {
 	 * and finds the matching jury object.
 	 * identifier format: shortName + number
 	 * e.g F2 -> Research 2, TR1 -> TestRound 1
+	 *
 	 * @param identifier the formated identifier
 	 * @return the matching jury object,
 	 * null if not found or a invalid identifier was given
@@ -337,6 +355,7 @@ public class FLLController {
 	/**
 	 * finds the juryType with the given short name
 	 * using the german short names (e.g. F -> Research)
+	 *
 	 * @param shortName to search for
 	 * @return the matching JuryType, null if not found
 	 * @see JuryType#getShortName()
@@ -351,8 +370,9 @@ public class FLLController {
 
 	/**
 	 * finds the jury with the matching type und number.
+	 *
 	 * @param type to search for
-	 * @param num to search for
+	 * @param num  to search for
 	 * @return the matching jury object
 	 * null if no jury was found
 	 */
@@ -382,6 +402,7 @@ public class FLLController {
 
 	/**
 	 * computes the maximum number of parallel jury groups of one juryType
+	 *
 	 * @return number of used jury groups
 	 */
 	public static int getMaxJuryNum() {
@@ -397,6 +418,7 @@ public class FLLController {
 	 * containing all slots assessed of the given jury.
 	 * Changes to this list are not applied to the global data!
 	 * this list does not contain any pauses-
+	 *
 	 * @param jury to filter
 	 * @return the filtered list
 	 * @see FLLController#getTimeSlotsByJuryWithPauses(Jury)
@@ -417,6 +439,7 @@ public class FLLController {
 	 * a new JuryPauseTimeSlot will be generated and added to the list.
 	 * This list also contains common pauses.
 	 * Changes to this list are not applied to the global data!
+	 *
 	 * @param jury to filter
 	 * @return the filtered list
 	 * @see FLLController#getTimeSlotsByJury(Jury)
@@ -441,6 +464,7 @@ public class FLLController {
 	/**
 	 * returns the name of this event
 	 * e.g "FLL Regionalwettbewerb München"
+	 *
 	 * @return the event name
 	 */
 	@NonNull
@@ -450,6 +474,7 @@ public class FLLController {
 
 	/**
 	 * sets the new event name
+	 *
 	 * @param eventName new event name
 	 */
 	public static void setEventName(final String eventName) {
@@ -459,6 +484,7 @@ public class FLLController {
 	/**
 	 * finds the first TimeSlot in the list with the matching starting time
 	 * this is commonly used in the RobotGame context
+	 *
 	 * @return the active TimeSlot
 	 */
 	@NonNull
@@ -471,6 +497,7 @@ public class FLLController {
 	/**
 	 * finds all TimeSlots in the list with the matching starting time
 	 * this is commonly used in the JurySlot context
+	 *
 	 * @return the active TimeSlots
 	 */
 	@NonNull
@@ -482,6 +509,7 @@ public class FLLController {
 
 	/**
 	 * returns the active starting time
+	 *
 	 * @return active time
 	 */
 	@Nullable
@@ -491,6 +519,7 @@ public class FLLController {
 
 	/**
 	 * returns the active starting time as object property
+	 *
 	 * @return active time property
 	 */
 	@NonNull
@@ -500,6 +529,7 @@ public class FLLController {
 
 	/**
 	 * sets the active starting time to the starting time of the provided TimeSlot
+	 *
 	 * @param activeTime TimeSlot with new active Time
 	 */
 	public static void setActiveTime(final TimeSlot activeTime) {
@@ -508,6 +538,7 @@ public class FLLController {
 
 	/**
 	 * sets the active time to the provided time
+	 *
 	 * @param localTime new active time
 	 */
 	public static void setActiveTime(final LocalTime localTime) {
