@@ -129,6 +129,9 @@ public class ControlApplication extends Application {
 		tbp.add(export_file, 3, 1);
 		export_file.setOnAction(event -> {
 			RoboGoExporter exporter = new RoboGoExporter();
+			statusBar.progressProperty().bind(exporter.progressProperty());
+			exporter.setOnSucceeded(event1 -> unbindProgressProperty());
+			exporter.setOnFailed(event1 -> unbindProgressProperty());
 			new Thread(exporter).start();
 		});
 
@@ -153,15 +156,13 @@ public class ControlApplication extends Application {
 			if (file != null) {
 				ExcelImporter importer = new ExcelImporter(file);
 				importer.setOnFailed(event -> {
-					statusBar.progressProperty().unbind();
-					statusBar.progressProperty().setValue(0);
+					unbindProgressProperty();
 					ExceptionDialog dialog = new ExceptionDialog(event.getSource().getException());
 					dialog.show();
 				});
 				importer.setOnSucceeded(event -> {
-					statusBar.progressProperty().unbind();
-					statusBar.progressProperty().setValue(0);
 					refreshTable();
+					unbindProgressProperty();
 				});
 				new Thread(importer).start();
 				statusBar.progressProperty().bind(importer.progressProperty());
@@ -227,7 +228,12 @@ public class ControlApplication extends Application {
 		stage.show();
 
 		RoboGoImporter autoimporter = new RoboGoImporter();
-		autoimporter.setOnSucceeded(event -> refreshTable());
+		statusBar.progressProperty().bind(autoimporter.progressProperty());
+		autoimporter.setOnSucceeded(event -> {
+			refreshTable();
+			unbindProgressProperty();
+		});
+		autoimporter.setOnFailed(event -> unbindProgressProperty());
 		new Thread(autoimporter).start();
 	}
 
@@ -467,6 +473,11 @@ public class ControlApplication extends Application {
 				}
 			}
 		};
+	}
+
+	private void unbindProgressProperty() {
+		statusBar.progressProperty().unbind();
+		statusBar.progressProperty().set(0);
 	}
 
 	public static void launchApp(Class<? extends ControlApplication> appClass, ConfigurableApplicationContext context, String[] args) {

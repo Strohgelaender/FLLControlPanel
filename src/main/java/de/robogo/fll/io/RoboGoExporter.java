@@ -10,14 +10,19 @@ public class RoboGoExporter extends RoboGoIO {
 	public void exportAll() {
 		System.out.println("Exporting Data to:");
 		System.out.println(dataDir.getAbsolutePath());
+		updateProgress(0);
 		try {
 			exportTeamData();
+			updateProgress(1);
 			exportSlots();
+			updateProgress(2);
 			exportJuries();
+			updateProgress(3);
 			exportTables();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		updateProgress(4);
 	}
 
 	private void exportStuff(File f, Object o) throws IOException {

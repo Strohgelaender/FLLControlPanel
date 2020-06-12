@@ -11,6 +11,8 @@ import javafx.concurrent.Task;
 
 public abstract class RoboGoIO extends Task<Void> {
 
+	private static final int MAX_STEPS = 4;
+
 	protected final File dataDir;
 	protected final File teamFile;
 	protected final File slotsFile;
@@ -29,5 +31,8 @@ public abstract class RoboGoIO extends Task<Void> {
 		objectMapper.registerModule(new JavaTimeModule());
 	}
 
+	protected void updateProgress(int progress) {
+		updateProgress(progress, MAX_STEPS);
+	}
 
 }

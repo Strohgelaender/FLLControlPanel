@@ -18,13 +18,18 @@ public class RoboGoImporter extends RoboGoIO {
 
 	public void importAll() {
 		try {
+			updateProgress(0);
 			importJuries();
+			updateProgress(1);
 			importTable();
+			updateProgress(2);
 			importTeam();
+			updateProgress(3);
 			importTimeSlot();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		updateProgress(4);
 	}
 
 	private <T> List<T> importStuff(File file, Class<T> tClass) throws IOException {
