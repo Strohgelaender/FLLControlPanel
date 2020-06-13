@@ -21,6 +21,9 @@ import org.controlsfx.control.StatusBar;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTimePicker;
 
 import de.robogo.fll.control.FLLController;
@@ -29,6 +32,7 @@ import de.robogo.fll.entity.Jury;
 import de.robogo.fll.entity.RoundMode;
 import de.robogo.fll.entity.Table;
 import de.robogo.fll.entity.Team;
+import de.robogo.fll.entity.TimeMode;
 import de.robogo.fll.entity.timeslot.JurySlot;
 import de.robogo.fll.entity.timeslot.JuryTimeSlot;
 import de.robogo.fll.entity.timeslot.PauseTimeSlot;
@@ -46,15 +50,16 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -67,7 +72,8 @@ import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -76,154 +82,65 @@ import javafx.util.Pair;
 @Component
 public class ControlApplication extends Application {
 
+	private static final String APPLICATION_NAME = "FLL Control Panel";
+
 	private static ConfigurableApplicationContext context;
 
 	private static final DateTimeFormatter HHmmFormatter = DateTimeFormatter.ofPattern("HH:mm");
 	private static final DateTimeFormatter HHmmssFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
+	private Stage stage;
+
 	private TableView<TimeSlot> tableView;
 	private final List<TableColumn<TimeSlot, ?>> robotGameTableColumns = new ArrayList<>();
 	private final List<TableColumn<TimeSlot, ?>> juryTableColumns = new ArrayList<>();
 
-	private ComboBox<RoundMode> rg_state;
+	private ComboBox<TimeMode> timeModeCB;
+	private ComboBox<RoundMode> roundModeCB;
 	private StatusBar statusBar;
 
+	private RoundMode lastRoundMode;
+
 	@Override
-	public void start(final Stage stage) throws Exception {
+	public void start(final Stage stage) {
 
+		this.stage = stage;
 
-		// Grid panes
+		// root anchor pane
+		// contains main VBox
+		// and status bar at bottom
 		AnchorPane windowRoot = new AnchorPane();
 
-		//root Grid Pane: 0 Top Buttons, 1 Table
-
-		GridPane root = new GridPane();
-
-		//top buttons grid pane
-		GridPane tbp = new GridPane();
-		root.add(tbp, 0, 0);
-
-		// left right buttons subpane
-		GridPane lrp = new GridPane();
-		tbp.add(lrp, 1, 0);
-
-		// delay subpane
-		GridPane dlp = new GridPane();
-		tbp.add(dlp, 2, 1);
-
-		// robotgameround subpane
-		GridPane rgr = new GridPane();
-		tbp.add(rgr, 0, 0);
-
-
-		//Buttons
-
-		Button left_arrow = new Button("<-");
-		lrp.add(left_arrow, 0, 0);
-		left_arrow.setOnAction(generateArrowEventHandler(-1));
-		Button right_arrow = new Button("->");
-		lrp.add(right_arrow, 1, 0);
-		right_arrow.setOnAction(generateArrowEventHandler(1));
-
-		Button export_file = new Button("Export Tournament");
-		tbp.add(export_file, 3, 1);
-		export_file.setOnAction(event -> {
-			RoboGoExporter exporter = new RoboGoExporter();
-			statusBar.progressProperty().bind(exporter.progressProperty());
-			exporter.setOnSucceeded(event1 -> unbindProgressProperty());
-			exporter.setOnFailed(event1 -> unbindProgressProperty());
-			new Thread(exporter).start();
-		});
-
-		Button download_file = new Button("Download Scoreboard");
-		tbp.add(download_file, 0, 1);
-
-		Button import_teams = new Button("Import teams and times");
-		tbp.add(import_teams, 3, 0);
-		import_teams.setOnAction(actionEvent -> {
-			if (!FLLController.getTeams().isEmpty()) {
-				Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION, "continue?", ButtonType.YES, ButtonType.NO);
-				confirmation.setContentText("This will overwrite all existing data. Do you really want to continue?");
-				Optional<ButtonType> type = confirmation.showAndWait();
-				if (type.isEmpty() || type.get().equals(ButtonType.NO))
-					return;
-			}
-			statusBar.progressProperty().set(-1);
-			FileChooser fileChooser = new FileChooser();
-			fileChooser.setTitle("Select Timetable-Generator-File");
-			fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel-Timetable", "*.xlsb"));
-			File file = fileChooser.showOpenDialog(stage);
-			if (file != null) {
-				ExcelImporter importer = new ExcelImporter(file);
-				importer.setOnFailed(event -> {
-					unbindProgressProperty();
-					ExceptionDialog dialog = new ExceptionDialog(event.getSource().getException());
-					dialog.show();
-				});
-				importer.setOnSucceeded(event -> {
-					refreshTable();
-					unbindProgressProperty();
-				});
-				new Thread(importer).start();
-				statusBar.progressProperty().bind(importer.progressProperty());
-			} else {
-				statusBar.progressProperty().set(0);
-			}
-		});
-
-		download_file.setOnAction(event -> ScoreboardDownloader.downloadScoreboard());
-
-		CheckBox autodelay = new CheckBox("Auto"); // einzige Checkbox
-		tbp.add(autodelay, 2, 0);
-
-		rg_state = new ComboBox<>(FXCollections.observableArrayList(RoundMode.values()));
-		rg_state.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> refreshTable());
-		rgr.add(rg_state, 1, 0);
-
-
-		// Labels
-		Label delay_info = new Label("Delay:");
-		dlp.add(delay_info, 0, 0);
-		Label delay_value = new Label("00:00:00");
-		dlp.add(delay_value, 1, 0);
-		Label rgr_info = new Label("Round:");
-		rgr.add(rgr_info, 0, 0);
-
-
+		//root VBox
+		//HBox 1: Control Buttons
+		//HBox 2: perv / next Buttons
 		//Table
+		//HBox 3: import / export Buttons
+		VBox root = new VBox();
+		root.setPadding(new Insets(5));
+		root.setAlignment(Pos.CENTER);
+
+		HBox controlButtons = generateControlButtons();
+		HBox nextButtons = generateNextButtons();
 		initTable();
+		HBox ioButtons = generateIOButtons();
 
-		//updates Table Columns
-		rg_state.getSelectionModel().selectFirst(); //call after Table-Init!
+		root.getChildren().addAll(controlButtons, nextButtons, tableView, ioButtons);
 
-		root.add(tableView, 0, 2);
-
-		root.setPadding(new Insets(10));
-
-		statusBar = new StatusBar();
-		statusBar.setText("13:42:44");
-
-
-		Timeline clock = new Timeline(new KeyFrame(Duration.ZERO, actionEvent -> {
-			LocalTime localTime = LocalTime.now();
-			statusBar.setText(HHmmssFormatter.format(localTime));
-		}), new KeyFrame(Duration.seconds(1)));
-		clock.setCycleCount(Animation.INDEFINITE);
-		clock.play();
+		createStatusBar();
 
 		windowRoot.getChildren().addAll(root, statusBar);
-		AnchorPane.setBottomAnchor(statusBar, 0.0);
-		AnchorPane.setLeftAnchor(statusBar, 0.0);
-		AnchorPane.setRightAnchor(statusBar, 0.0);
 
 		Scene scene = new Scene(windowRoot);
 
 		stage.setScene(scene);
 
 		ScoreboardDownloader.initLoginDialog(stage);
+		//updates Table Columns
+		roundModeCB.getSelectionModel().selectFirst(); //call after Table-Init!
 
-		stage.setTitle("KuC Control Ball");
-		stage.setWidth(1150);
+		stage.setTitle(APPLICATION_NAME);
+		stage.setWidth(1020);
 		stage.setHeight(650);
 		stage.show();
 
@@ -232,9 +149,96 @@ public class ControlApplication extends Application {
 		autoimporter.setOnSucceeded(event -> {
 			refreshTable();
 			unbindProgressProperty();
+			stage.setTitle(APPLICATION_NAME + " - " + FLLController.getEventName());
 		});
 		autoimporter.setOnFailed(event -> unbindProgressProperty());
 		new Thread(autoimporter).start();
+	}
+
+	private HBox generateControlButtons() {
+		HBox cb = new HBox();
+		cb.setSpacing(10);
+		cb.setPadding(new Insets(20, 5, 5, 5));
+		cb.setOpaqueInsets(new Insets(5));
+		cb.setAlignment(Pos.TOP_CENTER);
+
+		Label currentEvent = new Label("current Event");
+
+		timeModeCB = new JFXComboBox<>(FXCollections.observableArrayList(TimeMode.values()));
+		timeModeCB.getSelectionModel().selectedItemProperty().addListener(this::onTimeModeChange);
+
+		roundModeCB = new JFXComboBox<>(FXCollections.observableArrayList(RoundMode.values()));
+		roundModeCB.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> refreshTable());
+
+		final CheckBox autoSwitch = new JFXCheckBox();
+		autoSwitch.setText("auto switch");
+		autoSwitch.setSelected(true);
+
+		Label delay = new Label("Delay: 00:00:00");
+
+		cb.getChildren().addAll(currentEvent, timeModeCB, roundModeCB, autoSwitch, delay);
+		return cb;
+	}
+
+	private HBox generateNextButtons() {
+		HBox nb = new HBox();
+		nb.setAlignment(Pos.TOP_CENTER);
+		nb.setSpacing(30);
+		nb.setPadding(new Insets(5));
+
+		JFXButton left_arrow = new JFXButton("<-");
+		left_arrow.setOnAction(generateArrowEventHandler(-1));
+		left_arrow.setPrefWidth(100);
+		left_arrow.setButtonType(JFXButton.ButtonType.RAISED);
+
+		JFXButton right_arrow = new JFXButton("->");
+		right_arrow.setOnAction(generateArrowEventHandler(1));
+		right_arrow.setPrefWidth(100);
+		right_arrow.setButtonType(JFXButton.ButtonType.RAISED);
+
+		nb.getChildren().addAll(left_arrow, right_arrow);
+		return nb;
+	}
+
+	private HBox generateIOButtons() {
+		HBox io = new HBox();
+		io.setSpacing(100);
+		io.setPadding(new Insets(30, 5, 5, 5));
+		io.setAlignment(Pos.CENTER);
+
+		JFXButton import_teams = new JFXButton("Import teams and times");
+		import_teams.setOnAction(actionEvent -> callExcelImporter());
+		import_teams.setButtonType(JFXButton.ButtonType.RAISED);
+
+		JFXButton download_file = new JFXButton("Download Scoreboard");
+		download_file.setOnAction(event -> ScoreboardDownloader.downloadScoreboard());
+		download_file.setButtonType(JFXButton.ButtonType.RAISED);
+
+		JFXButton export_file = new JFXButton("Export Tournament");
+		export_file.setOnAction(event -> callExporter());
+		export_file.setButtonType(JFXButton.ButtonType.RAISED);
+
+		JFXButton settings = new JFXButton("Settings");
+		settings.setButtonType(JFXButton.ButtonType.RAISED);
+
+		io.getChildren().addAll(import_teams, download_file, export_file, settings);
+		return io;
+	}
+
+	private void createStatusBar() {
+		statusBar = new StatusBar();
+		statusBar.setText("13:42:44");
+
+		Timeline clock = new Timeline(new KeyFrame(Duration.ZERO, actionEvent -> {
+			LocalTime localTime = LocalTime.now();
+			statusBar.setText(HHmmssFormatter.format(localTime));
+		}), new KeyFrame(Duration.seconds(1)));
+		clock.setCycleCount(Animation.INDEFINITE);
+		clock.play();
+
+		AnchorPane.setBottomAnchor(statusBar, 0.0);
+		AnchorPane.setLeftAnchor(statusBar, 0.0);
+		AnchorPane.setRightAnchor(statusBar, 0.0);
 	}
 
 	@Override
@@ -249,15 +253,70 @@ public class ControlApplication extends Application {
 		context.close();
 	}
 
+	private void callExcelImporter() {
+		if (!FLLController.getTeams().isEmpty()) {
+			Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION, "continue?", ButtonType.YES, ButtonType.NO);
+			confirmation.setContentText("This will overwrite all existing data. Do you really want to continue?");
+			Optional<ButtonType> type = confirmation.showAndWait();
+			if (type.isEmpty() || type.get().equals(ButtonType.NO))
+				return;
+		}
+
+		statusBar.progressProperty().set(-1);
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Select Timetable-Generator-File");
+		fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel-Timetable", "*.xlsb"));
+		File file = fileChooser.showOpenDialog(stage);
+
+		if (file != null) {
+			ExcelImporter importer = new ExcelImporter(file);
+			importer.setOnFailed(event -> {
+				unbindProgressProperty();
+				ExceptionDialog dialog = new ExceptionDialog(event.getSource().getException());
+				dialog.show();
+			});
+			importer.setOnSucceeded(event -> {
+				refreshTable();
+				unbindProgressProperty();
+				stage.setTitle(APPLICATION_NAME + " - " + FLLController.getEventName());
+			});
+			new Thread(importer).start();
+			statusBar.progressProperty().bind(importer.progressProperty());
+		} else {
+			statusBar.progressProperty().set(0);
+		}
+	}
+
+	private void callExporter() {
+		RoboGoExporter exporter = new RoboGoExporter();
+		statusBar.progressProperty().bind(exporter.progressProperty());
+		exporter.setOnSucceeded(event1 -> unbindProgressProperty());
+		exporter.setOnFailed(event1 -> unbindProgressProperty());
+		new Thread(exporter).start();
+	}
+
+	private void onTimeModeChange(ObservableValue<? extends TimeMode> observableValue, TimeMode oldTime, TimeMode newTime) {
+		if (newTime != TimeMode.RobotGame) {
+			lastRoundMode = roundModeCB.getValue();
+			roundModeCB.setValue(null);
+			roundModeCB.setDisable(true);
+		} else {
+			if (lastRoundMode.ordinal() + 1 < RoundMode.values().length)
+				roundModeCB.setValue(RoundMode.values()[lastRoundMode.ordinal() + 1]);
+			roundModeCB.setDisable(false);
+		}
+		refreshTable();
+	}
+
 	public void refreshTable() {
 		tableView.getColumns().remove(1, tableView.getColumns().size());
-		if (rg_state.getValue() == RoundMode.TestRound) {
+		if (roundModeCB.getValue() == RoundMode.TestRound) {
 			tableView.getColumns().addAll(juryTableColumns);
 			tableView.setItems(getTimeSlots().filtered(timeSlot -> timeSlot instanceof JurySlot));
 			//TODO rename and change to own enum / remove from RoundMode (Import!)
 		} else {
 			tableView.getColumns().addAll(robotGameTableColumns);
-			tableView.setItems(getTimeSlots().filtered(timeSlot -> timeSlot instanceof RobotGameSlot && ((RobotGameSlot) timeSlot).getRoundMode().equals(rg_state.getValue())));
+			tableView.setItems(getTimeSlots().filtered(timeSlot -> timeSlot instanceof RobotGameSlot && ((RobotGameSlot) timeSlot).getRoundMode().equals(roundModeCB.getValue())));
 		}
 		tableView.refresh();
 	}
@@ -372,7 +431,6 @@ public class ControlApplication extends Application {
 		tableView.getColumns().add(time);
 
 		tableView.setPrefWidth(1000);
-
 		tableView.setEditable(true);
 	}
 
@@ -431,7 +489,7 @@ public class ControlApplication extends Application {
 	private EventHandler<ActionEvent> generateArrowEventHandler(final int adder) {
 		return event -> {
 			boolean nextPage = false;
-			if (rg_state.getValue() == RoundMode.TestRound) {
+			if (roundModeCB.getValue() == RoundMode.TestRound) {
 				//TODO das ändert sich noch (RoundMode != ZeitMode)
 				NavigableMap<LocalTime, List<JurySlot>> slots = FLLController.getJuryTimeSlotsWithPauseGrouped();
 				if (getActiveTime() == null) {
@@ -466,9 +524,9 @@ public class ControlApplication extends Application {
 			}
 			if (nextPage) {
 				//TODO das ändert sich noch
-				int i = rg_state.getValue().ordinal() + adder;
+				int i = roundModeCB.getValue().ordinal() + adder;
 				if (i >= 0 && i < RoundMode.values().length) {
-					rg_state.setValue(RoundMode.values()[i]);
+					roundModeCB.setValue(RoundMode.values()[i]);
 					refreshTable();
 				}
 			}
