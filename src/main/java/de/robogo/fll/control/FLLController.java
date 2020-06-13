@@ -302,7 +302,7 @@ public class FLLController {
 	public static Table getTableByNumber(int num, List<Table> tables) {
 		if (tables.contains(null))
 			return tables.get(num - 2);
-		return getTables().get(num - 1);
+		return tables.get(num - 1);
 	}
 
 	/**

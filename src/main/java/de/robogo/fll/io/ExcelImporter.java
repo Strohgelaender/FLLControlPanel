@@ -47,8 +47,10 @@ import de.robogo.fll.entity.timeslot.JuryTimeSlot;
 import de.robogo.fll.entity.timeslot.RobotGamePauseTimeSlot;
 import de.robogo.fll.entity.timeslot.RobotGameTimeSlot;
 import de.robogo.fll.entity.timeslot.TimeSlot;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 
+//TODO Import event slots
 public class ExcelImporter extends Task<Void> {
 
 	private static final int maxStatus = 8;
@@ -261,11 +263,13 @@ public class ExcelImporter extends Task<Void> {
 				//TODO LiveChallenge Import
 			}
 
-			FLLController.setEventName(nameOfCompetition);
-			FLLController.setTimeSlots(timeSlots);
-			FLLController.setTeams(teamList);
-			FLLController.setTables(tables);
-			FLLController.setJuries(juries);
+			Platform.runLater(() -> {
+				FLLController.setEventName(nameOfCompetition);
+				FLLController.setTimeSlots(timeSlots);
+				FLLController.setTeams(teamList);
+				FLLController.setTables(tables);
+				FLLController.setJuries(juries);
+			});
 
 			System.out.println("Import fertig");
 			updateProgress(8, maxStatus);
