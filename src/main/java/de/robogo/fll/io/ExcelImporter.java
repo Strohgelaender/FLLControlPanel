@@ -203,7 +203,7 @@ public class ExcelImporter extends Task<Void> {
 
 					Jury jury = FLLController.getJuryByIdentifier(jurySession.trim(), juries);
 					if (jury == null) {
-						addPauseSlot(0, timeSlots, t);
+						timeSlots.add(new JuryPauseTimeSlot(t));
 						continue outerLoop;
 					}
 
@@ -213,7 +213,7 @@ public class ExcelImporter extends Task<Void> {
 				}
 			}
 			assert t != null;
-			addPauseSlot(0, timeSlots, t.plusMinutes(JURY_SLOT_DURATION));
+			timeSlots.add(new JuryPauseTimeSlot(t.plusMinutes(JURY_SLOT_DURATION)));
 
 
 			updateProgress(6, maxStatus);
@@ -235,9 +235,9 @@ public class ExcelImporter extends Task<Void> {
 
 			// Lines in the next 3 section below the 2nd "#1": Robotgame-preliminary Rounds
 
-			generateRoboSlots(rows, rgrone, endRoundRows[0], 1, timeSlots, teamList, tables);
-			generateRoboSlots(rows, endRoundRows[0], endRoundRows[1], 2, timeSlots, teamList, tables);
-			generateRoboSlots(rows, endRoundRows[1], endRoundRows[2], 3, timeSlots, teamList, tables);
+			generateRoboSlots(rows, rgrone, endRoundRows[0], RoundMode.Round1, timeSlots, teamList, tables);
+			generateRoboSlots(rows, endRoundRows[0], endRoundRows[1], RoundMode.Round2, timeSlots, teamList, tables);
+			generateRoboSlots(rows, endRoundRows[1], endRoundRows[2], RoundMode.Round3, timeSlots, teamList, tables);
 
 			updateProgress(7, maxStatus);
 
@@ -248,15 +248,15 @@ public class ExcelImporter extends Task<Void> {
 				char[] finalcolumns = {'E', 'E', 'E'};
 				String[] nextFinalIndicator = {" - ", " - ", " - "};
 				int[] nextFinal = findMultipleRowsWithContent(rows, firstfinal, finalcolumns, nextFinalIndicator);
-				generateRoboSlots(rows, firstfinal, nextFinal[0], 4, timeSlots, teamList, tables);
-				generateRoboSlots(rows, nextFinal[0], nextFinal[1], 5, timeSlots, teamList, tables);
-				generateRoboSlots(rows, nextFinal[1], nextFinal[2], 6, timeSlots, teamList, tables);
+				generateRoboSlots(rows, firstfinal, nextFinal[0], RoundMode.QF, timeSlots, teamList, tables);
+				generateRoboSlots(rows, nextFinal[0], nextFinal[1], RoundMode.SF, timeSlots, teamList, tables);
+				generateRoboSlots(rows, nextFinal[1], nextFinal[2], RoundMode.Final, timeSlots, teamList, tables);
 			} else { //no quarter-finals
 				char[] finalcolumns = {'E', 'E'};
 				String[] nextFinalIndicator = {" - ", " - "};
 				int[] nextfinal = findMultipleRowsWithContent(rows, firstfinal, finalcolumns, nextFinalIndicator);
-				generateRoboSlots(rows, firstfinal, nextfinal[0], 5, timeSlots, teamList, tables);
-				generateRoboSlots(rows, nextfinal[0], nextfinal[1], 6, timeSlots, teamList, tables);
+				generateRoboSlots(rows, firstfinal, nextfinal[0], RoundMode.SF, timeSlots, teamList, tables);
+				generateRoboSlots(rows, nextfinal[0], nextfinal[1], RoundMode.Final, timeSlots, teamList, tables);
 			}
 
 			if (lcXml != null) {
@@ -336,7 +336,7 @@ public class ExcelImporter extends Task<Void> {
 		return results;
 	}
 
-	private static void generateRoboSlots(NodeList matches, int tableHead, int nextTableHead, int round, List<TimeSlot> roboSlots, List<Team> teamList, List<Table> tableList) {
+	private static void generateRoboSlots(NodeList matches, int tableHead, int nextTableHead, RoundMode round, List<TimeSlot> roboSlots, List<Team> teamList, List<Table> tableList) {
 		LocalTime tempTime = null;
 		for (int i = tableHead + 2; i < nextTableHead - 2; i += 2) {
 
@@ -363,16 +363,10 @@ public class ExcelImporter extends Task<Void> {
 			}
 			Team t1 = tempTeam[0] < teamList.size() ? teamList.get(tempTeam[0]) : null;
 			Team t2 = tempTeam[1] < teamList.size() ? teamList.get(tempTeam[1]) : null;
-			roboSlots.add(new RobotGameTimeSlot(t1, t2, getTableByNumber(tempTable[0], tableList), getTableByNumber(tempTable[1], tableList), tempTime, RoundMode.values()[round]));
+			roboSlots.add(new RobotGameTimeSlot(t1, t2, getTableByNumber(tempTable[0], tableList), getTableByNumber(tempTable[1], tableList), tempTime, round));
 		}
 		assert tempTime != null;
-		addPauseSlot(round, roboSlots, tempTime.plusMinutes(ROBOT_GAME_SLOT_DURATION));
-	}
-
-	private static void addPauseSlot(int r, List<TimeSlot> s, LocalTime t) {
-		if (r == 0)
-			s.add(new JuryPauseTimeSlot(t));
-		else s.add(new RobotGamePauseTimeSlot(t, RoundMode.values()[r]));
+		roboSlots.add(new RobotGamePauseTimeSlot(tempTime.plusMinutes(ROBOT_GAME_SLOT_DURATION), round));
 	}
 
 	public static void importScores(XSSFWorkbook workbook) {

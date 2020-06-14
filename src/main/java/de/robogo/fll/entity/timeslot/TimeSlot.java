@@ -6,6 +6,8 @@ import java.time.LocalTime;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import de.robogo.fll.entity.TimeMode;
+
 /**
  * Abstract class representing any TimeSlot
  */
@@ -21,13 +23,15 @@ public abstract class TimeSlot implements Serializable {
 
 	//TODO chage to DayTime for multiple Day events
 	private LocalTime time;
+	private TimeMode timeMode;
 
 	protected TimeSlot() {
 		//default constructor for object mapping
 	}
 
-	protected TimeSlot(LocalTime time) {
+	protected TimeSlot(LocalTime time, TimeMode timeMode) {
 		this.time = time;
+		this.timeMode = timeMode;
 	}
 
 	public void setTime(final LocalTime time) {
@@ -36,5 +40,13 @@ public abstract class TimeSlot implements Serializable {
 
 	public LocalTime getTime() {
 		return time;
+	}
+
+	public TimeMode getTimeMode() {
+		return timeMode;
+	}
+
+	public void setTimeMode(final TimeMode timeMode) {
+		this.timeMode = timeMode;
 	}
 }

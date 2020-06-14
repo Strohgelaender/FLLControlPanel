@@ -43,7 +43,7 @@ public class ScreenWebController {
 				roundMode = RoundMode.valueOf(round);
 			} catch (IllegalArgumentException ignored) {
 				try {
-					int i = Integer.parseInt(round);
+					int i = Integer.parseInt(round) - 1;
 					roundMode = RoundMode.values()[i];
 				} catch (Exception ignored2) {
 				}

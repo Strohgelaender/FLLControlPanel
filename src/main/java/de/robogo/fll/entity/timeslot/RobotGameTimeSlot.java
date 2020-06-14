@@ -5,6 +5,7 @@ import java.time.LocalTime;
 import de.robogo.fll.entity.RoundMode;
 import de.robogo.fll.entity.Table;
 import de.robogo.fll.entity.Team;
+import de.robogo.fll.entity.TimeMode;
 
 public class RobotGameTimeSlot extends TimeSlot implements RobotGameSlot {
 
@@ -20,7 +21,7 @@ public class RobotGameTimeSlot extends TimeSlot implements RobotGameSlot {
 	}
 
 	public RobotGameTimeSlot(final Team teamA, final Team teamB, final Table tableA, final Table tableB, final LocalTime time, RoundMode roundMode) {
-		super(time);
+		super(time, TimeMode.RobotGame);
 		this.teamA = teamA;
 		this.teamB = teamB;
 		this.tableA = tableA;
@@ -77,6 +78,7 @@ public class RobotGameTimeSlot extends TimeSlot implements RobotGameSlot {
 		this.roundMode = roundMode;
 	}
 
+	//TODO
 	public enum Status {
 		Scheduled, Preparation, Running, Evaluation
 	}

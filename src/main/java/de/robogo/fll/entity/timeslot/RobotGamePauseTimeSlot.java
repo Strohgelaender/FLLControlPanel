@@ -3,6 +3,7 @@ package de.robogo.fll.entity.timeslot;
 import java.time.LocalTime;
 
 import de.robogo.fll.entity.RoundMode;
+import de.robogo.fll.entity.TimeMode;
 
 public class RobotGamePauseTimeSlot extends PauseTimeSlot implements RobotGameSlot {
 
@@ -14,7 +15,7 @@ public class RobotGamePauseTimeSlot extends PauseTimeSlot implements RobotGameSl
 	}
 
 	public RobotGamePauseTimeSlot(final LocalTime time, final RoundMode roundMode) {
-		super(time);
+		super(time, TimeMode.RobotGame);
 		this.roundMode = roundMode;
 	}
 

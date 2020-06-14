@@ -33,6 +33,7 @@ import de.robogo.fll.entity.RoundMode;
 import de.robogo.fll.entity.Table;
 import de.robogo.fll.entity.Team;
 import de.robogo.fll.entity.TimeMode;
+import de.robogo.fll.entity.timeslot.EventTimeSlot;
 import de.robogo.fll.entity.timeslot.JurySlot;
 import de.robogo.fll.entity.timeslot.JuryTimeSlot;
 import de.robogo.fll.entity.timeslot.PauseTimeSlot;
@@ -96,6 +97,7 @@ public class ControlApplication extends Application {
 	private TableView<TimeSlot> tableView;
 	private final List<TableColumn<TimeSlot, ?>> robotGameTableColumns = new ArrayList<>();
 	private final List<TableColumn<TimeSlot, ?>> juryTableColumns = new ArrayList<>();
+	private final List<TableColumn<TimeSlot, ?>> eventTableColumns = new ArrayList<>();
 
 	private ComboBox<TimeMode> timeModeCB;
 	private ComboBox<RoundMode> roundModeCB;
@@ -138,23 +140,22 @@ public class ControlApplication extends Application {
 		stage.setScene(scene);
 
 		ScoreboardDownloader.initLoginDialog(stage);
-		//updates Table Columns
-		roundModeCB.getSelectionModel().selectFirst(); //call after Table-Init!
+		timeModeCB.getSelectionModel().selectFirst(); //call after Table-Init!
 
 		stage.setTitle(APPLICATION_NAME);
 		stage.setWidth(1020);
 		stage.setHeight(650);
 		stage.show();
 
-		RoboGoImporter autoimporter = new RoboGoImporter();
-		statusBar.progressProperty().bind(autoimporter.progressProperty());
-		autoimporter.setOnSucceeded(event -> {
+		RoboGoImporter autoImporter = new RoboGoImporter();
+		statusBar.progressProperty().bind(autoImporter.progressProperty());
+		autoImporter.setOnSucceeded(event -> {
 			refreshTable();
 			unbindProgressProperty();
 			stage.setTitle(APPLICATION_NAME + " - " + FLLController.getEventName());
 		});
-		autoimporter.setOnFailed(event -> unbindProgressProperty());
-		new Thread(autoimporter).start();
+		autoImporter.setOnFailed(event -> unbindProgressProperty());
+		new Thread(autoImporter).start();
 	}
 
 	private HBox generateControlButtons() {
@@ -258,6 +259,7 @@ public class ControlApplication extends Application {
 	private void callExcelImporter() {
 		if (!FLLController.getTeams().isEmpty()) {
 			Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION, "continue?", ButtonType.YES, ButtonType.NO);
+			confirmation.initOwner(stage);
 			confirmation.setContentText("This will overwrite all existing data. Do you really want to continue?");
 			Optional<ButtonType> type = confirmation.showAndWait();
 			if (type.isEmpty() || type.get().equals(ButtonType.NO))
@@ -275,6 +277,7 @@ public class ControlApplication extends Application {
 			importer.setOnFailed(event -> {
 				unbindProgressProperty();
 				ExceptionDialog dialog = new ExceptionDialog(event.getSource().getException());
+				dialog.initOwner(stage);
 				dialog.show();
 			});
 			importer.setOnSucceeded(event -> {
@@ -303,7 +306,9 @@ public class ControlApplication extends Application {
 			roundModeCB.setValue(null);
 			roundModeCB.setDisable(true);
 		} else {
-			if (lastRoundMode.ordinal() + 1 < RoundMode.values().length)
+			if (lastRoundMode == null)
+				roundModeCB.setValue(RoundMode.Round1);
+			else if (lastRoundMode.ordinal() + 1 < RoundMode.values().length)
 				roundModeCB.setValue(RoundMode.values()[lastRoundMode.ordinal() + 1]);
 			roundModeCB.setDisable(false);
 		}
@@ -311,14 +316,17 @@ public class ControlApplication extends Application {
 	}
 
 	public void refreshTable() {
+		tableView.edit(-1, null);
 		tableView.getColumns().remove(1, tableView.getColumns().size());
-		if (roundModeCB.getValue() == RoundMode.TestRound) {
+		if (timeModeCB.getValue() == TimeMode.JudgingSessions) {
 			tableView.getColumns().addAll(juryTableColumns);
 			tableView.setItems(getTimeSlots().filtered(timeSlot -> timeSlot instanceof JurySlot));
-			//TODO rename and change to own enum / remove from RoundMode (Import!)
-		} else {
+		} else if (timeModeCB.getValue() == TimeMode.RobotGame) {
 			tableView.getColumns().addAll(robotGameTableColumns);
 			tableView.setItems(getTimeSlots().filtered(timeSlot -> timeSlot instanceof RobotGameSlot && ((RobotGameSlot) timeSlot).getRoundMode().equals(roundModeCB.getValue())));
+		} else {
+			tableView.getColumns().addAll(eventTableColumns);
+			tableView.setItems(getTimeSlots().filtered(timeSlot -> timeSlot instanceof EventTimeSlot && timeSlot.getTimeMode() == timeModeCB.getValue()));
 		}
 		tableView.refresh();
 	}
@@ -408,6 +416,15 @@ public class ControlApplication extends Application {
 
 		juryTableColumns.addAll(Arrays.asList(teamJ, juryType, juryNumber));
 
+		TableColumn<TimeSlot, String> slotName = new TableColumn<>("Name");
+		slotName.setCellValueFactory(param -> {
+			if (param.getValue() instanceof EventTimeSlot)
+				return new SimpleStringProperty(((EventTimeSlot) param.getValue()).getName());
+			return null;
+		});
+
+		eventTableColumns.add(slotName);
+
 		tableView.setRowFactory(param -> {
 			TableRow<TimeSlot> row = new TableRow<>();
 
@@ -460,14 +477,22 @@ public class ControlApplication extends Application {
 				cell.setGraphic(null);
 			}
 		};
+		cell.graphicProperty().addListener((observable, oldValue, newValue) -> {
+			if (!(newValue instanceof Label) && cell.getTableRow() != null && cell.getTableRow().getItem() instanceof PauseTimeSlot)
+				cell.setGraphic(pauseLabel);
+		});
 		if (cell.getTableRow() != null) {
 			cell.getTableRow().itemProperty().addListener(itemChange);
+			if (cell.getTableRow().getItem() != null)
+				itemChange.changed(null, null, cell.getTableRow().getItem());
 		}
 		cell.tableRowProperty().addListener((observable, oldValue, newValue) -> {
 			if (oldValue != null) {
 				oldValue.itemProperty().removeListener(itemChange);
 			}
 			if (newValue != null) {
+				if (newValue.getItem() != null)
+					itemChange.changed(null, null, newValue.getItem());
 				newValue.itemProperty().addListener(itemChange);
 			}
 		});
@@ -499,7 +524,7 @@ public class ControlApplication extends Application {
 	private EventHandler<ActionEvent> generateArrowEventHandler(final int adder) {
 		return event -> {
 			boolean nextPage = false;
-			if (roundModeCB.getValue() == RoundMode.TestRound) {
+			if (timeModeCB.getValue() == TimeMode.JudgingSessions) {
 				//TODO das ändert sich noch (RoundMode != ZeitMode)
 				NavigableMap<LocalTime, List<JurySlot>> slots = FLLController.getJuryTimeSlotsWithPauseGrouped();
 				if (getActiveTime() == null) {
@@ -533,11 +558,16 @@ public class ControlApplication extends Application {
 				}
 			}
 			if (nextPage) {
-				//TODO das ändert sich noch
-				int i = roundModeCB.getValue().ordinal() + adder;
-				if (i >= 0 && i < RoundMode.values().length) {
-					roundModeCB.setValue(RoundMode.values()[i]);
-					refreshTable();
+				if (timeModeCB.getValue() == TimeMode.RobotGame) {
+					int i = roundModeCB.getValue().ordinal() + adder;
+					if (i >= 0 && i < RoundMode.values().length)
+						roundModeCB.setValue(RoundMode.values()[i]);
+					else
+						timeModeCB.setValue(TimeMode.Closing);
+				} else {
+					int i = timeModeCB.getValue().ordinal() + adder;
+					if (i >= 0 && i < TimeMode.values().length)
+						timeModeCB.setValue(TimeMode.values()[i]);
 				}
 			}
 		};

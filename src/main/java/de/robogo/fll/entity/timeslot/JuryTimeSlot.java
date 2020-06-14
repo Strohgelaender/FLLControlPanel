@@ -4,6 +4,7 @@ import java.time.LocalTime;
 
 import de.robogo.fll.entity.Jury;
 import de.robogo.fll.entity.Team;
+import de.robogo.fll.entity.TimeMode;
 
 public class JuryTimeSlot extends TimeSlot implements JurySlot {
 
@@ -15,7 +16,7 @@ public class JuryTimeSlot extends TimeSlot implements JurySlot {
 	}
 
 	public JuryTimeSlot(final Team team, final LocalTime time, final Jury jury) {
-		super(time);
+		super(time, TimeMode.JudgingSessions);
 		if (jury == null)
 			throw new NullPointerException();
 		this.team = team;
