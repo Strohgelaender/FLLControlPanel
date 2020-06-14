@@ -50,6 +50,8 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -442,27 +444,35 @@ public class ControlApplication extends Application {
 					saveValue.accept(new Pair<>(getTableRow().getItem(), newValue));
 				}
 				updateItem(newValue, false);
+				cancelEdit();
 			}
 		};
-		final Label pause = new Label("Pause");
+		final Label pauseLabel = new Label("Pause");
+		ChangeListener<? super TimeSlot> itemChange = (o, oldValue, newValue) -> {
+			if (newValue instanceof PauseTimeSlot) {
+				cell.setGraphic(pauseLabel);
+				cell.getTableRow().setEditable(false);
+				cell.setEditable(false);
+			} else if (newValue != null) {
+				cell.getTableRow().setEditable(true);
+				cell.setEditable(true);
+			} else {
+				cell.setGraphic(null);
+			}
+		};
+		if (cell.getTableRow() != null) {
+			cell.getTableRow().itemProperty().addListener(itemChange);
+		}
 		cell.tableRowProperty().addListener((observable, oldValue, newValue) -> {
+			if (oldValue != null) {
+				oldValue.itemProperty().removeListener(itemChange);
+			}
 			if (newValue != null) {
-				newValue.itemProperty().addListener((observable1, oldValue1, newValue1) -> {
-					if (newValue1 instanceof PauseTimeSlot) {
-						cell.setGraphic(pause);
-						newValue.setEditable(false);
-						cell.setEditable(false);
-					} else if (newValue1 != null) {
-						newValue.setEditable(true);
-						cell.setEditable(true);
-					} else {
-						cell.setGraphic(null);
-					}
-				});
+				newValue.itemProperty().addListener(itemChange);
 			}
 		});
 		cell.setOnMouseClicked(event -> {
-			if (event.getButton().equals(MouseButton.PRIMARY) && !cell.isEditing()) {
+			if (event.getButton().equals(MouseButton.PRIMARY) && !cell.isEditing() && cell.getTableRow() != null && cell.getTableRow().getItem() != null) {
 				tableView.edit(cell.getTableRow().getIndex(), cell.getTableColumn());
 				event.consume();
 			}

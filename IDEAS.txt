@@ -37,7 +37,6 @@ Manuelles Speichern?
 
 //Bugs
 leere Zeilen in der Tabelle sehen hässlich aus
-Pausen werden manchmal nicht richtig angezeigt (vermutlich passen die listener nicht ganz....)
 
 //Grundlagen
 
