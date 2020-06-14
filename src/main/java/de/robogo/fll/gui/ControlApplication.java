@@ -156,6 +156,7 @@ public class ControlApplication extends Application {
 				timeModeCB.setValue(timeSlot.getTimeMode());
 				if (timeSlot instanceof RobotGameSlot)
 					roundModeCB.setValue(((RobotGameSlot) timeSlot).getRoundMode());
+				//TODO scroll to value
 			}
 			refreshTable();
 			unbindProgressProperty();

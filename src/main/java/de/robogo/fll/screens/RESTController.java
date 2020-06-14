@@ -1,10 +1,14 @@
 package de.robogo.fll.screens;
 
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +21,7 @@ import de.robogo.fll.entity.Jury;
 import de.robogo.fll.entity.timeslot.JurySlot;
 import de.robogo.fll.entity.timeslot.JuryTimeSlot;
 import de.robogo.fll.entity.Team;
+import de.robogo.fll.entity.timeslot.PauseTimeSlot;
 import de.robogo.fll.entity.timeslot.TimeSlot;
 
 /**
@@ -135,5 +140,28 @@ public class RESTController {
 	@GetMapping("/longName/{juryType}")
 	public String longName(@PathVariable String juryType) {
 		return Jury.JuryType.valueOf(juryType).getLongName();
+	}
+
+	@GetMapping("/juryMatrix")
+	public SortedMap<LocalTime, String[]> juryMatrix() {
+		List<Team> teams = FLLController.getTeams().filtered(Objects::nonNull);
+		Map<LocalTime, List<JurySlot>> juryGrouped = FLLController.getJuryTimeSlotsWithPauseGrouped();
+		SortedMap<LocalTime, String[]> juryExport = new TreeMap<>(Comparator.naturalOrder());
+		for (List<JurySlot> slotList : juryGrouped.values()) {
+			if (slotList.isEmpty())
+				continue;
+			if (slotList.get(0) instanceof PauseTimeSlot)
+				juryExport.put(slotList.get(0).getTime(), null);
+			else {
+				String[] strings = new String[teams.size()];
+				Arrays.fill(strings, "");
+				for (JurySlot timeSlot : slotList) {
+					if (timeSlot instanceof JuryTimeSlot)
+						strings[((JuryTimeSlot) timeSlot).getTeam().getId() - 1] = ((JuryTimeSlot) timeSlot).getJury().getJuryType().getShortName() + ((JuryTimeSlot) timeSlot).getJury().getNum();
+				}
+				juryExport.put(slotList.get(0).getTime(), strings);
+			}
+		}
+		return juryExport;
 	}
 }
