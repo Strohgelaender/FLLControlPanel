@@ -150,6 +150,13 @@ public class ControlApplication extends Application {
 		RoboGoImporter autoImporter = new RoboGoImporter();
 		statusBar.progressProperty().bind(autoImporter.progressProperty());
 		autoImporter.setOnSucceeded(event -> {
+			Optional<TimeSlot> ts = FLLController.getActiveSlot();
+			if (ts.isPresent()) {
+				TimeSlot timeSlot = ts.get();
+				timeModeCB.setValue(timeSlot.getTimeMode());
+				if (timeSlot instanceof RobotGameSlot)
+					roundModeCB.setValue(((RobotGameSlot) timeSlot).getRoundMode());
+			}
 			refreshTable();
 			unbindProgressProperty();
 			stage.setTitle(APPLICATION_NAME + " - " + FLLController.getEventName());

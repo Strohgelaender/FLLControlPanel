@@ -2,6 +2,7 @@ package de.robogo.fll.io;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,10 +29,12 @@ public class RoboGoImporter extends RoboGoIO {
 			importTimeSlot();
 			updateProgress(4);
 			importEventName();
+			updateProgress(5);
+			importActiveTime();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		updateProgress(5);
+		updateProgress(MAX_STEPS);
 	}
 
 	private <T> List<T> importStuff(File file, Class<T> tClass) throws IOException {
@@ -69,6 +72,12 @@ public class RoboGoImporter extends RoboGoIO {
 	public void importEventName() throws IOException {
 		if (eventNameFile.exists()) {
 			FLLController.setEventName(objectMapper.readValue(eventNameFile, String.class));
+		}
+	}
+
+	public void importActiveTime() throws IOException {
+		if (activeTimeFile.exists()) {
+			FLLController.setActiveTime(objectMapper.readValue(activeTimeFile, LocalTime.class));
 		}
 	}
 

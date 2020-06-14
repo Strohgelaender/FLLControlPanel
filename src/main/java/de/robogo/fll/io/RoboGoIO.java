@@ -11,7 +11,7 @@ import javafx.concurrent.Task;
 
 public abstract class RoboGoIO extends Task<Void> {
 
-	private static final int MAX_STEPS = 5;
+	protected static final int MAX_STEPS = 6;
 
 	protected final File dataDir;
 	protected final File teamFile;
@@ -19,6 +19,7 @@ public abstract class RoboGoIO extends Task<Void> {
 	protected final File juryFile;
 	protected final File tableFile;
 	protected final File eventNameFile;
+	protected final File activeTimeFile;
 	protected final ObjectMapper objectMapper;
 
 	RoboGoIO() {
@@ -28,6 +29,7 @@ public abstract class RoboGoIO extends Task<Void> {
 		juryFile = new File(dataDir, "juries.txt");
 		tableFile = new File(dataDir, "tables.txt");
 		eventNameFile = new File(dataDir, "eventName.txt");
+		activeTimeFile = new File(dataDir, "activeTime.txt");
 		objectMapper = new ObjectMapper();
 		objectMapper.activateDefaultTyping(new DefaultBaseTypeLimitingValidator());
 		objectMapper.registerModule(new JavaTimeModule());
