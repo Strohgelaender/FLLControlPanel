@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -18,10 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.robogo.fll.control.FLLController;
 import de.robogo.fll.entity.Jury;
+import de.robogo.fll.entity.RoundMode;
+import de.robogo.fll.entity.Team;
 import de.robogo.fll.entity.timeslot.JurySlot;
 import de.robogo.fll.entity.timeslot.JuryTimeSlot;
-import de.robogo.fll.entity.Team;
 import de.robogo.fll.entity.timeslot.PauseTimeSlot;
+import de.robogo.fll.entity.timeslot.RobotGameSlot;
 import de.robogo.fll.entity.timeslot.TimeSlot;
 
 /**
@@ -74,6 +77,29 @@ public class RESTController {
 	@GetMapping("/juries")
 	public List<Jury> juries() {
 		return FLLController.getJuries();
+	}
+
+	@GetMapping("/timetable")
+	public List<RobotGameSlot> timetable(@RequestParam(value = "round", required = false, defaultValue = "current") String round) {
+		RoundMode roundMode = null;
+		if (round.equalsIgnoreCase("current")) {
+			Optional<TimeSlot> activeSlot = FLLController.getActiveSlot();
+			if (activeSlot.isPresent() && activeSlot.get() instanceof RobotGameSlot)
+				roundMode = ((RobotGameSlot) activeSlot.get()).getRoundMode();
+		} else {
+			try {
+				roundMode = RoundMode.valueOf(round);
+			} catch (IllegalArgumentException ignored) {
+				try {
+					int i = Integer.parseInt(round) - 1;
+					roundMode = RoundMode.values()[i];
+				} catch (Exception ignored2) {
+				}
+			}
+		}
+		if (roundMode != null)
+			return FLLController.getTimeSlotsByRoundModeWithPauses(roundMode);
+		return Collections.emptyList();
 	}
 
 	@GetMapping("/juryTimeSlots")

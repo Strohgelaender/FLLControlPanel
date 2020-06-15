@@ -1,13 +1,64 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="de">
 <head>
 	<title>FLL Timetable</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="/screens/style?screen=timetable" media="screen">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script>
+		function updateEventName() {
+			$.ajax({
+				method: "GET",
+				url: "/rest/eventName"
+			}).done(function(msg) {
+				$('.eventName').text(msg);
+			}).catch(function(error) {
+				console.log(error);
+			});
+		}
+
+		function updateTable() {
+			$.ajax({
+				method: "GET",
+				url: "/rest/timetable"
+			}).done(function(timetable) {
+				$('.timetable tbody').empty();
+				$.each(timetable, function(i, item) {
+					const row = $('<tr>');
+					row.append($('<td>').text(item.time));
+					if (item.hasOwnProperty('tableA')) {
+						row.append(
+							$('<td>').text(item.teamA != null ? item.teamA.name : ''),
+							$('<td>').text(item.tableA.name),
+							$('<td>').text(item.tableB.name),
+							$('<td>').text(item.teamB != null ? item.teamB.name : '')
+						);
+					} else {
+						//Pause
+						row.append($('<td>').attr('colspan', 4).text('Pause'));
+					}
+					row.appendTo('.timetable');
+				});
+			}).catch(function(error) {
+				console.log(error);
+			})
+		}
+
+		$(document).ready(function() {
+			updateEventName();
+			setInterval(updateEventName, 100000000);
+
+			updateTable();
+			setInterval(updateTable, 120000);
+		});
+
+	</script>
 </head>
 <body>
-<h1 th:text="${eventName}"></h1>
+<h1 class="eventName"></h1>
 
-<table>
+<table class="timetable">
+	<thead>
 	<tr>
 		<th>Time</th>
 		<th>Team 1</th>
@@ -15,6 +66,8 @@
 		<th>Table 2</th>
 		<th>Team 2</th>
 	</tr>
+	</thead>
+	<tbody>
 	<tr th:each="ts : ${timeslots}">
 		<td th:text="${ts.time}">Uhrzeit</td>
 		<td th:text="${ts.teamA == null ? '' : ts.teamA.name}">Team 1</td>
@@ -22,6 +75,7 @@
 		<td th:text="${ts.tableB.name}">Tisch 2</td>
 		<td th:text="${ts.teamB == null ? '' : ts.teamB.name}">Team 2</td>
 	</tr>
+	</tbody>
 </table>
 </body>
 </html>

@@ -3,6 +3,7 @@ package de.robogo.fll.entity.timeslot;
 import java.io.Serializable;
 import java.time.LocalTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -22,6 +23,7 @@ import de.robogo.fll.entity.TimeMode;
 public abstract class TimeSlot implements Serializable {
 
 	//TODO chage to DayTime for multiple Day events
+	@JsonFormat(pattern = "HH:mm")
 	private LocalTime time;
 	private TimeMode timeMode;
 

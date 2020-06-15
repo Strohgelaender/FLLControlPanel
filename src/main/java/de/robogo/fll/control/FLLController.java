@@ -22,6 +22,7 @@ import de.robogo.fll.entity.Team;
 import de.robogo.fll.entity.timeslot.JuryPauseTimeSlot;
 import de.robogo.fll.entity.timeslot.JurySlot;
 import de.robogo.fll.entity.timeslot.JuryTimeSlot;
+import de.robogo.fll.entity.timeslot.RobotGameSlot;
 import de.robogo.fll.entity.timeslot.RobotGameTimeSlot;
 import de.robogo.fll.entity.timeslot.TimeSlot;
 import javafx.beans.property.ObjectProperty;
@@ -189,6 +190,7 @@ public class FLLController {
 	/**
 	 * Filters the TimeSlots by the given RoundMode.
 	 * Changes to this list are not applied to the global data!
+	 * This list does not contain any pauses!
 	 *
 	 * @param roundMode to filter
 	 * @return a new list containing all matching RobotGameTimeSlots.
@@ -201,6 +203,25 @@ public class FLLController {
 				.map(timeSlot -> (RobotGameTimeSlot) timeSlot)
 				.filter(timeSlot -> timeSlot.getRoundMode().equals(roundMode))
 				.sorted(Comparator.comparing(TimeSlot::getTime))
+				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Filters the TimeSlots by the given RoundMode.
+	 * Changes to this list are not applied to the global data!
+	 * This list also contains pauses!
+	 *
+	 * @param roundMode to filter
+	 * @return a new list containing all matching RobotGameTimeSlots.
+	 * @see FLLController#getTimeSlots()
+	 */
+	@NonNull
+	public static List<RobotGameSlot> getTimeSlotsByRoundModeWithPauses(RoundMode roundMode) {
+		return getTimeSlots().stream()
+				.filter(timeSlot -> timeSlot instanceof RobotGameSlot)
+				.map(timeSlot -> (RobotGameSlot) timeSlot)
+				.filter(timeSlot -> timeSlot.getRoundMode().equals(roundMode))
+				.sorted(Comparator.comparing(RobotGameSlot::getTime))
 				.collect(Collectors.toList());
 	}
 
