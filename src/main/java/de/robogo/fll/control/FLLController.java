@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.Optional;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -22,6 +23,7 @@ import de.robogo.fll.entity.Team;
 import de.robogo.fll.entity.timeslot.JuryPauseTimeSlot;
 import de.robogo.fll.entity.timeslot.JurySlot;
 import de.robogo.fll.entity.timeslot.JuryTimeSlot;
+import de.robogo.fll.entity.timeslot.PauseTimeSlot;
 import de.robogo.fll.entity.timeslot.RobotGameSlot;
 import de.robogo.fll.entity.timeslot.RobotGameTimeSlot;
 import de.robogo.fll.entity.timeslot.TimeSlot;
@@ -36,7 +38,7 @@ import javafx.collections.ObservableList;
  */
 public class FLLController {
 
-	//kann sich das ändern?
+	//TODO Das ist falsch! Die Dauer kann variieren.
 	public static final int ROBOT_GAME_SLOT_DURATION = 5;
 	public static final int JURY_SLOT_DURATION = 15;
 	public static final int LC_SLOT_DURATION = 30;
@@ -468,31 +470,27 @@ public class FLLController {
 	public static List<JurySlot> getTimeSlotsByJuryWithPauses(Jury jury) {
 		if (jury == null)
 			return Collections.emptyList();
-		int duration = jury.getJuryType() == JuryType.LiveChallenge ? LC_SLOT_DURATION : JURY_SLOT_DURATION;
 		List<JurySlot> result = new ArrayList<>();
-		List<JuryTimeSlot> juryTimeSlots = getTimeSlotsByJury(jury);
-		for (int i = 0; i < juryTimeSlots.size() - 1; i++) {
-			JuryTimeSlot slot = juryTimeSlots.get(i);
-			if (slot.getTeam() != null)
-				result.add(slot);
-			else
-				result.add(new JuryPauseTimeSlot(slot.getTime()));
-
-			LocalTime nextTime = slot.getTime().plusMinutes(duration);
-			if (juryTimeSlots.get(i + 1).getTime().isAfter(nextTime)) {
-				result.add(new JuryPauseTimeSlot(nextTime));
+		SortedMap<LocalTime, List<JurySlot>> juryTimeSlots = getJuryTimeSlotsWithPauseGrouped();
+		for (var entry : juryTimeSlots.entrySet()) {
+			JurySlot thisJury = null;
+			for (JurySlot slot : entry.getValue()) {
+				if (slot instanceof PauseTimeSlot) {
+					thisJury = slot;
+					break;
+				} else if (slot instanceof JuryTimeSlot && jury.equals(((JuryTimeSlot) slot).getJury())) {
+					thisJury = slot;
+					break;
+				}
 			}
-		}
-		result.add(juryTimeSlots.get(juryTimeSlots.size() - 1));
+			if (thisJury == null)
+				thisJury = new JuryPauseTimeSlot(entry.getKey());
 
-		LocalTime lastTime = getJuryTimeSlotsWithPauseGrouped().lastKey();
-		LocalTime tempTime = result.get(result.size() - 1).getTime();
-		while (tempTime.isBefore(lastTime)) {
-			tempTime = tempTime.plusMinutes(duration);
-			if (tempTime.isBefore(lastTime))
-				result.add(new JuryPauseTimeSlot(tempTime));
+			if (thisJury instanceof JuryTimeSlot && ((JuryTimeSlot) thisJury).getTeam() == null)
+				result.add(new JuryPauseTimeSlot(thisJury.getTime()));
 			else
-				result.add(new JuryPauseTimeSlot(lastTime));
+				result.add(thisJury);
+
 		}
 
 		return result;
