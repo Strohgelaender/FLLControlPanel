@@ -3,6 +3,7 @@
 <head>
 	<title>FLL Jury Matrix</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="/screens/style?screen=jury" media="screen">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 	<style>
 		.matrix {
@@ -14,7 +15,7 @@
 		function updateEventName() {
 			$.ajax({
 				method: "GET",
-				url: "http://localhost:8080/rest/eventName"
+				url: "/rest/eventName"
 			}).done(function(msg) {
 				$('.eventName').text(msg);
 			}).catch(function(error) {
@@ -26,7 +27,7 @@
 			//table header
 			$.ajax({
 				method: "GET",
-				url: "http://localhost:8080/rest/teams"
+				url: "/rest/teams"
 			}).done(function(teams) {
 				$('.matrix thead').empty();
 				const header = $('<tr>');
@@ -39,7 +40,7 @@
 				//table body
 				$.ajax({
 					method: "GET",
-					url: "http://localhost:8080/rest/juryMatrix"
+					url: "/rest/juryMatrix"
 				}).done(function(matrix) {
 					$('.matrix tbody').empty();
 					for (const time in matrix) {
@@ -92,7 +93,7 @@
 			updateEventName();
 			setInterval(updateEventName, 100000000);
 
-			updateTable()
+			updateTable();
 			setInterval(updateTable, 120000);
 		});
 	</script>

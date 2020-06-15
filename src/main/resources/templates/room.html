@@ -3,12 +3,13 @@
 <head>
 	<title>FLL Timetable</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="/screens/style?screen=room" media="screen">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 	<script>
 		function updateEventName() {
 			$.ajax({
 				method: "GET",
-				url: "http://localhost:8080/rest/eventName"
+				url: "/rest/eventName"
 			}).done(function(msg) {
 				$('.eventName').text(msg);
 			}).catch(function(error) {
@@ -36,12 +37,12 @@
 			}
 			$.ajax({
 				method: "GET",
-				url: "http://localhost:8080/rest/jury/" + jury
+				url: "/rest/jury/" + jury
 			}).done(function(jury) {
 				console.log(jury);
 				$.ajax({
 					method: "GET",
-					url: "http://localhost:8080/rest/longName/" + jury.juryType
+					url: "/rest/longName/" + jury.juryType
 				}).done(function(longName) {
 					$('.juryHeader').text(longName + ' ' + jury.num + ' | ' + jury.room);
 				}).catch(function(error) {
@@ -58,7 +59,7 @@
 				return;
 			$.ajax({
 				method: "GET",
-				url: "http://localhost:8080/rest/roomP/" + jury
+				url: "/rest/roomP/" + jury
 			}).done(function(msg) {
 				$('.timetable tbody').empty();
 				$.each(msg, function(i, item) {

@@ -3,12 +3,13 @@
 <head>
 	<title>FLL Scoreboard</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="/screens/style?screen=scoreboard" media="screen">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 	<script>
 		function updateEventName() {
 			$.ajax({
 				method: "GET",
-				url: "http://localhost:8080/rest/eventName"
+				url: "/rest/eventName"
 			}).done(function(msg) {
 				$('.eventName').text(msg + ' | Robot-Game Score');
 			}).catch(function(error) {
@@ -19,7 +20,7 @@
 		function updateScoreboard() {
 			$.ajax({
 				method: "GET",
-				url: "http://localhost:8080/rest/scores"
+				url: "/rest/scores"
 			}).done(function(msg) {
 				$('.scoreboard tbody').empty();
 				$.each(msg, function(i, item) {
