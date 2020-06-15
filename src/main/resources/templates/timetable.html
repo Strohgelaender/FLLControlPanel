@@ -22,7 +22,7 @@
 				method: "GET",
 				url: "/rest/timetable"
 			}).done(function(timetable) {
-				$('.timetable tbody').empty();
+				$('#timetable tbody').empty();
 				$.each(timetable, function(i, item) {
 					const row = $('<tr>');
 					row.append($('<td>').text(item.time));
@@ -37,7 +37,7 @@
 						//Pause
 						row.append($('<td>').attr('colspan', 4).text('Pause'));
 					}
-					row.appendTo('.timetable');
+					row.appendTo('#timetable');
 				});
 			}).catch(function(error) {
 				console.log(error);
@@ -57,7 +57,7 @@
 <body>
 <h1 class="eventName"></h1>
 
-<table class="timetable">
+<table class="table" id="timetable">
 	<thead>
 	<tr>
 		<th>Time</th>
@@ -68,12 +68,12 @@
 	</tr>
 	</thead>
 	<tbody>
-	<tr th:each="ts : ${timeslots}">
-		<td th:text="${ts.time}">Uhrzeit</td>
-		<td th:text="${ts.teamA == null ? '' : ts.teamA.name}">Team 1</td>
-		<td th:text="${ts.tableA.name}">Tisch 1</td>
-		<td th:text="${ts.tableB.name}">Tisch 2</td>
-		<td th:text="${ts.teamB == null ? '' : ts.teamB.name}">Team 2</td>
+	<tr>
+		<td>Uhrzeit</td>
+		<td>Team 1</td>
+		<td>Tisch 1</td>
+		<td>Tisch 2</td>
+		<td>Team 2</td>
 	</tr>
 	</tbody>
 </table>

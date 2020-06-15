@@ -22,7 +22,7 @@
 				method: "GET",
 				url: "/rest/scores"
 			}).done(function(msg) {
-				$('.scoreboard tbody').empty();
+				$('#scoreboard tbody').empty();
 				$.each(msg, function(i, item) {
 					$('<tr>').append(
 						$('<td>').text(item.name),
@@ -30,7 +30,7 @@
 						$('<td>').text(item.round2),
 						$('<td>').text(item.round3),
 						$('<td>').text(item.rank)
-					).appendTo('.scoreboard');
+					).appendTo('#scoreboard');
 				});
 			}).catch(function(error) {
 				console.log(error);
@@ -48,7 +48,7 @@
 </head>
 <body>
 <h1 class="eventName"></h1>
-<table class="scoreboard">
+<table class="table" id="scoreboard">
 	<thead>
 	<tr>
 		<th>Team</th>

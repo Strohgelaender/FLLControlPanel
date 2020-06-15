@@ -48,14 +48,24 @@ public class ScreenSettingsController {
 			fontColor = GLOBAL_SETTINGS.getFontColor();
 
 
+		String css = "";
 
-		String css = "body {";
-		css += "background-image: url(\"/screens/image?screen=" + screen + "\");";
+		css += "html { \n" +
+				"  background: url(/screens/image?screen=" + screen + ") no-repeat center center fixed; \n" +
+				"  -webkit-background-size: cover;\n" +
+				"  -moz-background-size: cover;\n" +
+				"  -o-background-size: cover;\n" +
+				"  background-size: cover;\n" +
+				"}";
+		css += "body {";
 		css += "font-family: " + font.getFamily() + ";";
 		css += "font-size: " + font.getSize() + ";";
 		css += "font-style: " + font.getStyle() + ";";
 		css += "color: #" + fontColor.toString().substring(2) + ";";
+		css += "text-align:center;";
 		css += "}";
+
+		css += "table {  margin-left:auto; margin-right:auto; }";
 
 		if (screenSettings.getInternalSpecialCSS() != null)
 			css += screenSettings.getInternalSpecialCSS();

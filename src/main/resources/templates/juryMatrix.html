@@ -29,20 +29,20 @@
 				method: "GET",
 				url: "/rest/teams"
 			}).done(function(teams) {
-				$('.matrix thead').empty();
+				$('#matrix thead').empty();
 				const header = $('<tr>');
 				header.append($('<th>').text('Time'));
 				$.each(teams, function(i, item) {
 					header.append($('<th>').text(item.id));
 				});
-				header.appendTo('.matrix thead');
+				header.appendTo('#matrix thead');
 
 				//table body
 				$.ajax({
 					method: "GET",
 					url: "/rest/juryMatrix"
 				}).done(function(matrix) {
-					$('.matrix tbody').empty();
+					$('#matrix tbody').empty();
 					for (const time in matrix) {
 						if (matrix.hasOwnProperty(time)) {
 							const contents = matrix[time];
@@ -57,7 +57,7 @@
 								$.each(matrix[time], function(i, item) {
 									row.append($('<td>').text(item));
 								});
-								row.appendTo('.matrix tbody');
+								row.appendTo('#matrix tbody');
 							}
 						}
 					}
@@ -66,7 +66,7 @@
 				});
 
 				//teams table
-				$('.teams').empty();
+				$('#teams').empty();
 				const columnCount = 5; //TODO
 				const rows = parseInt((teams.length / columnCount) + 1);
 				console.log(rows);
@@ -81,7 +81,7 @@
 							);
 						}
 					}
-					row.appendTo('.teams');
+					row.appendTo('#teams');
 				}
 
 			}).catch(function(error) {
@@ -102,7 +102,7 @@
 <h1 class="eventName"></h1>
 <h2 class="juryHeader">Zeitplan Vormittag</h2>
 <br>
-<table class="matrix">
+<table class="table" id="matrix">
 	<thead>
 	<tr>
 		<th>Zeit</th>
@@ -117,7 +117,7 @@
 	</tbody>
 </table>
 <br>
-<table class="teams">
+<table class="table" id="teams">
 	<tr>
 		<td>-1</td>
 		<td>Name</td>

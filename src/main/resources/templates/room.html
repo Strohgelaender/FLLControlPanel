@@ -61,12 +61,12 @@
 				method: "GET",
 				url: "/rest/roomP/" + jury
 			}).done(function(msg) {
-				$('.timetable tbody').empty();
+				$('#timetable tbody').empty();
 				$.each(msg, function(i, item) {
 					$('<tr>').append(
 						$('<td>').text(item.time),
 						$('<td>').text(item.hasOwnProperty('team') ? item.team.name : 'Pause')
-					).appendTo('.timetable');
+					).appendTo('#timetable');
 				});
 			}).catch(function(error) {
 				console.log(error)
@@ -90,7 +90,7 @@
 <h1 class="eventName"></h1>
 <h2 class="juryHeader"></h2>
 
-<table class="timetable">
+<table class="table" id="timetable">
 	<thead>
 	<tr>
 		<th>Time</th>

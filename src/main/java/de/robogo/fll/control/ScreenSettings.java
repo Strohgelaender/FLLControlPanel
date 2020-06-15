@@ -30,10 +30,6 @@ public class ScreenSettings {
 			GLOBAL_SETTINGS.setMediaType(MediaType.IMAGE_PNG);
 			GLOBAL_SETTINGS.setFont(Font.font("Arial", 30));
 			GLOBAL_SETTINGS.setFontColor(Color.WHITE);
-			TIMETABLE_SETTINGS.setInternalSpecialCSS(".timetable {\n" +
-					"\t\t\ttext-align: center;\n" +
-					"\t\t\tvertical-align: middle;\n" +
-					"\t\t}");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
