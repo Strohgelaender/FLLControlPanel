@@ -5,17 +5,8 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 	<link rel="stylesheet" type="text/css" href="/screens/style?screen=scoreboard" media="screen">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="/js/client.js"></script>
 	<script>
-		function updateEventName() {
-			$.ajax({
-				method: "GET",
-				url: "/rest/eventName"
-			}).done(function(msg) {
-				$('.eventName').text(msg + ' | Robot-Game Score');
-			}).catch(function(error) {
-				console.log(error);
-			});
-		}
 
 		function updateScoreboard() {
 			$.ajax({
@@ -38,8 +29,12 @@
 		}
 
 		$(document).ready(function() {
-			updateEventName()
-			setInterval(updateEventName, 100000000);
+			updateH1('scoreboard', undefined);
+			updateH2('scoreboard', undefined);
+			setInterval(function() {
+				updateH1('scoreboard', undefined);
+				updateH2('scoreboard', undefined);
+			}, 100000000);
 
 			updateScoreboard();
 			setInterval(updateScoreboard, 120000);
@@ -48,6 +43,7 @@
 </head>
 <body>
 <h1 class="eventName"></h1>
+<h2></h2>
 <table class="table" id="scoreboard">
 	<thead>
 	<tr>

@@ -1,6 +1,6 @@
 package de.robogo.fll.screens;
 
-import static de.robogo.fll.control.ScreenSettings.GLOBAL_SETTINGS;
+import static de.robogo.fll.entity.ScreenSettings.GLOBAL_SETTINGS;
 
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
@@ -11,7 +11,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import de.robogo.fll.control.ScreenSettings;
+import de.robogo.fll.control.FLLController;
+import de.robogo.fll.entity.Jury;
+import de.robogo.fll.entity.JuryScreenSettings;
+import de.robogo.fll.entity.ScreenSettings;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
@@ -71,5 +74,47 @@ public class ScreenSettingsController {
 			css += screenSettings.getInternalSpecialCSS();
 
 		return new ResponseEntity<>(css, new HttpHeaders(), HttpStatus.OK);
+	}
+
+	@GetMapping("/h1")
+	public ResponseEntity<String> h1(@RequestParam(name = "screen") String screen, @RequestParam(name = "jury", required = false, defaultValue = "") String jury) {
+		ScreenSettings screenSettings = ScreenSettings.getScreenSettingsByScreenName(screen);
+
+		String h1 = screenSettings.getH1();
+		if (h1 == null)
+			h1 = GLOBAL_SETTINGS.getH1();
+		Jury j = FLLController.getJuryByIdentifier(jury);
+		return new ResponseEntity<>(applyReplacement(screenSettings, h1, j), new HttpHeaders(), HttpStatus.OK);
+	}
+
+	@GetMapping("/h2")
+	public ResponseEntity<String> h2(@RequestParam(name = "screen") String screen, @RequestParam(name = "jury", required = false, defaultValue = "") String jury) {
+		ScreenSettings screenSettings = ScreenSettings.getScreenSettingsByScreenName(screen);
+
+		String h2 = screenSettings.getH2();
+		if (h2 == null)
+			h2 = GLOBAL_SETTINGS.getH2();
+		Jury j = FLLController.getJuryByIdentifier(jury);
+		return new ResponseEntity<>(applyReplacement(screenSettings, h2, j), new HttpHeaders(), HttpStatus.OK);
+	}
+
+	private String applyReplacement(final ScreenSettings screenSettings, final String string, final Jury jury) {
+		String[] parts = string.split("\\{");
+		StringBuilder result = new StringBuilder();
+		for (String part : parts) {
+			int i = part.indexOf("}");
+			if (i > -1) {
+				String key = part.substring(0, i);
+				if (screenSettings instanceof JuryScreenSettings) {
+					result.append(((JuryScreenSettings) screenSettings).applyReplacement(key, jury));
+				} else {
+					result.append(screenSettings.applyReplacement(key));
+				}
+				if (part.length() + 1 > i)
+					result.append(part.substring(i +1));
+			} else
+				result.append(part);
+		}
+		return result.toString();
 	}
 }

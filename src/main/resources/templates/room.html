@@ -5,18 +5,8 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 	<link rel="stylesheet" type="text/css" href="/screens/style?screen=room" media="screen">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="/js/client.js"></script>
 	<script>
-		function updateEventName() {
-			$.ajax({
-				method: "GET",
-				url: "/rest/eventName"
-			}).done(function(msg) {
-				$('.eventName').text(msg);
-			}).catch(function(error) {
-				console.log(error);
-			});
-		}
-
 		function getJury() {
 			const urlParams = new URLSearchParams(window.location.search);
 			let jury;
@@ -35,22 +25,7 @@
 				$('.juryHeader').text('no jury selected');
 				return;
 			}
-			$.ajax({
-				method: "GET",
-				url: "/rest/jury/" + jury
-			}).done(function(jury) {
-				console.log(jury);
-				$.ajax({
-					method: "GET",
-					url: "/rest/longName/" + jury.juryType
-				}).done(function(longName) {
-					$('.juryHeader').text(longName + ' ' + jury.num + ' | ' + jury.room);
-				}).catch(function(error) {
-					console.log(error);
-				});
-			}).catch(function(error) {
-				console.log(error);
-			});
+			updateH2('room', jury);
 		}
 
 		function updateTable() {
@@ -74,11 +49,12 @@
 		}
 
 		$(document).ready(function() {
-			updateEventName();
-			setInterval(updateEventName, 100000000);
-
+			updateH1('room', getJury());
 			updateJuryHeader();
-			setInterval(updateJuryHeader, 100000000);
+			setInterval(function() {
+				updateH1('room', getJury());
+				updateJuryHeader();
+			}, 100000000);
 
 			updateTable();
 			setInterval(updateTable, 120000);
