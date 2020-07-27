@@ -3,6 +3,7 @@ package de.robogo.fll.teams;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,7 +16,7 @@ import de.robogo.fll.entity.Team;
 import javafx.scene.control.ComboBox;
 
 @Deprecated
-//TODO Funktionalität in neues Disign überführen (Achtung: Code extem spziel!)
+//TODO Funktionalität in neues Design überführen (Achtung: Code extrem spziel!)
 public class TeamSelectionComboBox extends ComboBox<Team> {
 
 	private static final Path interviews = Paths.get("C:\\Users\\Lucas Welscher\\Desktop\\Interviews");
@@ -31,7 +32,7 @@ public class TeamSelectionComboBox extends ComboBox<Team> {
 		getSelectionModel().selectedItemProperty().addListener((observableValue, team, t1) -> {
 			new Thread(() -> {
 				try {
-					FileWriter writer = new FileWriter(output);
+					FileWriter writer = new FileWriter(output, StandardCharsets.UTF_8);
 					writer.write(t1.toString());
 					writer.close();
 				} catch (IOException e) {

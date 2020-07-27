@@ -39,6 +39,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+@Deprecated
 public class MainApplication extends Application {
 
 	private final File teamA = new File("C:\\Users\\Lucas Welscher\\Desktop\\teama.txt");

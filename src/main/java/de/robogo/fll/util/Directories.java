@@ -37,7 +37,7 @@ public class Directories {
 		}
 
 		if (dir.mkdirs()) {
-			System.out.printf("Created directory: %s \n", dir.getAbsolutePath());
+			System.out.printf("Created directory: %s %n", dir.getAbsolutePath());
 		}
 
 		return dir;

@@ -16,10 +16,8 @@ import javafx.scene.text.Font;
 
 public class ScreenSettings {
 
+	private static final Map<String, ScreenSettings> screenSettings = new HashMap<>();
 	public static final ScreenSettings GLOBAL_SETTINGS = new ScreenSettings();
-	public static final ScreenSettings TIMETABLE_SETTINGS = new ScreenSettings();
-	public static final ScreenSettings ROOM_SETTINGS = new JuryScreenSettings();
-	public static final ScreenSettings JURYMATRIX_SETTINGS = new ScreenSettings();
 
 	private byte[] backgroundImage;
 	private MediaType mediaType;
@@ -30,11 +28,14 @@ public class ScreenSettings {
 	private String h1;
 	private String h2;
 
+	//internal CSS, non-customizable by user
 	private String internalSpecialCSS;
+	//external CSS, user-input
 	private String externalSpecialCSS;
 
 	private final Map<String, Callable<String>> replacements = new HashMap<>();
 
+	//set Default values
 	static {
 		try {
 			InputStream stream = ScreenSettings.class.getClassLoader().getResourceAsStream("PPP_Background.png");
@@ -44,24 +45,27 @@ public class ScreenSettings {
 			GLOBAL_SETTINGS.setFontColor(Color.WHITE);
 			GLOBAL_SETTINGS.setH1("{eventName}");
 			GLOBAL_SETTINGS.setH2("");
-			ROOM_SETTINGS.setH2("{longName} {num} | {room}");
-			JURYMATRIX_SETTINGS.setH2("Zeitplan Vormittag");
+
+			screenSettings.put("timetable", new ScreenSettings());
+
+			ScreenSettings room = new JuryScreenSettings();
+			room.setH2("{longName} {num} | {room}");
+			screenSettings.put("room", room);
+
+			ScreenSettings juryMatrix = new ScreenSettings();
+			juryMatrix.setH2("Zeitplan Vormittag");
+			screenSettings.put("juryMatrix", juryMatrix);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public ScreenSettings() {
-		replacements.put("eventName", FLLController::getEventName);
+	public static ScreenSettings getScreenSettingsByScreenName(String screenName) {
+		return screenSettings.getOrDefault(screenName, GLOBAL_SETTINGS);
 	}
 
-	public static ScreenSettings getScreenSettingsByScreenName(String screenName) {
-		return switch (screenName) {
-			case "timetable" -> TIMETABLE_SETTINGS;
-			case "room" -> ROOM_SETTINGS;
-			case "juryMatrix" -> JURYMATRIX_SETTINGS;
-			default -> GLOBAL_SETTINGS;
-		};
+	public ScreenSettings() {
+		replacements.put("eventName", FLLController::getEventName);
 	}
 
 	public Set<String> getReplacements() {

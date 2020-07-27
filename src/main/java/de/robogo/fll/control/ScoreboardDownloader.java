@@ -131,8 +131,6 @@ public final class ScoreboardDownloader {
 			if (!loginDialog.getEngine().getLocation().contains(ADMIN_URL_PART)) {
 				//TODO If überprüfen, ist das immer so?
 				//navigate to start page automatically
-				loginDialog.getEngine().getDocument().getElementsByTagName("nav");
-
 				HTMLElement nav = (HTMLElement) loginDialog.getEngine().getDocument().getElementsByTagName("nav").item(0);
 
 				for (int i = 0; i < nav.getChildNodes().getLength(); i++) {

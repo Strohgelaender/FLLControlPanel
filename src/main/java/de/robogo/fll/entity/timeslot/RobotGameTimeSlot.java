@@ -20,7 +20,7 @@ public class RobotGameTimeSlot extends TimeSlot implements RobotGameSlot {
 		//default constructor for object mapping
 	}
 
-	public RobotGameTimeSlot(final Team teamA, final Team teamB, final Table tableA, final Table tableB, final LocalTime time, RoundMode roundMode) {
+	public RobotGameTimeSlot(final Team teamA, final Team teamB, final Table tableA, final Table tableB, final LocalTime time, final RoundMode roundMode) {
 		super(time, TimeMode.RobotGame);
 		this.teamA = teamA;
 		this.teamB = teamB;

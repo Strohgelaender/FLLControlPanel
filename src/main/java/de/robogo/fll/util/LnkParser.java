@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class LnkParser {
 
@@ -102,7 +103,7 @@ public class LnkParser {
 			}
 			len++;
 		}
-		return new String(bytes, off, len);
+		return new String(bytes, off, len, StandardCharsets.UTF_8);
 	}
 
 	/*

@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.net.telnet.EchoOptionHandler;
 import org.apache.commons.net.telnet.SuppressGAOptionHandler;
@@ -74,10 +75,8 @@ public class FoobarTelnetClient implements Runnable {
 	@Override
 	public void run() {
 		InputStream instr = client.getInputStream();
-		BufferedReader reader = new BufferedReader(new InputStreamReader(instr));
-
-		while (!Thread.interrupted()) {
-			try {
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(instr, StandardCharsets.UTF_8))) {
+			while (!Thread.interrupted()) {
 				String input = reader.readLine();
 				if (input == null)
 					continue;
@@ -105,10 +104,9 @@ public class FoobarTelnetClient implements Runnable {
 				} else {
 					System.out.println(input);
 				}
-
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 

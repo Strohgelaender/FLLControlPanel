@@ -18,12 +18,12 @@ public class HoTLoginPromptDialog extends Dialog<ButtonType> {
 	private static final String url = "http://test.et.hands-on-technology.de";
 	private static final CookieManager cookieManager = new CookieManager();
 
-	private final WebEngine engine;
-	private final Label info;
-
 	static {
 		CookieHandler.setDefault(cookieManager);
 	}
+
+	private final WebEngine engine;
+	private final Label info;
 
 	public HoTLoginPromptDialog(Window window) {
 
