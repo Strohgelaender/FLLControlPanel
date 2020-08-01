@@ -8,6 +8,7 @@ import static de.robogo.fll.control.FLLController.setActiveTime;
 import java.io.File;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +26,7 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTimePicker;
+import com.sun.javafx.scene.control.skin.Utils;
 
 import de.robogo.fll.control.FLLController;
 import de.robogo.fll.control.ScoreboardDownloader;
@@ -43,6 +45,7 @@ import de.robogo.fll.entity.timeslot.TimeSlot;
 import de.robogo.fll.io.ExcelImporter;
 import de.robogo.fll.io.RoboGoExporter;
 import de.robogo.fll.io.RoboGoImporter;
+import de.robogo.fll.screens.timer.TimerController;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -71,12 +74,22 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -85,28 +98,36 @@ import javafx.util.Pair;
 @Component
 public class ControlApplication extends Application {
 
+	//TODO Refactor into smaler classes!
+
 	private static final String APPLICATION_NAME = "FLL Control Panel";
-
-	private static ConfigurableApplicationContext context;
-
 	private static final DateTimeFormatter HHmmFormatter = DateTimeFormatter.ofPattern("HH:mm");
 	private static final DateTimeFormatter HHmmssFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-
-	private Stage stage;
-
-	private TableView<TimeSlot> tableView;
+	private static final DateTimeFormatter mmssFormatter = DateTimeFormatter.ofPattern("mm:ss");
+	private static final int PREF_TEAM_COLUMN_WIDTH = 200;
+	private static final ObservableList<Jury.JuryType> juryTypes = FXCollections.observableList(Arrays.asList(Jury.JuryType.values()));
+	private static ConfigurableApplicationContext context;
 	private final List<TableColumn<TimeSlot, ?>> robotGameTableColumns = new ArrayList<>();
 	private final List<TableColumn<TimeSlot, ?>> juryTableColumns = new ArrayList<>();
 	private final List<TableColumn<TimeSlot, ?>> eventTableColumns = new ArrayList<>();
-
+	private Stage stage;
+	private TableView<TimeSlot> tableView;
 	private ComboBox<TimeMode> timeModeCB;
 	private ComboBox<RoundMode> roundModeCB;
 	private StatusBar statusBar;
-
 	private RoundMode lastRoundMode;
+	private TimerController timerController;
+
+	public static void launchApp(Class<? extends ControlApplication> appClass, ConfigurableApplicationContext context, String[] args) {
+		ControlApplication.context = context;
+		Application.launch(appClass, args);
+	}
 
 	@Override
 	public void start(final Stage stage) {
+
+		//Get Spring Beans
+		timerController = context.getBean(TimerController.class);
 
 		this.stage = stage;
 
@@ -124,12 +145,13 @@ public class ControlApplication extends Application {
 		root.setPadding(new Insets(5));
 		root.setAlignment(Pos.CENTER);
 
+		HBox timerButtons = generateTimerButtons();
 		HBox controlButtons = generateControlButtons();
 		HBox nextButtons = generateNextButtons();
 		initTable();
 		HBox ioButtons = generateIOButtons();
 
-		root.getChildren().addAll(controlButtons, nextButtons, tableView, ioButtons);
+		root.getChildren().addAll(timerButtons, controlButtons, nextButtons, tableView, ioButtons);
 
 		createStatusBar();
 
@@ -144,7 +166,7 @@ public class ControlApplication extends Application {
 
 		stage.setTitle(APPLICATION_NAME);
 		stage.setWidth(1020);
-		stage.setHeight(650);
+		stage.setHeight(700);
 		stage.show();
 
 		RoboGoImporter autoImporter = new RoboGoImporter();
@@ -166,12 +188,99 @@ public class ControlApplication extends Application {
 		new Thread(autoImporter).start();
 	}
 
+	private HBox generateTimerButtons() {
+		HBox timer = new HBox();
+		timer.setSpacing(10);
+		timer.setPadding(new Insets(20, 5, 5, 5));
+		timer.setOpaqueInsets(new Insets(5));
+		timer.setAlignment(Pos.CENTER);
+
+		Label timerLabel = new Label("Timer:");
+
+		//2:30 Game Timer
+
+		HBox gameTimeBox = new HBox();
+		gameTimeBox.setAlignment(Pos.CENTER);
+		gameTimeBox.setPadding(new Insets(0, 0 , 0, 5));
+		gameTimeBox.setBorder(new Border(new BorderStroke(Color.FORESTGREEN, BorderStrokeStyle.SOLID, new CornerRadii(10), new BorderWidths(4))));
+
+		Label gameTime = new Label("02:30");
+		gameTime.setTextAlignment(TextAlignment.CENTER);
+
+		JFXButton startGameTime = new JFXButton("\u25B6"); //▶
+		startGameTime.setOnAction(event -> timerController.startGame());
+
+		JFXButton resetGameTime = new JFXButton("\u21BA"); //↺
+		resetGameTime.setOnAction(event -> timerController.resetGame());
+
+		gameTimeBox.getChildren().addAll(gameTime, startGameTime, resetGameTime);
+
+		//manual Timer with Text Field
+
+		HBox manualTimeBox = new HBox();
+		manualTimeBox.setAlignment(Pos.CENTER);
+		manualTimeBox.setBorder(new Border(new BorderStroke(Color.BLUE, BorderStrokeStyle.SOLID, new CornerRadii(10), new BorderWidths(4))));
+
+		TextField manualTime = new TextField("02:00");
+		manualTime.setPrefWidth(Utils.computeTextWidth(manualTime.getFont(), manualTime.getText(), 0.0D) + 20);
+		manualTime.textProperty().addListener((observable, oldValue, newValue) -> {
+			long val = parseTimerText(manualTime.getText());
+			if (val == -1)
+				manualTime.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
+			else
+				manualTime.setBackground(Background.EMPTY);
+
+			//https://stackoverflow.com/questions/12737829/javafx-textfield-resize-to-text-length
+			manualTime.setPrefWidth(Utils.computeTextWidth(manualTime.getFont(), newValue, 0.0D) + 20);
+		});
+
+		JFXButton startManualTime = new JFXButton("\u25B6"); //▶
+		startManualTime.setOnAction(event -> {
+			long millis = parseTimerText(manualTime.getText());
+			if (millis > -1)
+				timerController.start(millis, false);
+		});
+
+		JFXButton resetManualTime = new JFXButton("\u21BA"); //↺
+		resetManualTime.setOnAction(event -> {
+			long millis = parseTimerText(manualTime.getText());
+			if (millis > -1)
+				timerController.reset(millis, false);
+		});
+
+		manualTimeBox.getChildren().addAll(manualTime, startManualTime, resetManualTime);
+
+		timer.getChildren().addAll(timerLabel, gameTimeBox, manualTimeBox);
+
+		return timer;
+	}
+
+	private long parseTimerText(String timerText) {
+		if (timerText.matches("[\\d:]*:\\d"))
+			timerText += "0";
+
+		if (timerText.matches("\\d:\\d{2}:\\d{2}"))
+			timerText = "0" + timerText;
+		else if (timerText.matches("\\d{2}:\\d{2}"))
+			timerText = "00:" + timerText;
+		else if (timerText.matches("\\d:\\d{2}"))
+			timerText = "00:0" + timerText;
+		else if (timerText.matches("\\d:\\d:\\d{2}"))
+			timerText = "0" + timerText.charAt(0) + ":0" + timerText.charAt(2) + timerText.substring(3);
+
+		try {
+			return java.time.Duration.between(LocalTime.MIN, LocalTime.parse(timerText, HHmmssFormatter)).getSeconds() * 1000;
+		} catch (DateTimeParseException e) {
+			return -1;
+		}
+	}
+
 	private HBox generateControlButtons() {
 		HBox cb = new HBox();
 		cb.setSpacing(10);
 		cb.setPadding(new Insets(20, 5, 5, 5));
 		cb.setOpaqueInsets(new Insets(5));
-		cb.setAlignment(Pos.TOP_CENTER);
+		cb.setAlignment(Pos.CENTER);
 
 		Label currentEvent = new Label("current Event");
 
@@ -338,9 +447,6 @@ public class ControlApplication extends Application {
 		}
 		tableView.refresh();
 	}
-
-	private static final int PREF_TEAM_COLUMN_WIDTH = 200;
-	private static final ObservableList<Jury.JuryType> juryTypes = FXCollections.observableList(Arrays.asList(Jury.JuryType.values()));
 
 	private void initTable() {
 		tableView = new TableView<>();
@@ -513,7 +619,7 @@ public class ControlApplication extends Application {
 		return cell;
 	}
 
-	private static TableCell<TimeSlot, LocalTime> createTimePickerCell() {
+	private TableCell<TimeSlot, LocalTime> createTimePickerCell() {
 		TableCell<TimeSlot, LocalTime> cell = new TableCell<>();
 		JFXTimePicker timePicker = new JFXTimePicker();
 		timePicker.set24HourView(true);
@@ -584,10 +690,5 @@ public class ControlApplication extends Application {
 	private void unbindProgressProperty() {
 		statusBar.progressProperty().unbind();
 		statusBar.progressProperty().set(0);
-	}
-
-	public static void launchApp(Class<? extends ControlApplication> appClass, ConfigurableApplicationContext context, String[] args) {
-		ControlApplication.context = context;
-		Application.launch(appClass, args);
 	}
 }

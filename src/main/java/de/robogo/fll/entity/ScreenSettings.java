@@ -11,6 +11,7 @@ import org.apache.commons.compress.utils.IOUtils;
 import org.springframework.http.MediaType;
 
 import de.robogo.fll.control.FLLController;
+import de.robogo.fll.io.RoboGoIO;
 import javafx.scene.paint.Color;
 
 public class ScreenSettings {
@@ -58,6 +59,14 @@ public class ScreenSettings {
 			ScreenSettings juryMatrix = new ScreenSettings();
 			juryMatrix.setH2("Zeitplan Vormittag");
 			screenSettings.put("juryMatrix", juryMatrix);
+
+			ScreenSettings timer = new ScreenSettings();
+			timer.setInternalSpecialCSS(RoboGoIO.readResourceFile("static/css/timer.css"));
+			timer.setFontFamily("Roboto");
+			timer.setH1("");
+			timer.setH2("");
+			screenSettings.put("timer", timer);
+			//TODO make timer settings user-chageable (color, shadow, etc.)
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

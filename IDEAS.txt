@@ -9,7 +9,7 @@ Scoreboard ansteuerbar machen (für Präsentation)
 
 
 // Optional
-Timer?
+Timer: Start via Telnet / REST (Auth!)
 OBS
 Musik (Foobar, noch andere?)
 Übersetzungen für die Screens

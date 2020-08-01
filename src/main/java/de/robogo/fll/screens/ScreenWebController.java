@@ -31,4 +31,9 @@ public class ScreenWebController {
 		return "room";
 	}
 
+	@GetMapping("/timer")
+	public String timer() {
+		return "timer";
+	}
+
 }

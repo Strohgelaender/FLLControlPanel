@@ -1,6 +1,11 @@
 package de.robogo.fll.io;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.DefaultBaseTypeLimitingValidator;
@@ -37,6 +42,19 @@ public abstract class RoboGoIO extends Task<Void> {
 
 	protected void updateProgress(int progress) {
 		updateProgress(progress, MAX_STEPS);
+	}
+
+	public static String readResourceFile(String filename) {
+		InputStream inputStream = RoboGoIO.class.getClassLoader().getResourceAsStream(filename);
+		if (inputStream == null)
+			return "";
+
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+			return reader.lines().collect(Collectors.joining("\n"));
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "";
+		}
 	}
 
 }

@@ -1,0 +1,31 @@
+/* TODO make customaziable!*/
+/* adapted from https://github.com/sim642/fll-timer/blob/master/public/css/timer.css */
+html, body, table {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+.minimize-row {
+    height: 1px;
+}
+
+#timer {
+    font-size: 60vmin;
+    text-shadow: 0 0 0.01em;
+    cursor: none;
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+#timer #ms, #timer #msdot {
+    font-size: 0.5em;
+}
+
+#timer.nogame {
+    color: #09F !important; /* override tween set by style attribute TODO make changeable*/
+}
