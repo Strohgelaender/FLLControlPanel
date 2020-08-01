@@ -201,7 +201,7 @@ public class ControlApplication extends Application {
 
 		HBox gameTimeBox = new HBox();
 		gameTimeBox.setAlignment(Pos.CENTER);
-		gameTimeBox.setPadding(new Insets(0, 0 , 0, 5));
+		gameTimeBox.setPadding(new Insets(0, 0, 0, 5));
 		gameTimeBox.setBorder(new Border(new BorderStroke(Color.FORESTGREEN, BorderStrokeStyle.SOLID, new CornerRadii(10), new BorderWidths(4))));
 
 		Label gameTime = new Label("02:30");
@@ -451,12 +451,12 @@ public class ControlApplication extends Application {
 	private void initTable() {
 		tableView = new TableView<>();
 
-		TableColumn<TimeSlot, LocalTime> time = new TableColumn<>("Time");
+		final TableColumn<TimeSlot, LocalTime> time = new TableColumn<>("Time");
 		time.setCellValueFactory(new PropertyValueFactory<>("time"));
 		time.setCellFactory(p -> createTimePickerCell());
 
 		//RobotGame Columns
-		TableColumn<TimeSlot, Team> teamA = new TableColumn<>("Team");
+		final TableColumn<TimeSlot, Team> teamA = new TableColumn<>("Team");
 		teamA.setCellValueFactory(param -> {
 			if (param.getValue() instanceof RobotGameTimeSlot)
 				return new SimpleObjectProperty<>(((RobotGameTimeSlot) param.getValue()).getTeamA());
@@ -464,7 +464,7 @@ public class ControlApplication extends Application {
 		});
 		teamA.setCellFactory(param -> createComboBoxCell(FLLController.getTeams(), p -> ((RobotGameTimeSlot) p.getKey()).setTeamA(p.getValue())));
 
-		TableColumn<TimeSlot, Table> tableA = new TableColumn<>("TischA");
+		final TableColumn<TimeSlot, Table> tableA = new TableColumn<>("TischA");
 		tableA.setCellValueFactory(param -> {
 			if (param.getValue() instanceof RobotGameTimeSlot)
 				return new SimpleObjectProperty<>(((RobotGameTimeSlot) param.getValue()).getTableA());
@@ -473,7 +473,7 @@ public class ControlApplication extends Application {
 		tableA.setCellFactory(param -> createComboBoxCell(FLLController.getTables(), p -> ((RobotGameTimeSlot) p.getKey()).setTableA(p.getValue())));
 		//TODO only used tables (?)
 
-		TableColumn<TimeSlot, Table> tableB = new TableColumn<>("TischB");
+		final TableColumn<TimeSlot, Table> tableB = new TableColumn<>("TischB");
 		tableB.setCellValueFactory(param -> {
 			if (param.getValue() instanceof RobotGameTimeSlot)
 				return new SimpleObjectProperty<>(((RobotGameTimeSlot) param.getValue()).getTableB());
@@ -481,7 +481,7 @@ public class ControlApplication extends Application {
 		});
 		tableB.setCellFactory(param -> createComboBoxCell(FLLController.getTables(), p -> ((RobotGameTimeSlot) p.getKey()).setTableB(p.getValue())));
 
-		TableColumn<TimeSlot, Team> teamB = new TableColumn<>("Team");
+		final TableColumn<TimeSlot, Team> teamB = new TableColumn<>("Team");
 		teamB.setCellValueFactory(param -> {
 			if (param.getValue() instanceof RobotGameTimeSlot)
 				return new SimpleObjectProperty<>(((RobotGameTimeSlot) param.getValue()).getTeamB());
@@ -493,7 +493,7 @@ public class ControlApplication extends Application {
 
 		//Jury Columns
 
-		TableColumn<TimeSlot, Team> teamJ = new TableColumn<>("Team");
+		final TableColumn<TimeSlot, Team> teamJ = new TableColumn<>("Team");
 		teamJ.setCellValueFactory(param -> {
 			if (param.getValue() instanceof JuryTimeSlot)
 				return new SimpleObjectProperty<>(((JuryTimeSlot) param.getValue()).getTeam());
@@ -501,7 +501,7 @@ public class ControlApplication extends Application {
 		});
 		teamJ.setCellFactory(param -> createComboBoxCell(FLLController.getTeams(), p -> ((JuryTimeSlot) p.getKey()).setTeam(p.getValue())));
 
-		TableColumn<TimeSlot, Jury.JuryType> juryType = new TableColumn<>("Jury Type");
+		final TableColumn<TimeSlot, Jury.JuryType> juryType = new TableColumn<>("Jury Type");
 		juryType.setCellValueFactory(param -> {
 			if (param.getValue() instanceof JuryTimeSlot)
 				return new SimpleObjectProperty<>(((JuryTimeSlot) param.getValue()).getJury().getJuryType());
@@ -530,7 +530,7 @@ public class ControlApplication extends Application {
 
 		juryTableColumns.addAll(Arrays.asList(teamJ, juryType, juryNumber));
 
-		TableColumn<TimeSlot, String> slotName = new TableColumn<>("Name");
+		final TableColumn<TimeSlot, String> slotName = new TableColumn<>("Name");
 		slotName.setCellValueFactory(param -> {
 			if (param.getValue() instanceof EventTimeSlot)
 				return new SimpleStringProperty(((EventTimeSlot) param.getValue()).getName());

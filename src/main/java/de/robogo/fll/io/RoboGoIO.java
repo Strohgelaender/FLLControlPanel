@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,7 +50,7 @@ public abstract class RoboGoIO extends Task<Void> {
 		if (inputStream == null)
 			return "";
 
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
 			return reader.lines().collect(Collectors.joining("\n"));
 		} catch (IOException e) {
 			e.printStackTrace();

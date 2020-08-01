@@ -31,7 +31,8 @@ public class RoboGoExporter extends RoboGoIO {
 
 	private void exportStuff(File f, Object o) throws IOException {
 		if (!f.exists())
-			f.createNewFile(); //TODO handle Exception
+			if (!f.createNewFile())
+				return; //TODO show Exception
 		objectMapper.writeValue(f, o);
 	}
 

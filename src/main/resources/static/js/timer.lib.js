@@ -1,14 +1,14 @@
 //File from https://github.com/sim642/fll-timer/tree/master/public/js/timer.lib.js
-var endtime = null;
-var totaltime = null;
-var stepper = null;
-var defaulttime = (2 * 60 + 30) * 1000;
+let endtime = null;
+let totaltime = null;
+let stepper = null;
+const defaulttime = (2 * 60 + 30) * 1000;
 
 function displayTime(d, func) {
-	var min = 0, sec = 0, ms = 0;
+	let min = 0, sec = 0, ms = 0;
 
 	if (d > 0) {
-		var dd = d;
+		const dd = d;
 
 		ms = Math.floor(d % 1000 / 100);
 		d = Math.floor(d / 1000);
@@ -26,10 +26,7 @@ function displayTime(d, func) {
 	(func || function(){})(d);
 
 	if (d <= 0) {
-		endtime = null;
-		totaltime = null;
-		clearInterval(stepper);
-		stepper = null;
+		clear();
 	}
 }
 
@@ -46,6 +43,10 @@ function resetTimer(time, totalTime, func) {
 	totaltime = totalTime;
 	displayTime(time, func);
 
+	clear();
+}
+
+function clear() {
 	endtime = null;
 	totaltime = null;
 	clearInterval(stepper);

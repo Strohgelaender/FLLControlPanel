@@ -2,9 +2,9 @@ let stompClient = null;
 
 //tween function from https://github.com/sim642/fll-timer/tree/master/public/js/timer.js
 function tween(d) {
-	var t = 1 - d / totaltime;
+	const t = 1 - d / totaltime;
 
-	var r, g;
+	let r, g;
 	if (t < 0.5) {
 		g = 1.0;
 		r = 2 * t;
@@ -36,9 +36,7 @@ function connect() {
 		});
 	}, function(e) {
 		console.error(e, "Reconnecting WS");
-		setTimeout(function() {
-			this.connect();
-		}, 2500);
+		setTimeout(connect, 2500);
 	});
 }
 
