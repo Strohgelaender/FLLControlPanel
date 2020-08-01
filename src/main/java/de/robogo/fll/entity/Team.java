@@ -33,6 +33,10 @@ public class Team implements Serializable {
 		return id;
 	}
 
+	public void setId(final int id) {
+		this.id = id;
+	}
+
 	public int getRound1() {
 		return round1;
 	}
@@ -61,6 +65,10 @@ public class Team implements Serializable {
 		return name;
 	}
 
+	public void setName(final String name) {
+		this.name = name;
+	}
+
 	public int getRank() {
 		return rank;
 	}
@@ -69,20 +77,12 @@ public class Team implements Serializable {
 		this.rank = rank;
 	}
 
-	public void setSF(final int SF) {
-		this.SF = SF;
-	}
-
 	public int getSF() {
 		return SF;
 	}
 
-	public void setName(final String name) {
-		this.name = name;
-	}
-
-	public void setId(final int id) {
-		this.id = id;
+	public void setSF(final int SF) {
+		this.SF = SF;
 	}
 
 	public void setRound(int round, int points) {

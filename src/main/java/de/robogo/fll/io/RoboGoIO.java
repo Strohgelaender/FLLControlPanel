@@ -41,10 +41,6 @@ public abstract class RoboGoIO extends Task<Void> {
 		objectMapper.registerModule(new JavaTimeModule());
 	}
 
-	protected void updateProgress(int progress) {
-		updateProgress(progress, MAX_STEPS);
-	}
-
 	public static String readResourceFile(String filename) {
 		InputStream inputStream = RoboGoIO.class.getClassLoader().getResourceAsStream(filename);
 		if (inputStream == null)
@@ -56,6 +52,10 @@ public abstract class RoboGoIO extends Task<Void> {
 			e.printStackTrace();
 			return "";
 		}
+	}
+
+	protected void updateProgress(int progress) {
+		updateProgress(progress, MAX_STEPS);
 	}
 
 }

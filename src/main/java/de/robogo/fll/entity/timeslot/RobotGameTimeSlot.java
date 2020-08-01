@@ -34,44 +34,44 @@ public class RobotGameTimeSlot extends TimeSlot implements RobotGameSlot {
 		return tableA;
 	}
 
-	public Table getTableB() {
-		return tableB;
-	}
-
-	public Team getTeamA() {
-		return teamA;
-	}
-
-	public Team getTeamB() {
-		return teamB;
-	}
-
-	public Status getStatus() {
-		return status;
-	}
-
-	public RoundMode getRoundMode() {
-		return roundMode;
-	}
-
 	public void setTableA(final Table tableA) {
 		this.tableA = tableA;
 	}
 
-	public void setStatus(final Status status) {
-		this.status = status;
+	public Table getTableB() {
+		return tableB;
 	}
 
 	public void setTableB(final Table tableB) {
 		this.tableB = tableB;
 	}
 
+	public Team getTeamA() {
+		return teamA;
+	}
+
 	public void setTeamA(final Team teamA) {
 		this.teamA = teamA;
 	}
 
+	public Team getTeamB() {
+		return teamB;
+	}
+
 	public void setTeamB(final Team teamB) {
 		this.teamB = teamB;
+	}
+
+	public Status getStatus() {
+		return status;
+	}
+
+	public void setStatus(final Status status) {
+		this.status = status;
+	}
+
+	public RoundMode getRoundMode() {
+		return roundMode;
 	}
 
 	public void setRoundMode(final RoundMode roundMode) {

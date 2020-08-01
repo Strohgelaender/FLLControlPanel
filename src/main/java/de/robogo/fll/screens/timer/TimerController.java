@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/timer")
 public class TimerController {
 
-	private static final long GAME_TIME = (2*60 + 30) * 1000;
+	private static final long GAME_TIME = (2 * 60 + 30) * 1000;
 	private final SimpMessagingTemplate template;
 
 	public TimerController(final SimpMessagingTemplate template) {

@@ -11,5 +11,9 @@ public interface RobotGameSlot {
 
 	LocalTime getTime();
 
+	void setTime(LocalTime time);
+
 	RoundMode getRoundMode();
+
+	void setRoundMode(RoundMode roundMode);
 }

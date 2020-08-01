@@ -36,12 +36,12 @@ public abstract class TimeSlot implements Serializable {
 		this.timeMode = timeMode;
 	}
 
-	public void setTime(final LocalTime time) {
-		this.time = time;
-	}
-
 	public LocalTime getTime() {
 		return time;
+	}
+
+	public void setTime(final LocalTime time) {
+		this.time = time;
 	}
 
 	public TimeMode getTimeMode() {

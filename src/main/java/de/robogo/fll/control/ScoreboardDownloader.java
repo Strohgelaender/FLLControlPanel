@@ -18,9 +18,9 @@ import org.w3c.dom.html.HTMLElement;
 
 import com.sun.webkit.dom.HTMLAnchorElementImpl;
 
-import de.robogo.fll.entity.timeslot.RobotGameTimeSlot;
 import de.robogo.fll.entity.RoundMode;
 import de.robogo.fll.entity.Team;
+import de.robogo.fll.entity.timeslot.RobotGameTimeSlot;
 import de.robogo.fll.gui.HoTLoginPromptDialog;
 import de.robogo.fll.io.ExcelImporter;
 import javafx.concurrent.Worker;
