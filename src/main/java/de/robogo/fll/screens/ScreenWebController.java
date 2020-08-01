@@ -1,6 +1,7 @@
 package de.robogo.fll.screens;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
@@ -32,7 +33,15 @@ public class ScreenWebController {
 	}
 
 	@GetMapping("/timer")
-	public String timer() {
+	public String timer(Model model) {
+		model.addAttribute("timer", true);
+		return "timer";
+	}
+
+	@GetMapping("/clock")
+	public String clock(Model model) {
+		//use the same base for Timer an clock
+		model.addAttribute("timer", false);
 		return "timer";
 	}
 

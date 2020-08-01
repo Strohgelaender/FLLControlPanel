@@ -8,8 +8,7 @@ function tween(d) {
 	if (t < 0.5) {
 		g = 1.0;
 		r = 2 * t;
-	}
-	else {
+	} else {
 		r = 1.0;
 		g = 1 - 2 * (t - 0.5);
 	}
@@ -20,9 +19,9 @@ function tween(d) {
 function connect() {
 	const socket = new SockJS('/timer');
 	stompClient = Stomp.over(socket);
-	stompClient.connect({}, function (frame) {
+	stompClient.connect({}, function(frame) {
 		console.log('Connected: ' + frame);
-		stompClient.subscribe('/topic/timer', function (obj) {
+		stompClient.subscribe('/topic/timer', function(obj) {
 			const msg = JSON.parse(obj.body);
 			console.log(msg);
 			resetTimer(msg.time, msg.time, tween);
@@ -43,15 +42,27 @@ function connect() {
 	});
 }
 
+function updateClocktime() {
+	const time = new Date();
+	const hr = time.getHours();
+	const min = time.getMinutes();
+	$('#clocktime').text((hr < 10 ? '0' : '') + hr + ':' + (min < 10 ? '0' : '') + min);
+}
+
 $(function() {
 	console.log('start Setup Method');
 	resetTimer(defaulttime, defaulttime, tween);
 	connect();
+
 	updateH1('timer');
 	updateH2('timer');
 	setInterval(function() {
 		updateH1('timer');
 		updateH2('timer');
 	}, 100000000);
+
+	updateClocktime();
+	setIntervalExact(updateClocktime, 60 * 1000);
+
 	console.log('startup finnish')
 });

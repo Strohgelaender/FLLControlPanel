@@ -1,8 +1,8 @@
 <!-- File adapted from https://github.com/sim642/fll-timer/blob/master/views/timer.ejs -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
 <head>
-	<title>Timer</title>
+	<title th:text="${timer} ? 'Timer' : 'Clock'">Timer</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 	<link rel="stylesheet" type="text/css" href="/screens/style?screen=timer" media="screen">
 	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400&display=swap" rel="stylesheet">
@@ -19,8 +19,11 @@
 <body>
 <h1></h1>
 <h2></h2>
-<div id="timer" class="text-center">
+<div id="timer" class="text-center" th:styleappend="${timer} ? '' : 'display:none;'" >
 	<span id="min">-</span>:<span id="sec">--</span><span id="msdot">.</span><span id="ms">-</span>
+</div>
+<div id="clock" class="text-center" th:styleappend="${timer} ? 'display:none;' : ''" >
+	<span id="clocktime">--:--</span>
 </div>
 </body>
 </html>

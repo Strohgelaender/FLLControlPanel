@@ -19,3 +19,20 @@ function updateH2(screen, jury) {
 		console.log(error);
 	});
 }
+
+// https://stackoverflow.com/a/10797177/854540
+function setIntervalExact(func, interval) {
+	// Check current time and calculate the delay until next interval
+	const now = new Date();
+	const delay = interval - now % interval;
+
+	function start() {
+		// Execute function now...
+		func();
+		// ... and every interval
+		setInterval(func, interval);
+	}
+
+	// Delay execution until it's an even interval
+	setTimeout(start, delay);
+}

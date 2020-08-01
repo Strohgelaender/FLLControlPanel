@@ -5,7 +5,8 @@ Konfiguration speichern
 -> Überschreibungs-Abfrage bei neuem Import
 
 Exceptions: Übersetzung (Einheitlich!)
-Scoreboard ansteuerbar machen (für Präsentation)
+Scoreboard ansteuerbar machen (für Präsentation) [WebSocket]
+Änderung mittels WebSockets transportieren -> keine unnötigen Requests
 
 
 // Optional

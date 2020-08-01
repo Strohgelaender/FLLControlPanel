@@ -10,7 +10,7 @@ html, body, table {
     height: 1px;
 }
 
-#timer {
+#timer, #clock {
     font-size: 60vmin;
     text-shadow: 0 0 0.01em;
     cursor: none;
