@@ -16,7 +16,6 @@ import de.robogo.fll.entity.Jury;
 import de.robogo.fll.entity.JuryScreenSettings;
 import de.robogo.fll.entity.ScreenSettings;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 
 @Controller
 @RequestMapping("/screens")
@@ -43,13 +42,10 @@ public class ScreenSettingsController {
 	public ResponseEntity<String> generateCSS(@RequestParam(name = "screen") String screen) {
 		ScreenSettings screenSettings = ScreenSettings.getScreenSettingsByScreenName(screen);
 
-		Font font = screenSettings.getFont();
-		if (font == null)
-			font = GLOBAL_SETTINGS.getFont();
-		Color fontColor = screenSettings.getFontColor();
-		if (fontColor == null)
-			fontColor = GLOBAL_SETTINGS.getFontColor();
-
+		String font = getOrDefault(screenSettings.getFontFamily(), GLOBAL_SETTINGS.getFontFamily());
+		int fontSize = getOrDefault(screenSettings.getFontSize(), GLOBAL_SETTINGS.getFontSize());
+		String fontStyle = getOrDefault(screenSettings.getFontStyle(), GLOBAL_SETTINGS.getFontStyle());
+		Color fontColor = getOrDefault(screenSettings.getFontColor(), GLOBAL_SETTINGS.getFontColor());
 
 		String css = "";
 
@@ -59,19 +55,25 @@ public class ScreenSettingsController {
 				"  -moz-background-size: cover;\n" +
 				"  -o-background-size: cover;\n" +
 				"  background-size: cover;\n" +
-				"}";
+				"}\n";
 		css += "body {";
-		css += "font-family: " + font.getFamily() + ";";
-		css += "font-size: " + font.getSize() + ";";
-		css += "font-style: " + font.getStyle() + ";";
+		css += "font-family: " + font + ";";
+		css += "font-size: " + fontSize + "px;";
+		css += "font-style: " + fontStyle + ";";
 		css += "color: #" + fontColor.toString().substring(2) + ";";
 		css += "text-align:center;";
-		css += "}";
+		css += "}\n";
 
-		css += "table {  margin-left:auto; margin-right:auto; }";
+		css += "table { margin-left:auto; margin-right:auto; border-spacing: 10px; }\n";
+		css += "td { padding: 4px;}\n";
 
-		if (screenSettings.getInternalSpecialCSS() != null)
-			css += screenSettings.getInternalSpecialCSS();
+		String internalCSS = getOrDefault(screenSettings.getInternalSpecialCSS(), GLOBAL_SETTINGS.getInternalSpecialCSS());
+		if (internalCSS != null)
+			css += internalCSS;
+
+		String externalCSS = getOrDefault(screenSettings.getExternalSpecialCSS(), GLOBAL_SETTINGS.getExternalSpecialCSS());
+		if (externalCSS != null)
+			css += externalCSS;
 
 		return new ResponseEntity<>(css, new HttpHeaders(), HttpStatus.OK);
 	}
@@ -111,10 +113,18 @@ public class ScreenSettingsController {
 					result.append(screenSettings.applyReplacement(key));
 				}
 				if (part.length() + 1 > i)
-					result.append(part.substring(i +1));
+					result.append(part.substring(i + 1));
 			} else
 				result.append(part);
 		}
 		return result.toString();
+	}
+
+	private <T> T getOrDefault(T value, T defaultValue) {
+		return value == null ? defaultValue : value;
+	}
+
+	private int getOrDefault(int value, int defaultValue) {
+		return value == -1 ? defaultValue : value;
 	}
 }

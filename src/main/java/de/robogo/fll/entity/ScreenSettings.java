@@ -12,7 +12,6 @@ import org.springframework.http.MediaType;
 
 import de.robogo.fll.control.FLLController;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 
 public class ScreenSettings {
 
@@ -22,7 +21,9 @@ public class ScreenSettings {
 	private byte[] backgroundImage;
 	private MediaType mediaType;
 
-	private Font font;
+	private String fontFamily;
+	private int fontSize = -1;
+	private String fontStyle;
 	private Color fontColor;
 
 	private String h1;
@@ -41,7 +42,9 @@ public class ScreenSettings {
 			InputStream stream = ScreenSettings.class.getClassLoader().getResourceAsStream("PPP_Background.png");
 			GLOBAL_SETTINGS.setBackgroundImage(IOUtils.toByteArray(stream));
 			GLOBAL_SETTINGS.setMediaType(MediaType.IMAGE_PNG);
-			GLOBAL_SETTINGS.setFont(Font.font("Segoe UI", 30));
+			GLOBAL_SETTINGS.setFontFamily("Segoe UI");
+			GLOBAL_SETTINGS.setFontSize(25);
+			GLOBAL_SETTINGS.setFontStyle("normal");
 			GLOBAL_SETTINGS.setFontColor(Color.WHITE);
 			GLOBAL_SETTINGS.setH1("{eventName}");
 			GLOBAL_SETTINGS.setH2("");
@@ -98,12 +101,28 @@ public class ScreenSettings {
 		this.mediaType = mediaType;
 	}
 
-	public Font getFont() {
-		return font;
+	public String getFontFamily() {
+		return fontFamily;
 	}
 
-	public void setFont(final Font font) {
-		this.font = font;
+	public void setFontFamily(final String fontFamily) {
+		this.fontFamily = fontFamily;
+	}
+
+	public int getFontSize() {
+		return fontSize;
+	}
+
+	public void setFontSize(final int fontSize) {
+		this.fontSize = fontSize;
+	}
+
+	public String getFontStyle() {
+		return fontStyle;
+	}
+
+	public void setFontStyle(final String fontStyle) {
+		this.fontStyle = fontStyle;
 	}
 
 	public Color getFontColor() {

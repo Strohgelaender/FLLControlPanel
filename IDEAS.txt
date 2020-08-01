@@ -5,6 +5,7 @@ Konfiguration speichern
 -> Überschreibungs-Abfrage bei neuem Import
 
 Exceptions: Übersetzung (Einheitlich!)
+Scoreboard ansteuerbar machen (für Präsentation)
 
 
 // Optional
@@ -13,8 +14,8 @@ OBS
 Musik (Foobar, noch andere?)
 Übersetzungen für die Screens
 Gant-Diagramm
-
-
+Musik-Autoducking (wohl bessser als eigenes Programm.)
+Musik allgemein
 
 
 (Support für) Bildschirme für Juryräume
@@ -34,6 +35,9 @@ generlel automatisches Updaten der Screens
 GUI in JFoenix umwandeln
 Tests
 Manuelles Speichern?
+In Pause / Slot umwandeln (??? zu bespechen!)
+Hinzufügen / löschen (alles andere nach hinten verschieben) [Besprechen!]
+"Module" zum zusätzlich einfügen in Screens (z.B. Timer / Musik in Übersicht o.ö.)
 
 //Bugs
 leere Zeilen in der Tabelle sehen hässlich aus
