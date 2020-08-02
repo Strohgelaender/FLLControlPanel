@@ -61,12 +61,20 @@ public class ScreenSettings {
 			screenSettings.put("juryMatrix", juryMatrix);
 
 			ScreenSettings timer = new ScreenSettings();
-			timer.setInternalSpecialCSS(RoboGoIO.readResourceFile("static/css/timer.css"));
+			String timerCSS = RoboGoIO.readResourceFile("static/css/timer.css");
+			timer.setInternalSpecialCSS(timerCSS);
 			timer.setFontFamily("Roboto");
 			timer.setH1("");
 			timer.setH2("");
 			screenSettings.put("timer", timer);
 			//TODO make timer settings user-chageable (color, shadow, etc.)
+
+			ScreenSettings clock = new ScreenSettings();
+			clock.setInternalSpecialCSS(timerCSS);
+			clock.setFontFamily("Roboto");
+			clock.setH1("");
+			clock.setH2("");
+			screenSettings.put("clock", clock);
 
 			String welcomeCSS = "#welcomeText { margin: 0;\n" +
 					"width: 100%;\n" +

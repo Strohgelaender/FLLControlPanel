@@ -4,7 +4,7 @@
 <head>
 	<title th:text="${timer} ? 'Timer' : 'Clock'">Timer</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-	<link rel="stylesheet" type="text/css" href="/screens/style?screen=timer" media="screen">
+	<link rel="stylesheet" type="text/css" href="/screens/style?screen=timer" th:href="'/screens/style?screen=' + (${timer} ? 'timer' : 'clock')" media="screen">
 	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400&display=swap" rel="stylesheet">
 
 	<script src="/webjars/jquery/jquery.min.js"></script>
