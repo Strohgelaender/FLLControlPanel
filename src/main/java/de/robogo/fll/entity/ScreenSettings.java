@@ -67,6 +67,28 @@ public class ScreenSettings {
 			timer.setH2("");
 			screenSettings.put("timer", timer);
 			//TODO make timer settings user-chageable (color, shadow, etc.)
+
+			String welcomeCSS = "#welcomeText { margin: 0;\n" +
+					"width: 100%;\n" +
+					"position: absolute;\n" +
+					"top: 50%;\n" +
+					"left: 50%;\n" +
+					"-ms-transform: translate(-50%, -50%);\n" +
+					"transform: translate(-50%, -50%); }";
+
+			ScreenSettings welcome = new ScreenSettings();
+			welcome.setH1("Herzlich Willkommen");
+			welcome.setH2("Zum {eventName}");
+			welcome.setFontSize(40);
+			welcome.setExternalSpecialCSS(welcomeCSS);
+			screenSettings.put("welcome", welcome);
+
+			ScreenSettings bye = new ScreenSettings();
+			bye.setH1("Servus");
+			bye.setH2("Bis zum nächsten Jahr!");
+			bye.setFontSize(40);
+			bye.setExternalSpecialCSS(welcomeCSS);
+			screenSettings.put("bye", bye);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -45,7 +45,8 @@ import de.robogo.fll.entity.timeslot.TimeSlot;
 import de.robogo.fll.io.ExcelImporter;
 import de.robogo.fll.io.RoboGoExporter;
 import de.robogo.fll.io.RoboGoImporter;
-import de.robogo.fll.screens.timer.TimerController;
+import de.robogo.fll.screens.websocket.ScreenContentController;
+import de.robogo.fll.screens.websocket.TimerController;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -101,9 +102,7 @@ public class ControlApplication extends Application {
 	//TODO Refactor into smaler classes!
 
 	private static final String APPLICATION_NAME = "FLL Control Panel";
-	private static final DateTimeFormatter HHmmFormatter = DateTimeFormatter.ofPattern("HH:mm");
 	private static final DateTimeFormatter HHmmssFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-	private static final DateTimeFormatter mmssFormatter = DateTimeFormatter.ofPattern("mm:ss");
 	private static final int PREF_TEAM_COLUMN_WIDTH = 200;
 	private static final ObservableList<Jury.JuryType> juryTypes = FXCollections.observableList(Arrays.asList(Jury.JuryType.values()));
 	private static ConfigurableApplicationContext context;
@@ -117,6 +116,7 @@ public class ControlApplication extends Application {
 	private StatusBar statusBar;
 	private RoundMode lastRoundMode;
 	private TimerController timerController;
+	private ScreenContentController screenContentController;
 
 	public static void launchApp(Class<? extends ControlApplication> appClass, ConfigurableApplicationContext context, String[] args) {
 		ControlApplication.context = context;
@@ -128,6 +128,7 @@ public class ControlApplication extends Application {
 
 		//Get Spring Beans
 		timerController = context.getBean(TimerController.class);
+		screenContentController = context.getBean(ScreenContentController.class);
 
 		this.stage = stage;
 
@@ -418,6 +419,15 @@ public class ControlApplication extends Application {
 	}
 
 	private void onTimeModeChange(ObservableValue<? extends TimeMode> observableValue, TimeMode oldTime, TimeMode newTime) {
+		//Change Screen Content
+		if (newTime == TimeMode.Arrival)
+			screenContentController.showWelcome();
+		else if (newTime == TimeMode.Closing)
+			screenContentController.showBye();
+		else if (oldTime == TimeMode.Arrival || oldTime == TimeMode.Closing)
+			screenContentController.showNormal();
+
+		//Change Table GUI
 		if (newTime != TimeMode.RobotGame) {
 			lastRoundMode = roundModeCB.getValue();
 			roundModeCB.setValue(null);

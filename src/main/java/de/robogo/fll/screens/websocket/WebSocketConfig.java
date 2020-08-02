@@ -1,4 +1,4 @@
-package de.robogo.fll.screens.timer;
+package de.robogo.fll.screens.websocket;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -8,7 +8,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Configuration
 @EnableWebSocketMessageBroker
-public class TimerWebSocketConfig implements WebSocketMessageBrokerConfigurer {
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
 	@Override
 	public void configureMessageBroker(final MessageBrokerRegistry registry) {
@@ -17,6 +17,8 @@ public class TimerWebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
 	@Override
 	public void registerStompEndpoints(final StompEndpointRegistry registry) {
-		registry.addEndpoint("/timer").withSockJS();
+		registry.addEndpoint("/timer").withSockJS(); //timer start / reset
+		registry.addEndpoint("/scoreboard").withSockJS(); //Scoreboard Control
+		registry.addEndpoint("/content").withSockJS(); //Content Control for every screen
 	}
 }

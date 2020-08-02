@@ -1,3 +1,5 @@
+let contentClient = null;
+
 function updateH1(screen, jury) {
 	$.ajax({
 		method: "GET",
@@ -19,6 +21,57 @@ function updateH2(screen, jury) {
 		console.log(error);
 	});
 }
+
+function setupHeadlineUpdate(screen, jury) {
+	updateH1(screen, jury);
+	updateH2(screen, jury);
+	setInterval(function() {
+		updateH1(screen, jury);
+		updateH2(screen, jury);
+	}, 100000000);
+}
+
+function connectContent() {
+	const socket = new SockJS('/content');
+	contentClient = Stomp.over(socket);
+	contentClient.connect({}, function(frame) {
+		console.log('Connected: ' + frame);
+		contentClient.subscribe('/topic/content', function(obj) {
+			const msg = JSON.parse(obj.body);
+			console.log(msg);
+			if (msg === 'ShowWelcome' && !isWelcomeSite()) {
+				window.location.href = "/welcome";
+			} else if (msg === 'ShowBye' && !isByeSite())
+				window.location.href = "/bye";
+			else if (msg === 'ShowNormal' && isGreetingSite())
+				window.history.back();
+			else if (msg === 'RefreshConfig')
+				location.reload();
+			//TODO refresh Content
+			else if (msg === 'RefreshContent')
+				location.reload(); //TODO
+		});
+		contentClient.send("/content", {});
+	}, function(e) {
+		console.error(e, "Reconnecting WS");
+		setTimeout(connectContent, 2500);
+	});
+}
+
+function isGreetingSite() {
+	 return isWelcomeSite() || isByeSite();
+}
+
+function isWelcomeSite() {
+	return window.location.href.endsWith("welcome");
+}
+
+function isByeSite() {
+	return window.location.href.endsWith("bye");
+}
+
+$(document).ready(connectContent);
+
 
 // https://stackoverflow.com/a/10797177/854540
 function setIntervalExact(func, interval) {

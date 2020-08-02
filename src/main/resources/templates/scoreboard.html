@@ -5,6 +5,8 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 	<link rel="stylesheet" type="text/css" href="/screens/style?screen=scoreboard" media="screen">
 	<script src="/webjars/jquery/jquery.min.js"></script>
+	<script src="/webjars/sockjs-client/sockjs.min.js"></script>
+	<script src="/webjars/stomp-websocket/stomp.min.js"></script>
 	<script src="/js/client.js"></script>
 	<script>
 
@@ -29,12 +31,7 @@
 		}
 
 		$(document).ready(function() {
-			updateH1('scoreboard', undefined);
-			updateH2('scoreboard', undefined);
-			setInterval(function() {
-				updateH1('scoreboard', undefined);
-				updateH2('scoreboard', undefined);
-			}, 100000000);
+			setupHeadlineUpdate('scoreboard');
 
 			updateScoreboard();
 			setInterval(updateScoreboard, 120000);

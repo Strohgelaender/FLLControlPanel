@@ -1,4 +1,4 @@
-package de.robogo.fll.screens.timer;
+package de.robogo.fll.screens.websocket;
 
 public class TimerMessage {
 

@@ -12,7 +12,7 @@ This Application creates many customizable Info-Screens designed for [FLL](https
 
 ## Screens
 
-- Greetings [planed]
+- Greetings (shown automatically)
 - Timer (/timer)
 - Clock (/clock)
 - Scoreboard (/scoreboard)
@@ -28,7 +28,7 @@ This Application creates many customizable Info-Screens designed for [FLL](https
 ## Usage
 
 You can download the latest .jar-File [here](https://github.com/Strohgelaender/FLLControlPanel/releases). 
-You need Java 8 or higher to execute the application.
+You need Java 14 or higher to execute the application.
 
 You can start the application by either double-clicking the file or by typing `java -jar FLLControlPanel.jar` to the command-line. 
 

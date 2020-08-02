@@ -45,4 +45,16 @@ public class ScreenWebController {
 		return "timer";
 	}
 
+	@GetMapping("/welcome")
+	public String welcome(Model model) {
+		model.addAttribute("welcome", true);
+		return "welcome";
+	}
+
+	@GetMapping("/bye")
+	public String bye(Model model) {
+		model.addAttribute("welcome", false);
+		return "welcome";
+	}
+
 }

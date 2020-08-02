@@ -52,12 +52,7 @@ $(function() {
 	resetTimer(defaulttime, defaulttime, tween);
 	connect();
 
-	updateH1('timer');
-	updateH2('timer');
-	setInterval(function() {
-		updateH1('timer');
-		updateH2('timer');
-	}, 100000000);
+	setupHeadlineUpdate('timer'); //TODO clock?
 
 	updateClocktime();
 	setIntervalExact(updateClocktime, 60 * 1000);
