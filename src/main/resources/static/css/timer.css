@@ -27,5 +27,5 @@ html, body, table {
 }
 
 #timer.nogame {
-    color: #09F !important; /* override tween set by style attribute TODO make changeable*/
+    color: #a5ca18 !important; /* override tween set by style attribute TODO make changeable*/
 }

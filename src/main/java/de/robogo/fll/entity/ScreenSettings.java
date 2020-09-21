@@ -40,7 +40,7 @@ public class ScreenSettings {
 	//set Default values
 	static {
 		try {
-			InputStream stream = ScreenSettings.class.getClassLoader().getResourceAsStream("PPP_Background.png");
+			InputStream stream = ScreenSettings.class.getClassLoader().getResourceAsStream("GameChangers.jpg");
 			GLOBAL_SETTINGS.setBackgroundImage(IOUtils.toByteArray(stream));
 			GLOBAL_SETTINGS.setMediaType(MediaType.IMAGE_PNG);
 			GLOBAL_SETTINGS.setFontFamily("Segoe UI");
@@ -79,14 +79,14 @@ public class ScreenSettings {
 			String welcomeCSS = "#welcomeText { margin: 0;\n" +
 					"width: 100%;\n" +
 					"position: absolute;\n" +
-					"top: 50%;\n" +
+					"top: 30%;\n" +
 					"left: 50%;\n" +
 					"-ms-transform: translate(-50%, -50%);\n" +
 					"transform: translate(-50%, -50%); }";
 
 			ScreenSettings welcome = new ScreenSettings();
 			welcome.setH1("Herzlich Willkommen");
-			welcome.setH2("Zum {eventName}");
+			welcome.setH2("zum {eventName}");
 			welcome.setFontSize(40);
 			welcome.setExternalSpecialCSS(welcomeCSS);
 			screenSettings.put("welcome", welcome);
