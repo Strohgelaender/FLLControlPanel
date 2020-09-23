@@ -1,19 +1,24 @@
 let stompClient = null;
 
-//tween function from https://github.com/sim642/fll-timer/tree/master/public/js/timer.js
+const startColor = new Color('#0095b9');
+const midColor = new Color('#a5ca18');
+const endColor = new Color('#FF0000');
+
 function tween(d) {
 	const t = 1 - d / totaltime;
 
-	let r, g;
+	let r, g, b;
 	if (t < 0.5) {
-		g = 1.0;
-		r = 2 * t;
+		r = startColor.red() + 2 * t * (midColor.red() - startColor.red());
+		g = startColor.green() + 2 * t * (midColor.green() - startColor.green());
+		b = startColor.blue() + 2 * t * (midColor.blue() - startColor.blue());
 	} else {
-		r = 1.0;
-		g = 1 - 2 * (t - 0.5);
+		r = midColor.red() + (t - 0.5) * 2 * (endColor.red() - midColor.red());
+		g = midColor.green() + (t - 0.5) * 2 * (endColor.green() - midColor.green());
+		b = midColor.blue() + (t - 0.5) * 2 * (endColor.blue() - midColor.blue());
 	}
 
-	$('#timer').css('color', 'rgb(' + Math.floor(256 * r) + ', ' + Math.floor(256 * g) + ', 0)');
+	$('#timer').css('color', `rgb(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)})`);
 }
 
 function connect() {
