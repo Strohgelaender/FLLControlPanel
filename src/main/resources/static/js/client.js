@@ -58,8 +58,19 @@ function connectContent() {
 	});
 }
 
+let urlParams;
+
+function getQueryParam(param) {
+	if (!urlParams) {
+		urlParams = new URLSearchParams(window.location.search);
+	}
+	if (urlParams.has(param)) {
+		return urlParams.get(param);
+	}
+}
+
 function isGreetingSite() {
-	 return isWelcomeSite() || isByeSite();
+	return isWelcomeSite() || isByeSite();
 }
 
 function isWelcomeSite() {
@@ -70,7 +81,13 @@ function isByeSite() {
 	return window.location.href.endsWith("bye");
 }
 
-$(document).ready(connectContent);
+$(document).ready(() => {
+	connectContent();
+
+	if (getQueryParam('streaming')) {
+		$('html').css('background', 'transparent');
+	}
+});
 
 
 // https://stackoverflow.com/a/10797177/854540

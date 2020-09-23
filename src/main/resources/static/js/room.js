@@ -1,12 +1,5 @@
 function getJury() {
-	const urlParams = new URLSearchParams(window.location.search);
-	let jury;
-	if (urlParams.has("jury")) {
-		jury = urlParams.get('jury');
-	} else if (urlParams.has('room')) {
-		jury = urlParams.get('room');
-	}
-	return jury;
+	return getQueryParam('jury') || getQueryParam('room');
 }
 
 function updateJuryHeader() {
