@@ -1,3 +1,5 @@
+[![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/)
+
 # FLLControlPanel
 
 This Application creates many customizable Info-Screens designed for [FLL](https://www.first-lego-league.org/en/challenge/home.html) Tournaments.
